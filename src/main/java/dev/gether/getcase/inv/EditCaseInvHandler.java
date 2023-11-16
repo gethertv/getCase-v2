@@ -56,9 +56,8 @@ public class EditCaseInvHandler implements InventoryHolder {
         if(tempLore!=null)
             lore.addAll(tempLore);
 
-        lore.add("&7");
-        lore.add("&7Szansa: "+item.getChance());
-        lore.add("&7");
+        lore.add("&c× Szansa: &f"+item.getChance());
+        lore.add("&c× Shift + Prawy przycisk &f- Edycja");
         itemMeta.setLore(ColorFixer.addColors(lore));
         itemStack.setItemMeta(itemMeta);
         return itemStack;

@@ -14,6 +14,8 @@ import dev.rollczi.litecommands.command.route.Route;
 import dev.rollczi.litecommands.platform.LiteSender;
 import org.bukkit.entity.Player;
 
+import java.util.Optional;
+
 @Route(name = "getcase", aliases = "case")
 @Permission("getcase.admin")
 public class GetCaseCmd {
@@ -32,6 +34,13 @@ public class GetCaseCmd {
 
     @Execute(route = "create")
     public void createCase(Player player, @Arg @Name("nazwa skrzynki") String caseName) {
+        // check case exists
+        Optional<CaseObject> caseByName = caseManager.findCaseByName(caseName);
+        if(caseByName.isPresent()) {
+            MessageUtil.sendMessage(player, "&cPodana skrzynka juz istnieje!");
+            return;
+        }
+        // if case not exists then create
         boolean success = caseManager.createCase(caseName);
         if(success)
             MessageUtil.sendMessage(player, "&aPomyslnie stworzono skrzynke!");

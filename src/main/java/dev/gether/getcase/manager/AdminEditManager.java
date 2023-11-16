@@ -4,11 +4,13 @@ import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.config.chest.Item;
 import dev.gether.getcase.inv.EditCaseInvHandler;
+import dev.gether.getcase.utils.ColorFixer;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -118,7 +120,7 @@ public class AdminEditManager {
         Inventory inv = editCaseInvHandler.getInventory();
         // foreach items and check they are exists in set<>
         for (int slot = 0; slot < inv.getSize(); slot++) {
-            ItemStack itemStack = inv.getItem(slot);
+            ItemStack itemStack = cleanItem(inv.getItem(slot));
             Optional<Item> itemByCaseAndItemStack = caseManager.findItemByCaseAndSlot(editCaseInvHandler.getCaseObject(), slot);
             if(itemByCaseAndItemStack.isEmpty()) {
                 if(itemStack==null || slot == inv.getSize()-1)
@@ -126,8 +128,36 @@ public class AdminEditManager {
 
                 Item item = new Item(slot, 0, itemStack, List.of("&7", "&7Szansa: &f{chance}%", "&7"));
                 editCaseInvHandler.getCaseObject().getItems().add(item);
+            } else {
+                Item item = itemByCaseAndItemStack.get();
+                // if list of items contains this slot check the actually item is null
+                // null = delete
+                // exists = update
+                if(itemStack==null) {
+                    // remove item
+                    editCaseInvHandler.getCaseObject().getItems().remove(item);
+                } else {
+                    // update item
+                    item.setItemStack(itemStack);
+                }
             }
 
         }
+    }
+
+    private ItemStack cleanItem(ItemStack itemStack) {
+        if(itemStack==null)
+            return null;
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        List<String> lore = itemMeta.getLore();
+        if (lore != null && !lore.isEmpty()) {
+            lore.removeIf(loreLine -> loreLine.contains("× Szansa:"));
+            lore.removeIf(loreLine -> loreLine.contains("× Shift + Prawy przycisk"));
+            itemMeta.setLore(ColorFixer.addColors(lore));
+            itemStack.setItemMeta(itemMeta);
+        }
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
     }
 }

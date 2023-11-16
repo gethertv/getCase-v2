@@ -41,6 +41,7 @@ public final class GetCase extends JavaPlugin {
     private CaseLocationConfig caseLocationConfig;
     private LangConfig langConfig;
     // manager
+    private CaseManager caseManager;
     private LocationCaseManager locationCaseManager;
     private AdminEditManager adminEditManager;
     private SpinCaseManager spinCaseManager;
@@ -92,7 +93,7 @@ public final class GetCase extends JavaPlugin {
         HookManager hookManager = new HookManager();
 
         // manager implement
-        CaseManager caseManager = new CaseManager(caseConfig, hookManager);
+        caseManager = new CaseManager(caseConfig, hookManager);
         locationCaseManager = new LocationCaseManager(caseLocationConfig, caseManager);
         adminEditManager = new AdminEditManager(caseManager, this);
         OpenCaseManager openCaseManager = new OpenCaseManager(this, caseConfig, langConfig);
