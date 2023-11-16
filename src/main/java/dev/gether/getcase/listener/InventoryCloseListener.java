@@ -28,7 +28,7 @@ public class InventoryCloseListener implements Listener {
         if (!spinInvHolder.isFinish() && !spinInvHolder.isCancel()) {
             spinInvHolder.cancel();
             // give reward
-            openCaseManager.giveReward(player, spinInvHolder.getCaseObject(), spinInvHolder.getInventory().getItem(13));
+            openCaseManager.giveReward(player, spinInvHolder.getCaseObject(), openCaseManager.getRandomItem(spinInvHolder.getCaseObject()).getItemStack());
         }
 
     }
