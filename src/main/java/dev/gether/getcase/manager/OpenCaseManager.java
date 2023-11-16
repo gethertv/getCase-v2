@@ -12,6 +12,7 @@ import dev.gether.getcase.utils.InventoryUtil;
 import dev.gether.getcase.utils.MessageUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Random;
 import java.util.Set;
@@ -74,10 +75,10 @@ public class OpenCaseManager {
         // give winner item to player
         InventoryUtil.giveItem(player, itemStack);
         // broadcast
-        broadcast(caseObject);
+        broadcast(player, itemStack, caseObject);
     }
 
-    public void broadcast(CaseObject caseObject) {
+    public void broadcast(Player player, ItemStack itemStack, CaseObject caseObject) {
         BroadcastCase broadcastCase = caseObject.getBroadcastCase();
         if(!broadcastCase.isEnable())
             return;
@@ -86,7 +87,20 @@ public class OpenCaseManager {
         if(broadcastCase.getMessages().isEmpty())
             return;
 
-        MessageUtil.broadcast(String.join("\n", broadcastCase.getMessages()));
+        String message = String.join("\n", broadcastCase.getMessages());
+        message = message
+                    .replace("{player}", player.getName())
+                    .replace("{item}", getItemName(itemStack));
+        MessageUtil.broadcast(message);
+    }
+
+    private CharSequence getItemName(ItemStack itemStack) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if(itemMeta.hasDisplayName()) {
+            return itemMeta.getDisplayName();
+        } else {
+            return itemStack.getType().name();
+        }
     }
 
     private boolean checkRequirements(Player player, CaseObject caseObject) {
