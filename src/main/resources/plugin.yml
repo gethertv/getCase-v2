@@ -1,4 +1,7 @@
-name: getCasev
+name: getCase
 version: '${project.version}'
-main: dev.gether.getcase.GetCasev
+main: dev.gether.getcase.GetCase
 api-version: '1.16'
+softdepend:
+  - DecentHolograms
+  - Multiverse-Core

@@ -1,48 +1,36 @@
-package dev.gether.getclan.cmd.argument;
+package dev.gether.getcase.cmd.arguments;
 
-import dev.gether.getclan.config.Config;
-import dev.gether.getclan.config.lang.LangMessage;
-import dev.gether.getclan.manager.ClanManager;
-import dev.gether.getclan.model.Clan;
+import dev.gether.getcase.config.chest.CaseObject;
+import dev.gether.getcase.manager.CaseManager;
 import dev.rollczi.litecommands.argument.ArgumentName;
 import dev.rollczi.litecommands.argument.simple.OneArgument;
 import dev.rollczi.litecommands.command.LiteInvocation;
 import dev.rollczi.litecommands.suggestion.Suggestion;
-import panda.std.Option;
 import panda.std.Result;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-@ArgumentName("clan")
-public class ClanTagArgument implements OneArgument<Clan> {
+@ArgumentName("case")
+public class CaseArg implements OneArgument<CaseObject> {
 
-    private final ClanManager clansManager;
+    private final CaseManager caseManager;
 
-
-    private LangMessage lang;
-
-    public ClanTagArgument(LangMessage lang, ClanManager clansManager) {
-        this.lang = lang;
-        this.clansManager = clansManager;
+    public CaseArg(CaseManager caseManager) {
+        this.caseManager = caseManager;
     }
 
     @Override
-    public Result<Clan, Object> parse(LiteInvocation invocation, String argument) {
-        return Option.of(this.clansManager.getClan(argument))
-                .toResult(lang.langClanNotExists);
+    public Result<CaseObject, Object> parse(LiteInvocation invocation, String argument) {
+        Optional<CaseObject> caseByName = this.caseManager.findCaseByName(argument);
+        return caseByName.map(Result::ok).orElseGet(() -> Result.error("&cPodana skrzynia nie istnieje!"));
+
     }
     @Override
     public List<Suggestion> suggest(LiteInvocation invocation) {
         return invocation.lastArgument()
-                .map(text -> this.clansManager.getClansData().keySet()
-                        .stream()
-                        .filter(tag -> tag.toUpperCase().startsWith(text.toUpperCase()))
-                        .sorted()
-                        .limit(5)
-                        .map(Suggestion::of)
-                        .collect(Collectors.toList()))
+                .map(text -> caseManager.getAllNameSuggestionOfCase())
                 .orElse(Collections.emptyList());
     }
 

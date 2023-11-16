@@ -10,9 +10,9 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 // class represent object CASE
 @Getter
@@ -27,14 +27,14 @@ public class CaseObject extends OkaeriConfig {
     private String titleInv;
     private String name;
     // hologram above the case
-    private CaseConfig.CaseHologram caseHologram;
+    private CaseHologram caseHologram;
     // item key
     private ItemStack keyItem;
 
     // item in case
-    private Set<CaseConfig.Item> items;
+    private Set<Item> items;
     // background decoration
-    private Set<CaseConfig.ItemDecoration> decorations;
+    private Set<ItemDecoration> decorations;
 
     // animation slots
     private Set<Integer> animationSlots;
@@ -42,7 +42,7 @@ public class CaseObject extends OkaeriConfig {
     private Set<Integer> noAnimationSlots;
 
     // broadcast
-    private CaseConfig.BroadcastCase broadcastCase;
+    private BroadcastCase broadcastCase;
 
     public void createInv() {
         this$inv = Bukkit.createInventory(null, sizeInv, ColorFixer.addColors(titleInv));
@@ -63,9 +63,67 @@ public class CaseObject extends OkaeriConfig {
     }
 
     private void fillItemCase() {
-        for (CaseConfig.Item item : items) {
-            this$inv.setItem(item.getSlot(), item.getItemStack());
+        // ignore if list items is empty
+        if(items.isEmpty())
+            return;
+
+        // sum chance from all case
+        double totalWeight = items.stream().mapToDouble(Item::getChance).sum();
+        // 100%
+        double remainingWeight = 100.00;
+
+        // adjusted chance
+        Map<Item, Double> adjustedChances = new HashMap<>();
+        for (Item item : items) {
+            double chance = (item.getChance() / totalWeight) * 100;
+            double roundedChance = Math.round(chance * 100.0) / 100.0;
+            // remove chance from 100% because finally must be 100%
+            // so when after rounded  sum of chance sometime is 99.99%
+            remainingWeight -= roundedChance;
+            adjustedChances.put(item, roundedChance);
         }
+
+        // sorted to lowest chance
+        List<Map.Entry<Item, Double>> sortedItems = adjustedChances.entrySet().stream()
+                .sorted(Map.Entry.<Item, Double>comparingByValue())
+                .toList();
+
+        // correct last item chance to fix the sum chance (100%)
+        Map.Entry<Item, Double> lastItemEntry = sortedItems.get(sortedItems.size() - 1);
+        double lastChance = lastItemEntry.getValue() + remainingWeight;
+        adjustedChances.put(lastItemEntry.getKey(), lastChance);
+
+        // foreach and set item to inv
+        for (Map.Entry<Item, Double> entry : adjustedChances.entrySet()) {
+            Item item = entry.getKey();
+            double chance = entry.getValue();
+            this$inv.setItem(item.getSlot(), addExtraLore(item, String.format("%.2f", chance)));
+        }
+    }
+
+    private ItemStack addExtraLore(Item item, String chance) {
+        ItemStack itemStack = item.getItemStack().clone();
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        if (itemMeta == null) {
+            return itemStack;
+        }
+
+        List<String> lore = itemMeta.getLore();
+        if (lore == null) {
+            lore = new ArrayList<>();
+        }
+
+        if (item.getExtraLore() != null) {
+            for (String line : item.getExtraLore()) {
+                line = line.replace("{chance}", chance);
+                lore.add(ColorFixer.addColors(line));
+            }
+        }
+
+        itemMeta.setLore(lore);
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
     }
 
     private void fillAnimationItems() {
@@ -74,7 +132,7 @@ public class CaseObject extends OkaeriConfig {
         // animation
         for (Integer slot : animationSlots) {
             // set animation item
-            this$inv.setItem(slot, caseConfig.getNoAnimationItem());
+            this$inv.setItem(slot, caseConfig.getAnimationItem());
         }
         // no animation
         for (Integer slot : noAnimationSlots) {
@@ -84,7 +142,7 @@ public class CaseObject extends OkaeriConfig {
     }
 
     private void fillBackground() {
-        for (CaseConfig.ItemDecoration decoration : decorations) {
+        for (ItemDecoration decoration : decorations) {
             for (Integer slot : decoration.getSlots()) {
                 this$inv.setItem(slot, decoration.getItemStack());
             }

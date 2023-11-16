@@ -1,4 +1,4 @@
-package dev.gether.getclan.utils;
+package dev.gether.getcase.utils;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -9,7 +9,9 @@ import java.util.regex.Pattern;
 
 public class ColorFixer {
 
-
+    private ColorFixer() {
+        throw new IllegalStateException("Utility class");
+    }
     static Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
 
     public static List<String> addColors(List<String> input) {
@@ -25,7 +27,7 @@ public class ColorFixer {
     {
         for (Matcher matcher = pattern.matcher(text); matcher.find(); matcher = pattern.matcher(text)) {
             String color = text.substring(matcher.start(), matcher.end());
-            text = text.replace(color, net.md_5.bungee.api.ChatColor.of(color) + "");
+            text = text.replace(color, ChatColor.of(color) + "");
         }
         return ChatColor.translateAlternateColorCodes('&', text);
     }

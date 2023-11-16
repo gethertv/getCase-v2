@@ -1,6 +1,7 @@
 package dev.gether.getcase.inv;
 
-import dev.gether.getcase.config.CaseConfig;
+import dev.gether.getcase.config.chest.CaseObject;
+import dev.gether.getcase.config.chest.Item;
 import dev.gether.getcase.utils.ColorFixer;
 import dev.gether.getcase.utils.ItemBuilder;
 import org.bukkit.Bukkit;
@@ -14,27 +15,28 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditCaseInventory implements InventoryHolder {
+public class EditCaseInvHandler implements InventoryHolder {
 
     private final Player player;
-    private CaseConfig.Case caseObject;
-    private Inventory inventory;
+    private final CaseObject caseObject;
+    private final Inventory inventory;
 
-    public EditCaseInventory(Player player, CaseConfig.Case caseObject) {
+    public EditCaseInvHandler(Player player, CaseObject caseObject) {
         this.player = player;
         this.caseObject = caseObject;
 
         // create edit inv
-        inventory = Bukkit.createInventory(this, caseObject.getSizeInv(), "&0Edytowanie "+caseObject.getName());
+        inventory = Bukkit.createInventory(
+                this,
+                caseObject.getSizeInv(),
+                ColorFixer.addColors("&0Edytowanie "+caseObject.getName()));
 
         // fill with items
         fillInvByItems();
-        
-        // open inv
-        player.openInventory(inventory);
+
     }
 
-    private void fillInvByItems() {
+    public void fillInvByItems() {
         // fill items in case
         caseObject.getItems().forEach(item -> {
             // clone item and add to lore chance
@@ -46,19 +48,28 @@ public class EditCaseInventory implements InventoryHolder {
         inventory.setItem(inventory.getSize()-1, ItemBuilder.create(Material.LIME_DYE, "&aZapisz", true));
     }
 
-    private ItemStack prepareItemWithChance(CaseConfig.Item item) {
+    private ItemStack prepareItemWithChance(Item item) {
         ItemStack itemStack = item.getItemStack().clone();
         ItemMeta itemMeta = itemStack.getItemMeta();
-        List<String> lore = new ArrayList<>(itemMeta.getLore());
+        List<String> tempLore = itemMeta.getLore();
+        List<String> lore = new ArrayList<>();
+        if(tempLore!=null)
+            lore.addAll(tempLore);
+
         lore.add("&7");
         lore.add("&7Szansa: "+item.getChance());
         lore.add("&7");
         itemMeta.setLore(ColorFixer.addColors(lore));
+        itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
 
     public Player getPlayer() {
         return player;
+    }
+
+    public CaseObject getCaseObject() {
+        return caseObject;
     }
 
     @Override
