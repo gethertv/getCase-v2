@@ -1,7 +1,9 @@
 package dev.gether.getcase.manager;
 
 import dev.gether.getcase.config.CaseLocationConfig;
+import dev.gether.getcase.config.chest.CaseHologram;
 import dev.gether.getcase.config.chest.CaseObject;
+import dev.gether.getcase.hook.HookManager;
 import dev.gether.getcase.utils.MessageUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,10 +18,12 @@ public class LocationCaseManager {
 
     private final CaseLocationConfig caseLocationConfig;
     private final CaseManager caseManager;
+    private final HookManager hookManager;
 
-    public LocationCaseManager(CaseLocationConfig caseLocationConfig, CaseManager caseManager) {
+    public LocationCaseManager(CaseLocationConfig caseLocationConfig, CaseManager caseManager, HookManager hookManager) {
         this.caseLocationConfig = caseLocationConfig;
         this.caseManager = caseManager;
+        this.hookManager = hookManager;
     }
 
     // find object by location
@@ -43,16 +47,27 @@ public class LocationCaseManager {
             MessageUtil.sendMessage(player, "&cTutaj znajduje sie juz skrzynia!");
             return;
         }
+
+        // create hologram
+        CaseHologram caseHologram = CaseHologram.builder()
+                // check hook hologram plugin
+                .enable(hookManager.isDecentHologramsEnable())
+                .lines(List.of("&7-----------------", "#eaff4fSkrzynia " + caseData.getName(), "&7-----------------"))
+                .heightY(2.1)
+                .build();
+
+
         // create case location
         CaseLocationConfig.CaseLocation caseLocation = CaseLocationConfig.CaseLocation.builder()
                 .caseId(caseData.getCaseId())
                 .location(location)
+                .caseHologram(caseHologram)
                 .build();
 
         // add object to set<>
         caseLocationConfig.getCaseLocationData().add(caseLocation);
         // create hologram
-        caseData.getCaseHologram().createHologram(caseData.getName(), location);
+        caseHologram.createHologram(caseData.getName(), location);
         // save config
         caseLocationConfig.save();
         MessageUtil.sendMessage(player, "&aPomyslnie utworzono lokalizacje ze skrzynia!");
@@ -74,15 +89,8 @@ public class LocationCaseManager {
         return removeCaseLocation(caseLocation);
     }
     public boolean removeCaseLocation(CaseLocationConfig.CaseLocation caseLocation) {
-        // find case by ID
-        Optional<CaseObject> caseByName = caseManager.findCaseByID(caseLocation.getCaseId());
-        if(caseByName.isEmpty()) {
-            return false;
-        }
-        // case object
-        CaseObject caseObject = caseByName.get();
         // remove hologram
-        caseObject.getCaseHologram().deleteHologram();
+        caseLocation.getCaseHologram().deleteHologram();
         // remove object from set<>
         caseLocationConfig.getCaseLocationData().remove(caseLocation);
         // save config
@@ -99,10 +107,7 @@ public class LocationCaseManager {
                 return false;
 
             // check the argument and id case is the same
-            if(caseId.equals(id))
-                return true;
-
-            return false;
+            return caseId.equals(id);
         }).toList();
     }
 
@@ -117,10 +122,11 @@ public class LocationCaseManager {
             }
             // case object
             CaseObject caseObject = caseByID.get();
+
             // location case/hologram
             Location location = caseLocation.getLocation();
             // create hologram for this case
-            caseObject.getCaseHologram().createHologram(caseObject.getName(), location);
+            caseLocation.getCaseHologram().createHologram(caseObject.getName(), location);
         });
     }
 

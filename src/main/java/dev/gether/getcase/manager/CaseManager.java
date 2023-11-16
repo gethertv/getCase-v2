@@ -3,7 +3,6 @@ package dev.gether.getcase.manager;
 import dev.gether.getcase.config.CaseConfig;
 import dev.gether.getcase.config.CaseLocationConfig;
 import dev.gether.getcase.config.chest.*;
-import dev.gether.getcase.hook.HookManager;
 import dev.gether.getcase.utils.ItemBuilder;
 import dev.rollczi.litecommands.suggestion.Suggestion;
 import org.bukkit.Bukkit;
@@ -17,11 +16,11 @@ import java.util.*;
 public class CaseManager {
 
     private final CaseConfig caseConfig;
-    private final HookManager hookManager;
+    private final CaseLocationConfig caseLocationConfig;
 
-    public CaseManager(CaseConfig caseConfig, HookManager hookManager) {
+    public CaseManager(CaseConfig caseConfig, CaseLocationConfig caseLocationConfig) {
         this.caseConfig = caseConfig;
-        this.hookManager = hookManager;
+        this.caseLocationConfig = caseLocationConfig;
     }
 
     public boolean createCase(String caseName) {
@@ -37,15 +36,6 @@ public class CaseManager {
                 // key
                 .keyItem(
                         ItemBuilder.create(Material.TRIPWIRE_HOOK, "#77ff00&lKlucz "+caseName, true)
-                )
-                // create hologram
-                .caseHologram(
-                        CaseHologram.builder()
-                                // check hook hologram plugin
-                                .enable(hookManager.isDecentHologramsEnable())
-                                .lines(List.of("&7-----------------", "#eaff4fSkrzynia " + caseName, "&7-----------------"))
-                                .heightY(2.1)
-                                .build()
                 )
                 .items(new HashSet<>())
                 // broadcast message
@@ -119,8 +109,8 @@ public class CaseManager {
     }
 
     public void deleteAllHolograms() {
-        for (CaseObject caseDatum : caseConfig.getCaseData()) {
-            CaseHologram caseHologram = caseDatum.getCaseHologram();
+        for (CaseLocationConfig.CaseLocation caseLocation : caseLocationConfig.getCaseLocationData()) {
+            CaseHologram caseHologram = caseLocation.getCaseHologram();
             if(caseHologram.isEnable())
                 caseHologram.deleteHologram();
         }

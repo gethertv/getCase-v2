@@ -1,5 +1,6 @@
 package dev.gether.getcase.config;
 
+import dev.gether.getcase.config.chest.CaseHologram;
 import eu.okaeri.configs.OkaeriConfig;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,8 @@ public class CaseLocationConfig extends OkaeriConfig {
     @Setter
     @Builder
     public static class CaseLocation extends OkaeriConfig {
+
+        private CaseHologram caseHologram;
         private Location location;
         private UUID caseId;
 

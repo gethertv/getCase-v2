@@ -46,6 +46,7 @@ public final class GetCase extends JavaPlugin {
     private AdminEditManager adminEditManager;
     private SpinCaseManager spinCaseManager;
     private LiteCommands<CommandSender> liteCommands;
+    private HookManager hookManager;
     // lite commands
 
     public void loadConfig() {
@@ -90,11 +91,11 @@ public final class GetCase extends JavaPlugin {
         // implements config/files
         loadConfig();
         // hooks
-        HookManager hookManager = new HookManager();
+        hookManager = new HookManager();
 
         // manager implement
-        caseManager = new CaseManager(caseConfig, hookManager);
-        locationCaseManager = new LocationCaseManager(caseLocationConfig, caseManager);
+        caseManager = new CaseManager(caseConfig, caseLocationConfig);
+        locationCaseManager = new LocationCaseManager(caseLocationConfig, caseManager, hookManager);
         adminEditManager = new AdminEditManager(caseManager, this);
         OpenCaseManager openCaseManager = new OpenCaseManager(this, caseConfig, langConfig);
         spinCaseManager = new SpinCaseManager(this,openCaseManager);
@@ -176,6 +177,10 @@ public final class GetCase extends JavaPlugin {
 
     public SpinCaseManager getSpinCaseManager() {
         return spinCaseManager;
+    }
+
+    public HookManager getHookManager() {
+        return hookManager;
     }
 
     public CaseConfig getCaseConfig() {

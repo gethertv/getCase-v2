@@ -26,8 +26,6 @@ public class CaseObject extends OkaeriConfig {
     private int sizeInv;
     private String titleInv;
     private String name;
-    // hologram above the case
-    private CaseHologram caseHologram;
     // item key
     private ItemStack keyItem;
 

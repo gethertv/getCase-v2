@@ -1,5 +1,6 @@
 package dev.gether.getcase.config.chest;
 
+import dev.gether.getcase.GetCase;
 import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
 import eu.okaeri.configs.OkaeriConfig;
@@ -21,6 +22,15 @@ public class CaseHologram extends OkaeriConfig {
     private double heightY;
 
     public void createHologram(String caseName, Location location) {
+
+        // check hook decent holograms
+        if(!GetCase.getInstance().getHookManager().isDecentHologramsEnable())
+            return;
+        // hologram is enable
+        if(!enable)
+            return;
+
+
         // create hologram
         this$hologram = DHAPI.createHologram(
                 "case_" + caseName.toLowerCase() + UUID.randomUUID(),
