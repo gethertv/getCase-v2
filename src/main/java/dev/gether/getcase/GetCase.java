@@ -12,14 +12,12 @@ import dev.gether.getcase.listener.InventoryClickListener;
 import dev.gether.getcase.listener.InventoryCloseListener;
 import dev.gether.getcase.listener.PlayerInteractionListener;
 import dev.gether.getcase.manager.*;
-import dev.gether.getcase.serializer.CraftItemStackSerializer;
+import dev.gether.getcase.serializer.CustomSerdesBukkit;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
 import dev.rollczi.litecommands.bukkit.tools.BukkitOnlyPlayerContextual;
 import dev.rollczi.litecommands.bukkit.tools.BukkitPlayerArgument;
 import eu.okaeri.configs.ConfigManager;
-import eu.okaeri.configs.serdes.OkaeriSerdesPack;
-import eu.okaeri.configs.serdes.SerdesRegistry;
 import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
 import eu.okaeri.configs.yaml.bukkit.serdes.SerdesBukkit;
 import org.bukkit.Bukkit;
@@ -51,16 +49,9 @@ public final class GetCase extends JavaPlugin {
 
     public void loadConfig() {
 
-        // custom item serializer
-        SerdesRegistry serdesRegistry = new SerdesRegistry();
-        serdesRegistry.register(new CraftItemStackSerializer());
-
         // register serializer
-        OkaeriSerdesPack okaeriSerdesPack = new SerdesBukkit();
-        okaeriSerdesPack.register(serdesRegistry);
-
         caseConfig = ConfigManager.create(CaseConfig.class, it -> {
-            it.withConfigurer(new YamlBukkitConfigurer(), okaeriSerdesPack);
+            it.withConfigurer(new YamlBukkitConfigurer(), new CustomSerdesBukkit());
             it.withBindFile(new File(getDataFolder(), "case.yml"));
             it.withRemoveOrphans(true);
             it.saveDefaults();
