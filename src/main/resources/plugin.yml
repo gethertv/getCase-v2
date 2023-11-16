@@ -1,0 +1,4 @@
+name: getCasev
+version: '${project.version}'
+main: dev.gether.getcase.GetCasev
+api-version: '1.16'
