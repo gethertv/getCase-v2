@@ -3,6 +3,7 @@ package dev.gether.getcase.config.chest;
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.CaseConfig;
 import dev.gether.getcase.utils.ColorFixer;
+import dev.gether.getcase.utils.ItemBuilder;
 import eu.okaeri.configs.OkaeriConfig;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,8 +27,10 @@ public class CaseObject extends OkaeriConfig {
     private int sizeInv;
     private String titleInv;
     private String name;
+    // key section
+    private KeySection keySection;
     // item key
-    private ItemStack keyItem;
+    private ItemStack this$keyItem;
 
     // item in case
     private Set<Item> items;
@@ -42,7 +45,7 @@ public class CaseObject extends OkaeriConfig {
     // broadcast
     private BroadcastCase broadcastCase;
 
-    public void createInv() {
+    private void createInv() {
         this$inv = Bukkit.createInventory(null, sizeInv, ColorFixer.addColors(titleInv));
 
         // fill inv with items
@@ -147,7 +150,26 @@ public class CaseObject extends OkaeriConfig {
         }
     }
 
+    public void setKeySection(KeySection keySection) {
+        this.keySection = keySection;
+    }
+
+    private void initKeyItem() {
+        this$keyItem = ItemBuilder.create(keySection.getMaterial(), keySection.getDisplayname(), keySection.getLore(), keySection.isGlow());
+    }
+
+    public ItemStack getKeyItem() {
+        return this$keyItem;
+    }
+
     public Inventory getInventory() {
         return this$inv;
+    }
+
+    public void initCase() {
+        // init key item
+        initKeyItem();
+        // implement inv
+        createInv();
     }
 }

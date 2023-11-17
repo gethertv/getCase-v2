@@ -91,9 +91,8 @@ public final class GetCase extends JavaPlugin {
         OpenCaseManager openCaseManager = new OpenCaseManager(this, caseConfig, langConfig);
         spinCaseManager = new SpinCaseManager(this,openCaseManager);
 
-        // inject inventory all hologram for all cases
-        caseManager.createAllInv();
-        locationCaseManager.createHolograms();
+        // implement things such as / [preview inventory, hologram, key item]
+        initConfigFeature();
 
 
         // register listener
@@ -109,6 +108,13 @@ public final class GetCase extends JavaPlugin {
         // register bstats
         new Metrics(this, 20299);
 
+    }
+
+    private void initConfigFeature() {
+        // inject inventory, key item
+        caseManager.initCases();
+        // create hologram for all cases
+        locationCaseManager.createHolograms();
     }
 
     @Override
@@ -140,10 +146,8 @@ public final class GetCase extends JavaPlugin {
         caseLocationConfig.load();
         caseConfig.load();
 
-        // create inv with new items for all cases
-        caseManager.createAllInv();
-        // create hologram for all cases
-        locationCaseManager.createHolograms();
+        // implement things such as / [preview inventory, hologram, key item]
+        initConfigFeature();
 
         return true;
     }

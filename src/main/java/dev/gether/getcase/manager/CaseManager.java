@@ -34,8 +34,13 @@ public class CaseManager {
                 // size inv
                 .sizeInv(54)
                 // key
-                .keyItem(
-                        ItemBuilder.create(Material.TRIPWIRE_HOOK, "#77ff00&lKlucz "+caseName, true)
+                .keySection(
+                        KeySection.builder()
+                                .material(Material.TRIPWIRE_HOOK)
+                                .displayname("#77ff00&lKlucz "+caseName)
+                                .lore(new ArrayList<>(List.of("&7")))
+                                .glow(true)
+                                .build()
                 )
                 .items(new HashSet<>())
                 // broadcast message
@@ -62,8 +67,8 @@ public class CaseManager {
                 )
                 .build();
 
-        // implement inv
-        caseObject.createInv();
+        // init case (key, inventory)
+        caseObject.initCase();
         // add case to map
         caseConfig.getCaseData().add(caseObject);
         // save to config
@@ -71,9 +76,6 @@ public class CaseManager {
         return true;
     }
 
-    public void createAllInv() {
-        caseConfig.getCaseData().forEach(CaseObject::createInv);
-    }
 
     // find case by ID
     public Optional<CaseObject> findCaseByID(UUID caseId) {
@@ -162,5 +164,7 @@ public class CaseManager {
         return false;
     }
 
-
+    public void initCases() {
+        caseConfig.getCaseData().forEach(CaseObject::initCase);
+    }
 }
