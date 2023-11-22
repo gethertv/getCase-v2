@@ -1,32 +1,18 @@
 package dev.gether.getcase.config;
 
-import dev.gether.getcase.config.chest.CaseHologram;
-import eu.okaeri.configs.OkaeriConfig;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.bukkit.Location;
+import dev.gether.getconfig.GetConfig;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class CaseLocationConfig extends OkaeriConfig {
+@Builder
+public class CaseLocationConfig extends GetConfig {
 
     private Set<CaseLocation> caseLocationData = new HashSet<>();
-
-    @Getter
-    @Setter
-    @Builder
-    public static class CaseLocation extends OkaeriConfig {
-
-        private CaseHologram caseHologram;
-        private Location location;
-        private UUID caseId;
-
-    }
-
 
 }

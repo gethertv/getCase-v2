@@ -3,7 +3,7 @@ package dev.gether.getcase.inv;
 import dev.gether.getcase.config.CaseConfig;
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.config.chest.PreviewWinItem;
-import dev.gether.getcase.utils.ColorFixer;
+import dev.gether.getconfig.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -37,9 +37,9 @@ public class PreviewWinInvHandler implements InventoryHolder {
 
     private void fillAnimationItems(CaseConfig caseConfig, PreviewWinItem previewWinItem) {
         // set item with animation
-        previewWinItem.getAnimationSlots().forEach(slot -> inventory.setItem(slot, caseConfig.getAnimationItem()));
+        previewWinItem.getAnimationSlots().forEach(slot -> inventory.setItem(slot, caseConfig.getAnimationItem().getItemStack()));
         // set item without the animation
-        previewWinItem.getNoAnimationSlots().forEach(slot -> inventory.setItem(slot, caseConfig.getNoAnimationItem()));
+        previewWinItem.getNoAnimationSlots().forEach(slot -> inventory.setItem(slot, caseConfig.getNoAnimationItem().getItemStack()));
     }
 
     // fill background/decoration

@@ -1,13 +1,13 @@
 package dev.gether.getcase.config.chest;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.CaseConfig;
-import dev.gether.getcase.utils.ColorFixer;
-import dev.gether.getcase.utils.ItemBuilder;
-import eu.okaeri.configs.OkaeriConfig;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import dev.gether.getconfig.GetConfig;
+import dev.gether.getconfig.domain.Item;
+import dev.gether.getconfig.domain.config.ItemDecoration;
+import dev.gether.getconfig.utils.ColorFixer;
+import lombok.*;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,24 +16,24 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 // class represent object CASE
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class CaseObject extends OkaeriConfig {
+public class CaseObject extends GetConfig {
 
     // this$ - ignore implement okaeri config
-    private Inventory this$inv;
+    @JsonIgnore
+    private Inventory inv;
     private UUID caseId;
     private int sizeInv;
     private String titleInv;
     private String name;
     // key section
-    private KeySection keySection;
+    private Item itemKey;
     // item key
-    private ItemStack this$keyItem;
-
-    // item in case
-    private Set<Item> items;
+    private Set<ItemCase> items;
     // background decoration
     private Set<ItemDecoration> decorations;
 
@@ -45,16 +45,16 @@ public class CaseObject extends OkaeriConfig {
     // broadcast
     private BroadcastCase broadcastCase;
 
-    private void createInv() {
-        this$inv = Bukkit.createInventory(null, sizeInv, ColorFixer.addColors(titleInv));
+    public void createInv() {
 
+        inv = Bukkit.createInventory(null, sizeInv, ColorFixer.addColors(titleInv));
         // fill inv with items
         fillItems();
     }
 
     public void fillItems() {
         // clear inv
-        this$inv.clear();
+        inv.clear();
         // fill [ background items]
         fillBackground();
         // fill [ animation and no animation items ]
@@ -69,13 +69,13 @@ public class CaseObject extends OkaeriConfig {
             return;
 
         // sum chance from all case
-        double totalWeight = items.stream().mapToDouble(Item::getChance).sum();
+        double totalWeight = items.stream().mapToDouble(ItemCase::getChance).sum();
         // 100%
         double remainingWeight = 100.00;
 
         // adjusted chance
-        Map<Item, Double> adjustedChances = new HashMap<>();
-        for (Item item : items) {
+        Map<ItemCase, Double> adjustedChances = new HashMap<>();
+        for (ItemCase item : items) {
             double chance = (item.getChance() / totalWeight) * 100;
             double roundedChance = Math.round(chance * 100.0) / 100.0;
             // remove chance from 100% because finally must be 100%
@@ -85,24 +85,24 @@ public class CaseObject extends OkaeriConfig {
         }
 
         // sorted to lowest chance
-        List<Map.Entry<Item, Double>> sortedItems = adjustedChances.entrySet().stream()
-                .sorted(Map.Entry.<Item, Double>comparingByValue())
+        List<Map.Entry<ItemCase, Double>> sortedItems = adjustedChances.entrySet().stream()
+                .sorted(Map.Entry.<ItemCase, Double>comparingByValue())
                 .toList();
 
         // correct last item chance to fix the sum chance (100%)
-        Map.Entry<Item, Double> lastItemEntry = sortedItems.get(sortedItems.size() - 1);
+        Map.Entry<ItemCase, Double> lastItemEntry = sortedItems.get(sortedItems.size() - 1);
         double lastChance = lastItemEntry.getValue() + remainingWeight;
         adjustedChances.put(lastItemEntry.getKey(), lastChance);
 
         // foreach and set item to inv
-        for (Map.Entry<Item, Double> entry : adjustedChances.entrySet()) {
-            Item item = entry.getKey();
+        for (Map.Entry<ItemCase, Double> entry : adjustedChances.entrySet()) {
+            ItemCase item = entry.getKey();
             double chance = entry.getValue();
-            this$inv.setItem(item.getSlot(), addExtraLore(item, String.format("%.2f", chance)));
+            inv.setItem(item.getSlot(), addExtraLore(item, String.format("%.2f", chance)));
         }
     }
 
-    private ItemStack addExtraLore(Item item, String chance) {
+    private ItemStack addExtraLore(ItemCase item, String chance) {
         ItemStack itemStack = item.getItemStack().clone();
         ItemMeta itemMeta = itemStack.getItemMeta();
 
@@ -133,43 +133,32 @@ public class CaseObject extends OkaeriConfig {
         // animation
         for (Integer slot : animationSlots) {
             // set animation item
-            this$inv.setItem(slot, caseConfig.getAnimationItem());
+            inv.setItem(slot, caseConfig.getAnimationItem().getItemStack());
         }
         // no animation
         for (Integer slot : noAnimationSlots) {
             // set no animation item
-            this$inv.setItem(slot, caseConfig.getNoAnimationItem());
+            inv.setItem(slot, caseConfig.getNoAnimationItem().getItemStack());
         }
     }
 
     private void fillBackground() {
         for (ItemDecoration decoration : decorations) {
             for (Integer slot : decoration.getSlots()) {
-                this$inv.setItem(slot, decoration.getItemStack());
+                inv.setItem(slot, decoration.getItemStack());
             }
         }
     }
 
-    public void setKeySection(KeySection keySection) {
-        this.keySection = keySection;
-    }
 
-    private void initKeyItem() {
-        this$keyItem = ItemBuilder.create(keySection.getMaterial(), keySection.getDisplayname(), keySection.getLore(), keySection.isGlow());
-    }
-
+    @JsonIgnore
     public ItemStack getKeyItem() {
-        return this$keyItem;
+        return itemKey.getItemStack();
     }
 
+    @JsonIgnore
     public Inventory getInventory() {
-        return this$inv;
+        return inv;
     }
 
-    public void initCase() {
-        // init key item
-        initKeyItem();
-        // implement inv
-        createInv();
-    }
 }

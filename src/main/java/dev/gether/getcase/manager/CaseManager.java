@@ -1,9 +1,16 @@
 package dev.gether.getcase.manager;
 
+import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.CaseConfig;
+import dev.gether.getcase.config.CaseLocation;
 import dev.gether.getcase.config.CaseLocationConfig;
 import dev.gether.getcase.config.chest.*;
-import dev.gether.getcase.utils.ItemBuilder;
+import dev.gether.getconfig.ConfigManager;
+import dev.gether.getconfig.domain.Item;
+import dev.gether.getconfig.domain.config.ItemDecoration;
+import dev.gether.getconfig.utils.ConsoleColor;
+import dev.gether.getconfig.utils.ItemBuilder;
+import dev.gether.getconfig.utils.MessageUtil;
 import dev.rollczi.litecommands.suggestion.Suggestion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,16 +18,38 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.File;
 import java.util.*;
 
 public class CaseManager {
 
     private final CaseConfig caseConfig;
     private final CaseLocationConfig caseLocationConfig;
+    // key: name file (name case) | value: CaseObject
+    private final HashMap<String, CaseObject> allCases = new HashMap<>();
 
     public CaseManager(CaseConfig caseConfig, CaseLocationConfig caseLocationConfig) {
         this.caseConfig = caseConfig;
         this.caseLocationConfig = caseLocationConfig;
+
+        implementsAllCases();
+    }
+
+    public void implementsAllCases() {
+        allCases.clear();
+        File[] files = GetCase.FILE_PATH_CASES.listFiles();
+        if(files == null)
+            return;
+
+        for (File file : files) {
+            if(file.isDirectory())
+                continue;
+
+            String caseName = file.getName().replace(".yml", "");
+            CaseObject caseObject = ConfigManager.create(CaseObject.class, it -> {});
+            implementCase(caseName, caseObject);
+            MessageUtil.logMessage(ConsoleColor.GREEN, "Wczytano skrzynie "+caseName);
+        }
     }
 
     public boolean createCase(String caseName) {
@@ -34,13 +63,10 @@ public class CaseManager {
                 // size inv
                 .sizeInv(54)
                 // key
-                .keySection(
-                        KeySection.builder()
-                                .material(Material.TRIPWIRE_HOOK)
-                                .displayname("#77ff00&lKlucz "+caseName)
-                                .lore(new ArrayList<>(List.of("&7")))
-                                .glow(true)
-                                .build()
+                .itemKey(Item.builder()
+                        .itemStack(ItemBuilder.create(Material.TRIPWIRE_HOOK, "#77ff00&lKlucz "+caseName, new ArrayList<>(List.of("&7")), true))
+                        .build()
+
                 )
                 .items(new HashSet<>())
                 // broadcast message
@@ -53,7 +79,9 @@ public class CaseManager {
                 // decoration items
                 .decorations(Set.of(
                         ItemDecoration.builder()
-                                .itemStack(ItemBuilder.create(Material.BLACK_STAINED_GLASS_PANE, "&7", false))
+                                .item(Item.builder()
+                                        .itemStack(ItemBuilder.create(Material.BLACK_STAINED_GLASS_PANE, "&7", false))
+                                        .build())
                                 .slots(Set.of(0,1,2,3,4,5,6,7,8))
                                 .build()
                 ))
@@ -67,22 +95,25 @@ public class CaseManager {
                 )
                 .build();
 
-        // init case (key, inventory)
-        caseObject.initCase();
-        // add case to map
-        caseConfig.getCaseData().add(caseObject);
-        // save to config
-        caseConfig.save();
+        implementCase(caseName, caseObject);
         return true;
     }
 
+    private void implementCase(String caseName, CaseObject caseObject) {
+        caseObject.file(new File(GetCase.FILE_PATH_CASES, "{name}.yml".replace("{name}", caseName)));
+        caseObject.load();
+        // create inv (preview drop)
+        caseObject.createInv();
+        // add case to map
+        allCases.put(caseName, caseObject);
+    }
 
     // find case by ID
     public Optional<CaseObject> findCaseByID(UUID caseId) {
-        return caseConfig.getCaseData().stream().filter(caseObject -> caseObject.getCaseId().equals(caseId)).findFirst();
+        return allCases.values().stream().filter(caseObject -> caseObject.getCaseId().equals(caseId)).findFirst();
     }
 
-    public Optional<Item> findItemByCaseAndSlot(CaseObject caseObject, int slot) {
+    public Optional<ItemCase> findItemByCaseAndSlot(CaseObject caseObject, int slot) {
         return caseObject.getItems().stream().filter(item -> item.getSlot()==slot).findFirst();
     }
     public boolean isAnimationSlot(int slot, CaseObject caseObject) {
@@ -93,16 +124,16 @@ public class CaseManager {
         return caseObject.getNoAnimationSlots().contains(slot);
     }
     public Optional<CaseObject> findCaseByName(String caseName) {
-        return caseConfig.getCaseData().stream().filter(caseObject -> caseObject.getName().equalsIgnoreCase(caseName)).findFirst();
+        return Optional.ofNullable(allCases.get(caseName));
     }
 
 
     public List<Suggestion> getAllNameSuggestionOfCase() {
-        return caseConfig.getCaseData().stream().map(CaseObject::getName).map(Suggestion::of).toList();
+        return allCases.values().stream().map(CaseObject::getName).map(Suggestion::of).toList();
     }
 
     public Optional<CaseObject> findCaseByInv(Inventory inventory) {
-        return caseConfig.getCaseData().stream().filter(caseObject -> caseObject.getThis$inv().equals(inventory)).findFirst();
+        return allCases.values().stream().filter(caseObject -> caseObject.getInventory().equals(inventory)).findFirst();
     }
 
 
@@ -111,17 +142,17 @@ public class CaseManager {
     }
 
     public void deleteAllHolograms() {
-        for (CaseLocationConfig.CaseLocation caseLocation : caseLocationConfig.getCaseLocationData()) {
+        for (CaseLocation caseLocation : caseLocationConfig.getCaseLocationData()) {
             CaseHologram caseHologram = caseLocation.getCaseHologram();
             if(caseHologram.isEnable())
                 caseHologram.deleteHologram();
         }
     }
-    public boolean deleteCase(CaseObject caseName, LocationCaseManager locationCaseManager) {
+    public boolean deleteCase(CaseObject caseObject, LocationCaseManager locationCaseManager) {
         // delete all hologram/action with preview case
-        List<CaseLocationConfig.CaseLocation> listCaseLocation = locationCaseManager.findCaseLocationById(caseName.getCaseId());
+        List<CaseLocation> listCaseLocation = locationCaseManager.findCaseLocationById(caseObject.getCaseId());
         if(!listCaseLocation.isEmpty()) {
-            for (CaseLocationConfig.CaseLocation caseLocation : listCaseLocation) {
+            for (CaseLocation caseLocation : listCaseLocation) {
                 // delete case preview [hologram and action]
                 locationCaseManager.removeCaseLocation(caseLocation);
             }
@@ -130,11 +161,10 @@ public class CaseManager {
         }
 
         // delete object case
-        caseConfig.getCaseData().remove(caseName);
-        // save file
-        caseConfig.save();
-
-        return true;
+        allCases.remove(caseObject.getName());
+        // delete file
+        File file = new File(GetCase.FILE_PATH_CASES, caseObject.getName()+".yml");
+        return file.delete();
     }
 
 
@@ -156,7 +186,7 @@ public class CaseManager {
     }
 
     public boolean checkIsKey(ItemStack itemInMainHand, ItemStack offHand) {
-        for (CaseObject caseDatum : caseConfig.getCaseData()) {
+        for (CaseObject caseDatum : allCases.values()) {
             ItemStack keyItem = caseDatum.getKeyItem();
             if(keyItem.isSimilar(itemInMainHand) || keyItem.isSimilar(offHand))
                 return true;
@@ -164,7 +194,11 @@ public class CaseManager {
         return false;
     }
 
-    public void initCases() {
-        caseConfig.getCaseData().forEach(CaseObject::initCase);
+    public void initCaseInv() {
+        allCases.values().forEach(CaseObject::createInv);
+    }
+
+    public List<CaseObject> getAllCases() {
+        return allCases.values().stream().toList();
     }
 }

@@ -2,7 +2,7 @@ package dev.gether.getcase.manager;
 
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.config.chest.Item;
+import dev.gether.getcase.config.chest.ItemCase;
 import dev.gether.getcase.inv.SpinInvHolder;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -51,8 +51,9 @@ public class SpinCaseManager {
             return;
         }
 
+        // update item
         updateInventory(spinInventory.getInventory(), caseObject);
-
+        playSound(player);
         int newTicks = ticksPassed + 2;
         double newSpeed = (newTicks > SPEED_CHANGE_TICK) ? speedCopy * SPEED_MULTIPLIER_AFTER_86 : speedCopy * SPEED_MULTIPLIER;
 
@@ -64,6 +65,9 @@ public class SpinCaseManager {
         }.runTaskLater(plugin, (long) newSpeed);
     }
 
+    private void playSound(Player player) {
+        player.playSound(player.getLocation(), plugin.getCaseConfig().getSpinSound(), 1F, 1F);
+    }
 
 
     private void updateInventory(Inventory inventory, CaseObject caseObject) {
@@ -71,7 +75,7 @@ public class SpinCaseManager {
             inventory.setItem(i, inventory.getItem(i + 1));
         }
         //
-        Item item = openCaseManager.getRandomItem(caseObject);
+        ItemCase item = openCaseManager.getRandomItem(caseObject);
         inventory.setItem(17, item.getItemStack());
     }
 

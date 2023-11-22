@@ -5,7 +5,7 @@ import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.manager.AdminEditManager;
 import dev.gether.getcase.manager.CaseManager;
 import dev.gether.getcase.manager.LocationCaseManager;
-import dev.gether.getcase.utils.MessageUtil;
+import dev.gether.getconfig.utils.MessageUtil;
 import dev.rollczi.litecommands.argument.Arg;
 import dev.rollczi.litecommands.argument.Name;
 import dev.rollczi.litecommands.command.execute.Execute;
@@ -43,7 +43,7 @@ public class GetCaseCmd {
         // if case not exists then create
         boolean success = caseManager.createCase(caseName);
         if(success)
-            MessageUtil.sendMessage(player, "&aPomyslnie stworzono skrzynke!");
+            MessageUtil.sendMessage(player, "&afPomyslnie stworzono skrzynke!");
         else
             MessageUtil.sendMessage(player, "&cWystąpił problem.");
     }

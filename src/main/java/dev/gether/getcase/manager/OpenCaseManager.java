@@ -5,11 +5,11 @@ import dev.gether.getcase.config.CaseConfig;
 import dev.gether.getcase.config.LangConfig;
 import dev.gether.getcase.config.chest.BroadcastCase;
 import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.config.chest.Item;
+import dev.gether.getcase.config.chest.ItemCase;
 import dev.gether.getcase.inv.PreviewWinInvHandler;
-import dev.gether.getcase.utils.ConsoleColor;
 import dev.gether.getcase.utils.InventoryUtil;
-import dev.gether.getcase.utils.MessageUtil;
+import dev.gether.getconfig.utils.ConsoleColor;
+import dev.gether.getconfig.utils.MessageUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -60,7 +60,7 @@ public class OpenCaseManager {
         removeKey(player, caseObject.getKeyItem());
 
         // next, random the reward
-        Item winItem = getRandomItem(caseObject);
+        ItemCase winItem = getRandomItem(caseObject);
 
         // give reward
         giveReward(player, caseObject, winItem.getItemStack());
@@ -68,6 +68,7 @@ public class OpenCaseManager {
     }
 
     public void giveReward(Player player, CaseObject caseObject, ItemStack itemStack) {
+        player.playSound(player.getLocation(), caseConfig.getWinItemSound(), 1F, 1F);
         // create inventory holder with preview win item
         PreviewWinInvHandler previewWinInvHandler = new PreviewWinInvHandler(itemStack, caseConfig, caseObject);
         // open this inv
@@ -119,15 +120,15 @@ public class OpenCaseManager {
         }
         return true;
     }
-    public Item getRandomItem(CaseObject caseObject) {
-        Set<Item> items = caseObject.getItems();
-        double totalWeight = items.stream().mapToDouble(Item::getChance).sum();
+    public ItemCase getRandomItem(CaseObject caseObject) {
+        Set<ItemCase> items = caseObject.getItems();
+        double totalWeight = items.stream().mapToDouble(ItemCase::getChance).sum();
 
         // win ticket
         double randomValue = random.nextDouble() * totalWeight;
 
         double currentWeight = 0.0;
-        for (Item item : items) {
+        for (ItemCase item : items) {
             currentWeight += item.getChance();
             if (currentWeight >= randomValue) {
                 return item;

@@ -1,10 +1,12 @@
 package dev.gether.getcase.manager;
 
+import dev.gether.getcase.config.CaseLocation;
 import dev.gether.getcase.config.CaseLocationConfig;
 import dev.gether.getcase.config.chest.CaseHologram;
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.hook.HookManager;
-import dev.gether.getcase.utils.MessageUtil;
+import dev.gether.getconfig.utils.MessageUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,7 +29,7 @@ public class LocationCaseManager {
     }
 
     // find object by location
-    public Optional<CaseLocationConfig.CaseLocation> findCaseByLocation(Location location) {
+    public Optional<CaseLocation> findCaseByLocation(Location location) {
         return caseLocationConfig.getCaseLocationData().stream().filter(caseLocation -> caseLocation.getLocation().equals(location)).findFirst();
     }
 
@@ -41,7 +43,7 @@ public class LocationCaseManager {
         // location block where player at looking
         Location location = targetBlock.getLocation();
         // check the location is in use
-        Optional<CaseLocationConfig.CaseLocation> caseByLocation = findCaseByLocation(location);
+        Optional<CaseLocation> caseByLocation = findCaseByLocation(location);
         // if exists then cancel
         if(caseByLocation.isPresent()) {
             MessageUtil.sendMessage(player, "&cTutaj znajduje sie juz skrzynia!");
@@ -58,7 +60,7 @@ public class LocationCaseManager {
 
 
         // create case location
-        CaseLocationConfig.CaseLocation caseLocation = CaseLocationConfig.CaseLocation.builder()
+        CaseLocation caseLocation = CaseLocation.builder()
                 .caseId(caseData.getCaseId())
                 .location(location)
                 .caseHologram(caseHologram)
@@ -80,15 +82,15 @@ public class LocationCaseManager {
 
         // location block where player at looking
         Location location = targetBlock.getLocation();
-        Optional<CaseLocationConfig.CaseLocation> caseByLocation = findCaseByLocation(location);
+        Optional<CaseLocation> caseByLocation = findCaseByLocation(location);
         if(caseByLocation.isEmpty())
             return false;
 
         // get object with caseLocation
-        CaseLocationConfig.CaseLocation caseLocation = caseByLocation.get();
+        CaseLocation caseLocation = caseByLocation.get();
         return removeCaseLocation(caseLocation);
     }
-    public boolean removeCaseLocation(CaseLocationConfig.CaseLocation caseLocation) {
+    public boolean removeCaseLocation(CaseLocation caseLocation) {
         // remove hologram
         caseLocation.getCaseHologram().deleteHologram();
         // remove object from set<>
@@ -98,7 +100,7 @@ public class LocationCaseManager {
         return true;
     }
 
-    public List<CaseLocationConfig.CaseLocation> findCaseLocationById(UUID id) {
+    public List<CaseLocation> findCaseLocationById(UUID id) {
         return caseLocationConfig.getCaseLocationData().stream().filter(caseLocation -> {
             UUID caseId = caseLocation.getCaseId();
             Optional<CaseObject> caseByID = caseManager.findCaseByID(caseId);
@@ -114,7 +116,14 @@ public class LocationCaseManager {
     // create hologram
     // for all cases
     public void createHolograms() {
+        if(caseLocationConfig.getCaseLocationData().isEmpty())
+            return;
+
         caseLocationConfig.getCaseLocationData().forEach(caseLocation -> {
+            if(caseLocation==null) {
+                Bukkit.broadcastMessage("#NULL");
+                return;
+            }
             // find case by UUID
             Optional<CaseObject> caseByID = caseManager.findCaseByID(caseLocation.getCaseId());
             if(caseByID.isEmpty()) {

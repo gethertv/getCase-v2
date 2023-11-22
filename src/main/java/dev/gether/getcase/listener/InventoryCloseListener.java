@@ -1,5 +1,6 @@
 package dev.gether.getcase.listener;
 
+import dev.gether.getcase.GetCase;
 import dev.gether.getcase.inv.SpinInvHolder;
 import dev.gether.getcase.manager.OpenCaseManager;
 import org.bukkit.entity.Player;
@@ -7,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class InventoryCloseListener implements Listener {
 
@@ -28,7 +30,14 @@ public class InventoryCloseListener implements Listener {
         if (!spinInvHolder.isFinish() && !spinInvHolder.isCancel()) {
             spinInvHolder.cancel();
             // give reward
-            openCaseManager.giveReward(player, spinInvHolder.getCaseObject(), openCaseManager.getRandomItem(spinInvHolder.getCaseObject()).getItemStack());
+            new BukkitRunnable() {
+
+                @Override
+                public void run() {
+                    openCaseManager.giveReward(player, spinInvHolder.getCaseObject(), openCaseManager.getRandomItem(spinInvHolder.getCaseObject()).getItemStack());
+
+                }
+            }.runTaskLater(GetCase.getInstance(), 1L);
         }
 
     }

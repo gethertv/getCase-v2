@@ -1,11 +1,11 @@
 package dev.gether.getcase.config;
 
-import eu.okaeri.configs.OkaeriConfig;
+import dev.gether.getconfig.GetConfig;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class LangConfig extends OkaeriConfig {
-    private String noKey = "&cNie posidasz klucza!";
+public class LangConfig extends GetConfig {
+    private String noKey = "&cNie posiadasz klucza!";
 }

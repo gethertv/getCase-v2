@@ -88,8 +88,6 @@ public class InventoryClickListener implements Listener {
         if(slot==editCaseInvHandler.getInventory().getSize()-1) {
             event.setCancelled(true);
             adminEditManager.saveAllItems(editCaseInvHandler);
-            // save case
-            adminEditManager.saveCase();
         }
 
         // if click SHIFT + RIGHT CLICK then run edit inv (anvil api)

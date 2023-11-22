@@ -1,9 +1,9 @@
 package dev.gether.getcase.inv;
 
 import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.config.chest.Item;
-import dev.gether.getcase.utils.ColorFixer;
-import dev.gether.getcase.utils.ItemBuilder;
+import dev.gether.getcase.config.chest.ItemCase;
+import dev.gether.getconfig.utils.ColorFixer;
+import dev.gether.getconfig.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -48,7 +48,7 @@ public class EditCaseInvHandler implements InventoryHolder {
         inventory.setItem(inventory.getSize()-1, ItemBuilder.create(Material.LIME_DYE, "&aZapisz", true));
     }
 
-    private ItemStack prepareItemWithChance(Item item) {
+    private ItemStack prepareItemWithChance(ItemCase item) {
         ItemStack itemStack = item.getItemStack().clone();
         ItemMeta itemMeta = itemStack.getItemMeta();
         List<String> tempLore = itemMeta.getLore();

@@ -5,3 +5,8 @@ api-version: '1.16'
 softdepend:
   - DecentHolograms
   - Multiverse-Core
+  - getConfig
+libraries:
+  - com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0
+  - com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2
+  - org.projectlombok:lombok:1.18.22

@@ -12,14 +12,11 @@ import dev.gether.getcase.listener.InventoryClickListener;
 import dev.gether.getcase.listener.InventoryCloseListener;
 import dev.gether.getcase.listener.PlayerInteractionListener;
 import dev.gether.getcase.manager.*;
-import dev.gether.getcase.serializer.CustomSerdesBukkit;
+import dev.gether.getconfig.ConfigManager;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
 import dev.rollczi.litecommands.bukkit.tools.BukkitOnlyPlayerContextual;
 import dev.rollczi.litecommands.bukkit.tools.BukkitPlayerArgument;
-import eu.okaeri.configs.ConfigManager;
-import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
-import eu.okaeri.configs.yaml.bukkit.serdes.SerdesBukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -38,6 +35,8 @@ public final class GetCase extends JavaPlugin {
     private CaseConfig caseConfig;
     private CaseLocationConfig caseLocationConfig;
     private LangConfig langConfig;
+    // path to cases
+    public static File FILE_PATH_CASES;
     // manager
     private CaseManager caseManager;
     private LocationCaseManager locationCaseManager;
@@ -46,33 +45,29 @@ public final class GetCase extends JavaPlugin {
     private LiteCommands<CommandSender> liteCommands;
     private HookManager hookManager;
     // lite commands
-
     public void loadConfig() {
+
+        // init folder with cases
+        FILE_PATH_CASES = new File(getDataFolder() + "/cases/");
 
         // register serializer
         caseConfig = ConfigManager.create(CaseConfig.class, it -> {
-            it.withConfigurer(new YamlBukkitConfigurer(), new CustomSerdesBukkit());
-            it.withBindFile(new File(getDataFolder(), "case.yml"));
-            it.withRemoveOrphans(true);
-            it.saveDefaults();
-            it.load(true);
+            it.file(new File(getDataFolder(), "config.yml"));
+            it.load();
         });
 
         caseLocationConfig = ConfigManager.create(CaseLocationConfig.class, it -> {
-            it.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit());
-            it.withBindFile(new File(getDataFolder(), "location.yml"));
-            it.withRemoveOrphans(true);
-            it.saveDefaults();
-            it.load(true);
+            it.file(new File(getDataFolder(), "location.yml"));
+            it.load();
         });
 
         langConfig = ConfigManager.create(LangConfig.class, it -> {
-            it.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit());
-            it.withBindFile(new File(getDataFolder(), "lang.yml"));
-            it.withRemoveOrphans(true);
-            it.saveDefaults();
-            it.load(true);
+            it.file(new File(getDataFolder(), "lang.yml"));
+            it.load();
         });
+
+
+
 
     }
     @Override
@@ -91,10 +86,6 @@ public final class GetCase extends JavaPlugin {
         OpenCaseManager openCaseManager = new OpenCaseManager(this, caseConfig, langConfig);
         spinCaseManager = new SpinCaseManager(this,openCaseManager);
 
-        // implement things such as / [preview inventory, hologram, key item]
-        initConfigFeature();
-
-
         // register listener
         Stream.of(
                 new InventoryCloseListener(openCaseManager),
@@ -109,14 +100,6 @@ public final class GetCase extends JavaPlugin {
         new Metrics(this, 20299);
 
     }
-
-    private void initConfigFeature() {
-        // inject inventory, key item
-        caseManager.initCases();
-        // create hologram for all cases
-        locationCaseManager.createHolograms();
-    }
-
     @Override
     public void onDisable() {
 
@@ -132,7 +115,7 @@ public final class GetCase extends JavaPlugin {
     public boolean reloadPlugin() {
         // close for all players inventory with case preview
         Bukkit.getOnlinePlayers().forEach(player -> {
-            for (CaseObject caseDatum : caseConfig.getCaseData()) {
+            for (CaseObject caseDatum : caseManager.getAllCases()) {
                 // if player open inventory is same, then close the inventory
                 if(player.getOpenInventory().getTopInventory().equals(caseDatum.getInventory())) {
                     player.closeInventory();
@@ -146,8 +129,10 @@ public final class GetCase extends JavaPlugin {
         caseLocationConfig.load();
         caseConfig.load();
 
-        // implement things such as / [preview inventory, hologram, key item]
-        initConfigFeature();
+        // implements cases
+        caseManager.implementsAllCases();
+        // create hologram for all cases
+        locationCaseManager.createHolograms();
 
         return true;
     }

@@ -2,9 +2,9 @@ package dev.gether.getcase.manager;
 
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.config.chest.Item;
+import dev.gether.getcase.config.chest.ItemCase;
 import dev.gether.getcase.inv.EditCaseInvHandler;
-import dev.gether.getcase.utils.ColorFixer;
+import dev.gether.getconfig.utils.ColorFixer;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -42,9 +42,9 @@ public class AdminEditManager {
     public void editItem(EditCaseInvHandler editCaseInvHandler, int slot, ItemStack itemStack) {
 
         // check itemstack exits in list with items
-        Optional<Item> itemByCaseAndItemStack = caseManager.findItemByCaseAndSlot(editCaseInvHandler.getCaseObject(), slot);
+        Optional<ItemCase> itemByCaseAndItemStack = caseManager.findItemByCaseAndSlot(editCaseInvHandler.getCaseObject(), slot);
         // create default object if item will not exist
-        Item item = new Item(slot, 0, itemStack, List.of("&7", "&7Szansa: &f{chance}%", "&7"));
+        ItemCase item = new ItemCase(slot, 0, itemStack, List.of("&7", "&7Szansa: &f{chance}%", "&7"));
         // if exists then not create new object
         if(itemByCaseAndItemStack.isPresent()) {
             item = itemByCaseAndItemStack.get();
@@ -57,7 +57,7 @@ public class AdminEditManager {
         AnvilGUI.Builder builder = new AnvilGUI.Builder();
 
         // final object with item
-        final Item finalItem = item;
+        final ItemCase finalItem = item;
         // builder onClick event
         builder.onClick((anvilSlot, stateSnapshot) -> {
             if (anvilSlot != AnvilGUI.Slot.OUTPUT) {
@@ -121,15 +121,15 @@ public class AdminEditManager {
         // foreach items and check they are exists in set<>
         for (int slot = 0; slot < inv.getSize(); slot++) {
             ItemStack itemStack = cleanItem(inv.getItem(slot));
-            Optional<Item> itemByCaseAndItemStack = caseManager.findItemByCaseAndSlot(editCaseInvHandler.getCaseObject(), slot);
+            Optional<ItemCase> itemByCaseAndItemStack = caseManager.findItemByCaseAndSlot(editCaseInvHandler.getCaseObject(), slot);
             if(itemByCaseAndItemStack.isEmpty()) {
                 if(itemStack==null || slot == inv.getSize()-1)
                     continue;
 
-                Item item = new Item(slot, 0, itemStack, List.of("&7", "&7Szansa: &f{chance}%", "&7"));
+                ItemCase item = new ItemCase(slot, 0, itemStack, List.of("&7", "&7Szansa: &f{chance}%", "&7"));
                 editCaseInvHandler.getCaseObject().getItems().add(item);
             } else {
-                Item item = itemByCaseAndItemStack.get();
+                ItemCase item = itemByCaseAndItemStack.get();
                 // if list of items contains this slot check the actually item is null
                 // null = delete
                 // exists = update
@@ -141,8 +141,9 @@ public class AdminEditManager {
                     item.setItemStack(itemStack);
                 }
             }
-
         }
+        // save
+        editCaseInvHandler.getCaseObject().save();
     }
 
     private ItemStack cleanItem(ItemStack itemStack) {

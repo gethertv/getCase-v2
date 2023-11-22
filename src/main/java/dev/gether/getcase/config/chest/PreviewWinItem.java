@@ -1,17 +1,18 @@
 package dev.gether.getcase.config.chest;
 
-import eu.okaeri.configs.OkaeriConfig;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import dev.gether.getconfig.GetConfig;
+import dev.gether.getconfig.domain.config.ItemDecoration;
+import lombok.*;
 
 import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder
 // preview inventory settings
-public class PreviewWinItem extends OkaeriConfig {
+public class PreviewWinItem extends GetConfig {
     private int size;
     private String title;
     private Set<ItemDecoration> itemDecorations;

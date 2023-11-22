@@ -1,7 +1,7 @@
 package dev.gether.getcase.listener;
 
 import dev.gether.getcase.config.CaseConfig;
-import dev.gether.getcase.config.CaseLocationConfig;
+import dev.gether.getcase.config.CaseLocation;
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.manager.CaseManager;
 import dev.gether.getcase.manager.LocationCaseManager;
@@ -62,7 +62,7 @@ public class PlayerInteractionListener implements Listener {
         // get location clicked block
         Location location = clickedBlock.getLocation();
 
-        Optional<CaseLocationConfig.CaseLocation> caseByLocation = locationCaseManager.findCaseByLocation(location);
+        Optional<CaseLocation> caseByLocation = locationCaseManager.findCaseByLocation(location);
         // if not found then return
         if(caseByLocation.isEmpty())
             return;
@@ -71,7 +71,7 @@ public class PlayerInteractionListener implements Listener {
         if(event.getHand() == EquipmentSlot.OFF_HAND)
             return;
 
-        CaseLocationConfig.CaseLocation caseLocation = caseByLocation.get();
+        CaseLocation caseLocation = caseByLocation.get();
         // find case by ID
         Optional<CaseObject> caseByID = caseManager.findCaseByID(caseLocation.getCaseId());
         // if not found / then return
