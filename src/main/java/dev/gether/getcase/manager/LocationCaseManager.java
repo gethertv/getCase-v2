@@ -6,7 +6,6 @@ import dev.gether.getcase.config.chest.CaseHologram;
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.hook.HookManager;
 import dev.gether.getconfig.utils.MessageUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -121,7 +120,6 @@ public class LocationCaseManager {
 
         caseLocationConfig.getCaseLocationData().forEach(caseLocation -> {
             if(caseLocation==null) {
-                Bukkit.broadcastMessage("#NULL");
                 return;
             }
             // find case by UUID

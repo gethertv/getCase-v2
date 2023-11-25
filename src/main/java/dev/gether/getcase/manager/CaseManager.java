@@ -56,6 +56,7 @@ public class CaseManager {
 
         CaseObject caseObject = CaseObject.builder()
                 // generate random ID
+                .enable(true)
                 .caseId(UUID.randomUUID())
                 .name(caseName)
                 // title inv
@@ -107,6 +108,27 @@ public class CaseManager {
         // add case to map
         allCases.put(caseName, caseObject);
     }
+    public boolean disableCase(CaseObject caseObject) {
+        caseObject.setEnable(false);
+        caseObject.save();
+        return true;
+    }
+
+    public boolean disableAllCases() {
+        allCases.values().forEach(this::disableCase);
+        return true;
+    }
+
+    public boolean enableCase(CaseObject caseObject) {
+        caseObject.setEnable(true);
+        caseObject.save();
+        return true;
+    }
+
+    public boolean enableAllCases() {
+        allCases.values().forEach(this::enableCase);
+        return true;
+    }
 
     // find case by ID
     public Optional<CaseObject> findCaseByID(UUID caseId) {
@@ -126,7 +148,6 @@ public class CaseManager {
     public Optional<CaseObject> findCaseByName(String caseName) {
         return Optional.ofNullable(allCases.get(caseName));
     }
-
 
     public List<Suggestion> getAllNameSuggestionOfCase() {
         return allCases.values().stream().map(CaseObject::getName).map(Suggestion::of).toList();

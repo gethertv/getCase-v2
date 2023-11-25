@@ -35,7 +35,7 @@ public class CaseHologram {
 
         // create hologram
         hologram = DHAPI.createHologram(
-                "case_" + caseName.toLowerCase() + UUID.randomUUID(),
+                "case_" + UUID.randomUUID(),
                 location.clone().add(0.5, heightY, 0.5),
                 lines);
     }

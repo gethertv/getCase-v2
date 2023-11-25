@@ -8,4 +8,5 @@ import lombok.Setter;
 @Setter
 public class LangConfig extends GetConfig {
     private String noKey = "&cNie posiadasz klucza!";
+    private String caseIsDisable = "&cTa skrzynia jest wyłączona!";
 }

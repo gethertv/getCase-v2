@@ -6,7 +6,7 @@
 
     <groupId>dev.gether</groupId>
     <artifactId>getCase</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <packaging>jar</packaging>
 
     <name>getCase</name>
@@ -46,6 +46,14 @@
                                 <relocation>
                                     <pattern>net.wesjd.anvilgui</pattern>
                                     <shadedPattern>dev.gether.getcase.anvilgui</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.yaml.snakeyaml</pattern>
+                                    <shadedPattern>dev.gether.getcase.snakeyaml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.yaml.snakeyaml</pattern>
+                                    <shadedPattern>dev.gether.getconfig.snakeyaml</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
@@ -92,6 +100,10 @@
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
         <repository>
+            <id>getConfig</id>
+            <url>https://gether.dev/repository/</url>
+        </repository>
+        <repository>
             <id>codemc-snapshots</id>
             <url>https://repo.codemc.io/repository/maven-snapshots/</url>
         </repository>
@@ -101,8 +113,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.13.0</version>
-            <scope>provided</scope>
+            <version>2.16.0</version>
         </dependency>
         <dependency>
             <groupId>net.wesjd</groupId>
@@ -115,6 +126,7 @@
             <version>2.8.4</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
@@ -130,7 +142,6 @@
             <groupId>dev.gether</groupId>
             <artifactId>getconfig</artifactId>
             <version>1.0</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>

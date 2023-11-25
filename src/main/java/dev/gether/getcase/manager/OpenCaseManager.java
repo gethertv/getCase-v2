@@ -7,6 +7,7 @@ import dev.gether.getcase.config.chest.BroadcastCase;
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.config.chest.ItemCase;
 import dev.gether.getcase.inv.PreviewWinInvHandler;
+import dev.gether.getcase.type.OpenType;
 import dev.gether.getcase.utils.InventoryUtil;
 import dev.gether.getconfig.utils.ConsoleColor;
 import dev.gether.getconfig.utils.MessageUtil;
@@ -33,7 +34,12 @@ public class OpenCaseManager {
     }
 
     // open case with animation
-    public void openCaseAnimation(Player player, CaseObject caseObject) {
+    public void openCase(Player player, CaseObject caseObject, OpenType openType) {
+        // check case is enable
+        if(!caseObject.isEnable()) {
+            MessageUtil.sendMessage(player, langConfig.getCaseIsDisable());
+            return;
+        }
         // check requirements like CASE is not empty and player has key for this case
         boolean hasRequirements  = checkRequirements(player, caseObject);
         // is not meets then return
@@ -42,28 +48,20 @@ public class OpenCaseManager {
 
         // take key
         removeKey(player, caseObject.getKeyItem());
-        // start animation
-        plugin.getSpinCaseManager().startSpin(player, caseObject);
 
-    }
+        // open case with animation
+        if(openType == OpenType.ANIMATION) {
+            // start animation
+            plugin.getSpinCaseManager().startSpin(player, caseObject);
+        }
+        // open case without the animation
+        else if(openType == OpenType.NORMAL) {
+            // next, random the reward
+            ItemCase winItem = getRandomItem(caseObject);
 
-    // open case without the animation
-    public void openCaseWithoutAnimation(Player player, CaseObject caseObject) {
-        // check requirements like CASE is not empty and player has key for this case
-        boolean hasRequirements  = checkRequirements(player, caseObject);
-        // is not meets then return
-        if(!hasRequirements)
-            return;
-
-        // if has key, then take it
-        // method remove only 1 item
-        removeKey(player, caseObject.getKeyItem());
-
-        // next, random the reward
-        ItemCase winItem = getRandomItem(caseObject);
-
-        // give reward
-        giveReward(player, caseObject, winItem.getItemStack());
+            // give reward
+            giveReward(player, caseObject, winItem.getItemStack());
+        }
 
     }
 

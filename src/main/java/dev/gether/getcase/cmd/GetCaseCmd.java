@@ -43,9 +43,51 @@ public class GetCaseCmd {
         // if case not exists then create
         boolean success = caseManager.createCase(caseName);
         if(success)
-            MessageUtil.sendMessage(player, "&afPomyslnie stworzono skrzynke!");
+            MessageUtil.sendMessage(player, "&aPomyslnie stworzono skrzynke!");
         else
-            MessageUtil.sendMessage(player, "&cWystąpił problem.");
+            MessageUtil.sendMessage(player, "&cWystapil problem.");
+    }
+
+
+    @Execute(route = "enable")
+    public void enableCase(Player player, @Arg @Name("nazwa skrzynki") CaseObject caseObject) {
+        // check case exists
+        boolean success = caseManager.enableCase(caseObject);
+        if(success)
+            MessageUtil.sendMessage(player, "&aPomyslnie wlaczono skrzynke!");
+        else
+            MessageUtil.sendMessage(player, "&cWystapil problem.");
+    }
+
+    @Execute(route = "enable *")
+    public void enableAllCases(Player player) {
+        // check case exists
+        boolean success = caseManager.enableAllCases();
+        if(success)
+            MessageUtil.sendMessage(player, "&aPomyslnie wlaczono wszystkie skrzynki!");
+        else
+            MessageUtil.sendMessage(player, "&cWystapil problem.");
+    }
+
+
+    @Execute(route = "disable")
+    public void disableCase(Player player, @Arg @Name("nazwa skrzynki") CaseObject caseObject) {
+        // check case exists
+        boolean success = caseManager.disableCase(caseObject);
+        if(success)
+            MessageUtil.sendMessage(player, "&aPomyslnie wylaczono skrzynke!");
+        else
+            MessageUtil.sendMessage(player, "&cWystapil problem.");
+    }
+
+    @Execute(route = "disable *")
+    public void disableAllCases(Player player) {
+        // check case exists
+        boolean success = caseManager.disableAllCases();
+        if(success)
+            MessageUtil.sendMessage(player, "&aPomyslnie wylaczono wszystkie skrzynki!");
+        else
+            MessageUtil.sendMessage(player, "&cWystapil problem.");
     }
 
     @Execute(route = "setlocation")

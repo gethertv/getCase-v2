@@ -7,6 +7,7 @@ import dev.gether.getcase.inv.SpinInvHolder;
 import dev.gether.getcase.manager.AdminEditManager;
 import dev.gether.getcase.manager.CaseManager;
 import dev.gether.getcase.manager.OpenCaseManager;
+import dev.gether.getcase.type.OpenType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -115,12 +116,12 @@ public class InventoryClickListener implements Listener {
         CaseObject caseObject = previewWinInvHandler.getCaseObject();
         // open case with animation
         if(previewWinInvHandler.isAnimationSlot(slot)) {
-            openCaseManager.openCaseAnimation(player, caseObject);
+            openCaseManager.openCase(player, caseObject, OpenType.ANIMATION);
             return true;
         }
         // open case without the animation
         if(previewWinInvHandler.isNoAnimationSlot(slot)) {
-            openCaseManager.openCaseWithoutAnimation(player, caseObject);
+            openCaseManager.openCase(player, caseObject, OpenType.NORMAL);
             return true;
         }
         return true;
@@ -146,13 +147,13 @@ public class InventoryClickListener implements Listener {
             boolean animationSlot = caseManager.isAnimationSlot(slot, caseObject);
             // if is animation slot than open case with animation
             if(animationSlot) {
-                openCaseManager.openCaseAnimation(player, caseObject);
+                openCaseManager.openCase(player, caseObject, OpenType.ANIMATION);
                 return true;
             }
 
             boolean noAnimation = caseManager.isNoAnimationSlot(slot, caseObject);
             if(noAnimation) {
-                openCaseManager.openCaseWithoutAnimation(player, caseObject);
+                openCaseManager.openCase(player, caseObject, OpenType.NORMAL);
                 return true;
             }
 

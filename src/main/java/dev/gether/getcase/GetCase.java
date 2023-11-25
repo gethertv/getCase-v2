@@ -67,8 +67,6 @@ public final class GetCase extends JavaPlugin {
         });
 
 
-
-
     }
     @Override
     public void onEnable() {
@@ -85,6 +83,9 @@ public final class GetCase extends JavaPlugin {
         adminEditManager = new AdminEditManager(caseManager, this);
         OpenCaseManager openCaseManager = new OpenCaseManager(this, caseConfig, langConfig);
         spinCaseManager = new SpinCaseManager(this,openCaseManager);
+
+        // create hologram for cases
+        locationCaseManager.createHolograms();
 
         // register listener
         Stream.of(

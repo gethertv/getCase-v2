@@ -26,6 +26,8 @@ public class CaseObject extends GetConfig {
     // this$ - ignore implement okaeri config
     @JsonIgnore
     private Inventory inv;
+
+    private boolean enable;
     private UUID caseId;
     private int sizeInv;
     private String titleInv;
