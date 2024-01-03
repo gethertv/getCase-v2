@@ -4,7 +4,7 @@ import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.config.chest.ItemCase;
 import dev.gether.getcase.inv.EditCaseInvHandler;
-import dev.gether.getconfig.utils.ColorFixer;
+import net.md_5.bungee.api.ChatColor;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,10 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class AdminEditManager {
 
@@ -142,23 +139,28 @@ public class AdminEditManager {
                 }
             }
         }
-        // save
+         // save
         editCaseInvHandler.getCaseObject().save();
     }
 
+
     private ItemStack cleanItem(ItemStack itemStack) {
-        if(itemStack==null)
+
+        if (itemStack == null)
             return null;
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         List<String> lore = itemMeta.getLore();
         if (lore != null && !lore.isEmpty()) {
-            lore.removeIf(loreLine -> loreLine.contains("× Szansa:"));
-            lore.removeIf(loreLine -> loreLine.contains("× Shift + Prawy przycisk"));
-            itemMeta.setLore(ColorFixer.addColors(lore));
+            lore.removeIf(loreLine -> loreLine.contains("× Szansa:") || loreLine.contains("× Shift + Prawy przycisk"));
+            itemMeta.setLore(lore);
             itemStack.setItemMeta(itemMeta);
         }
-        itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
+
+    public static String deserializeLore(String serializedLore) {
+        return ChatColor.translateAlternateColorCodes('§', serializedLore);
+    }
+
 }

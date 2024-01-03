@@ -34,7 +34,7 @@ public class InventoryCloseListener implements Listener {
 
                 @Override
                 public void run() {
-                    openCaseManager.giveReward(player, spinInvHolder.getCaseObject(), openCaseManager.getRandomItem(spinInvHolder.getCaseObject()).getItemStack());
+                    openCaseManager.giveReward(player, spinInvHolder.getCaseObject(), spinInvHolder.getWinItem());
 
                 }
             }.runTaskLater(GetCase.getInstance(), 1L);

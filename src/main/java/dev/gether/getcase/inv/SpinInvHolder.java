@@ -6,6 +6,7 @@ import dev.gether.getconfig.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
 public class SpinInvHolder implements InventoryHolder {
 
@@ -13,7 +14,8 @@ public class SpinInvHolder implements InventoryHolder {
     private boolean finish;
     private boolean cancel;
     private final CaseObject caseObject;
-    public SpinInvHolder(CaseObject caseObject, SpinData spinData) {
+    private final ItemStack[] itemStacks;
+    public SpinInvHolder(CaseObject caseObject, SpinData spinData, ItemStack[] itemStacks) {
         this.caseObject = caseObject;
 
         // create edit inv
@@ -28,6 +30,9 @@ public class SpinInvHolder implements InventoryHolder {
         finish = false;
         cancel = false;
 
+        // set win items
+        this.itemStacks = itemStacks;
+
     }
 
     public void fillDecorationItems(SpinData spinData) {
@@ -38,6 +43,11 @@ public class SpinInvHolder implements InventoryHolder {
                 )
         );
     }
+
+    public ItemStack[] getItemStacks() {
+        return itemStacks;
+    }
+
     @Override
     public Inventory getInventory() {
         return inventory;
@@ -46,6 +56,9 @@ public class SpinInvHolder implements InventoryHolder {
         return caseObject;
     }
 
+    public ItemStack getWinItem() {
+        return itemStacks[54];
+    }
     public void cancel() {
         this.cancel = true;
     }

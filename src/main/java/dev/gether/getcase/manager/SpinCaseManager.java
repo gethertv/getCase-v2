@@ -2,10 +2,11 @@ package dev.gether.getcase.manager;
 
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.config.chest.ItemCase;
 import dev.gether.getcase.inv.SpinInvHolder;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpinCaseManager {
@@ -25,17 +26,23 @@ public class SpinCaseManager {
 
     // prepare inventory with spin
     public void startSpin(Player player, CaseObject caseObject) {
-        SpinInvHolder spinInventory = new SpinInvHolder(caseObject, plugin.getCaseConfig().getSpinData());
+        // get random item
+        // slot 13 - win
+        ItemStack[] itemStacks = new ItemStack[101];
+        for (int i = 0; i < 100; i++) {
+            itemStacks[i] = openCaseManager.getRandomItem(caseObject).getItemStack();
+        }
+
+        SpinInvHolder spinInventory = new SpinInvHolder(caseObject, plugin.getCaseConfig().getSpinData(), itemStacks);
         player.openInventory(spinInventory.getInventory());
 
         // start animation
-        spin(player, caseObject, spinInventory, 1, 1);
+        spin(player, spinInventory, 1, 1, 1);
     }
-    public void spin(Player player, CaseObject caseObject, SpinInvHolder spinInventory, int ticksPassed, double speedCopy) {
-
+    public void spin(Player player, SpinInvHolder spinInventory, int ticksPassed, double speedCopy, int index) {
         if (spinInventory.isCancel() || spinInventory.isFinish()) {
             if (spinInventory.isFinish()) {
-                openCaseManager.giveReward(player, spinInventory.getCaseObject(), spinInventory.getInventory().getItem(13));
+                openCaseManager.giveReward(player, spinInventory.getCaseObject(), spinInventory.getWinItem());
             }
             return;
         }
@@ -45,14 +52,14 @@ public class SpinCaseManager {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    openCaseManager.giveReward(player, spinInventory.getCaseObject(), spinInventory.getInventory().getItem(13));
+                    openCaseManager.giveReward(player, spinInventory.getCaseObject(), spinInventory.getWinItem());
                 }
             }.runTaskLater(plugin, DELAY_AFTER_FINISH);
             return;
         }
 
         // update item
-        updateInventory(spinInventory.getInventory(), caseObject);
+        updateInventory(spinInventory.getInventory(), spinInventory, index);
         playSound(player);
         int newTicks = ticksPassed + 2;
         double newSpeed = (newTicks > SPEED_CHANGE_TICK) ? speedCopy * SPEED_MULTIPLIER_AFTER_86 : speedCopy * SPEED_MULTIPLIER;
@@ -60,7 +67,8 @@ public class SpinCaseManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                spin(player, caseObject, spinInventory, newTicks, newSpeed);
+                int nextIndex = index + 1;
+                spin(player, spinInventory, newTicks, newSpeed, nextIndex);
             }
         }.runTaskLater(plugin, (long) newSpeed);
     }
@@ -70,13 +78,14 @@ public class SpinCaseManager {
     }
 
 
-    private void updateInventory(Inventory inventory, CaseObject caseObject) {
-        for (int i = 9; i < 17; i++) {
-            inventory.setItem(i, inventory.getItem(i + 1));
+    private void updateInventory(Inventory inventory, SpinInvHolder spinInvHolder, int index) {
+        for (int i = 9; i < 18; i++) {
+            ItemStack itemStack = spinInvHolder.getItemStacks()[i + index - 9];
+            inventory.setItem(i, itemStack);
         }
         //
-        ItemCase item = openCaseManager.getRandomItem(caseObject);
-        inventory.setItem(17, item.getItemStack());
+        //ItemCase item = openCaseManager.getRandomItem(caseObject);
+        //inventory.setItem(17, item.getItemStack());
     }
 
 }

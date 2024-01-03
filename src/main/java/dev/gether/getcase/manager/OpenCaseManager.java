@@ -88,6 +88,7 @@ public class OpenCaseManager {
 
         String message = String.join("\n", broadcastCase.getMessages());
         message = message
+                    .replace("{amount}", String.valueOf(itemStack.getAmount()))
                     .replace("{player}", player.getName())
                     .replace("{item}", getItemName(itemStack));
         MessageUtil.broadcast(message);
