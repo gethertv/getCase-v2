@@ -190,7 +190,7 @@ public class CaseManager {
 
 
     public boolean givePlayerKey(Player target, CaseObject caseObject, int amount) {
-        ItemStack itemStack = caseObject.getKeyItem().clone();
+        ItemStack itemStack = caseObject.getKeyItem().getItemStack().clone();
         itemStack.setAmount(amount);
         // give key
         target.getInventory().addItem(itemStack);
@@ -198,7 +198,7 @@ public class CaseManager {
     }
 
     public boolean giveAllKey(CaseObject caseObject, int amount) {
-        ItemStack itemStack = caseObject.getKeyItem().clone();
+        ItemStack itemStack = caseObject.getKeyItem().getItemStack().clone();
         itemStack.setAmount(amount);
         // give all key
         Bukkit.getOnlinePlayers().forEach(player -> player.getInventory().addItem(itemStack));
@@ -208,7 +208,7 @@ public class CaseManager {
 
     public boolean checkIsKey(ItemStack itemInMainHand, ItemStack offHand) {
         for (CaseObject caseDatum : allCases.values()) {
-            ItemStack keyItem = caseDatum.getKeyItem();
+            ItemStack keyItem = caseDatum.getKeyItem().getItemStack();
             if(keyItem.isSimilar(itemInMainHand) || keyItem.isSimilar(offHand))
                 return true;
         }
@@ -222,4 +222,5 @@ public class CaseManager {
     public List<CaseObject> getAllCases() {
         return allCases.values().stream().toList();
     }
+
 }

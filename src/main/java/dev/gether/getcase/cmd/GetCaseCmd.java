@@ -70,6 +70,7 @@ public class GetCaseCmd {
     }
 
 
+
     @Execute(route = "disable")
     public void disableCase(Player player, @Arg @Name("nazwa skrzynki") CaseObject caseObject) {
         // check case exists

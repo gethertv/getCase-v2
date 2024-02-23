@@ -47,7 +47,7 @@ public class OpenCaseManager {
             return;
 
         // take key
-        removeKey(player, caseObject.getKeyItem());
+        removeKey(player, caseObject.getKeyItem().getItemStack());
 
         // open case with animation
         if(openType == OpenType.ANIMATION) {
@@ -110,7 +110,7 @@ public class OpenCaseManager {
             return false;
         }
         // check user has key
-        if(!haskey(player, caseObject.getKeyItem())) {
+        if(!haskey(player, caseObject.getKeyItem().getItemStack())) {
             // send a message informing the user has not key
             MessageUtil.sendMessage(player, langConfig.getNoKey());
             player.playSound(player.getLocation(), caseConfig.getNoKeySound(), 1F, 1F);

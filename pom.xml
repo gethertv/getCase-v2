@@ -55,6 +55,14 @@
                                     <pattern>org.yaml.snakeyaml</pattern>
                                     <shadedPattern>dev.gether.getconfig.snakeyaml</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml.jackson.dataformat</pattern>
+                                    <shadedPattern>dev.gether.getconfig.dataformat</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml.jackson.dataformat</pattern>
+                                    <shadedPattern>dev.gether.getcase.dataformat</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>

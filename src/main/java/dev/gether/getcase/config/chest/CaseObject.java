@@ -154,8 +154,8 @@ public class CaseObject extends GetConfig {
 
 
     @JsonIgnore
-    public ItemStack getKeyItem() {
-        return itemKey.getItemStack();
+    public Item getKeyItem() {
+        return itemKey;
     }
 
     @JsonIgnore
