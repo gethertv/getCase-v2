@@ -9,9 +9,8 @@ import dev.gether.getconfig.ConfigManager;
 import dev.gether.getconfig.domain.Item;
 import dev.gether.getconfig.domain.config.ItemDecoration;
 import dev.gether.getconfig.utils.ConsoleColor;
-import dev.gether.getconfig.utils.ItemBuilder;
 import dev.gether.getconfig.utils.MessageUtil;
-import dev.rollczi.litecommands.suggestion.Suggestion;
+import dev.rollczi.litecommands.suggestion.SuggestionResult;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -65,7 +64,10 @@ public class CaseManager {
                 .sizeInv(54)
                 // key
                 .itemKey(Item.builder()
-                        .itemStack(ItemBuilder.create(Material.TRIPWIRE_HOOK, "#77ff00&lKlucz "+caseName, new ArrayList<>(List.of("&7")), true))
+                        .material(Material.TRIPWIRE_HOOK)
+                        .displayname("#77ff00&lKlucz "+caseName)
+                        .lore(new ArrayList<>(List.of("&7")))
+                        .glow(true)
                         .build()
 
                 )
@@ -81,7 +83,9 @@ public class CaseManager {
                 .decorations(Set.of(
                         ItemDecoration.builder()
                                 .item(Item.builder()
-                                        .itemStack(ItemBuilder.create(Material.BLACK_STAINED_GLASS_PANE, "&7", false))
+                                        .material(Material.BLACK_STAINED_GLASS_PANE)
+                                        .displayname("&7")
+                                        .glow(false)
                                         .build())
                                 .slots(Set.of(0,1,2,3,4,5,6,7,8))
                                 .build()
@@ -149,8 +153,8 @@ public class CaseManager {
         return Optional.ofNullable(allCases.get(caseName));
     }
 
-    public List<Suggestion> getAllNameSuggestionOfCase() {
-        return allCases.values().stream().map(CaseObject::getName).map(Suggestion::of).toList();
+    public SuggestionResult getAllNameSuggestionOfCase() {
+        return allCases.values().stream().map(CaseObject::getName).collect(SuggestionResult.collector());
     }
 
     public Optional<CaseObject> findCaseByInv(Inventory inventory) {

@@ -2,18 +2,16 @@ package dev.gether.getcase.cmd.arguments;
 
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.manager.CaseManager;
-import dev.rollczi.litecommands.argument.ArgumentName;
-import dev.rollczi.litecommands.argument.simple.OneArgument;
-import dev.rollczi.litecommands.command.LiteInvocation;
-import dev.rollczi.litecommands.suggestion.Suggestion;
-import panda.std.Result;
-
-import java.util.Collections;
-import java.util.List;
+import dev.rollczi.litecommands.argument.Argument;
+import dev.rollczi.litecommands.argument.parser.ParseResult;
+import dev.rollczi.litecommands.argument.resolver.ArgumentResolver;
+import dev.rollczi.litecommands.invocation.Invocation;
+import dev.rollczi.litecommands.suggestion.SuggestionContext;
+import dev.rollczi.litecommands.suggestion.SuggestionResult;
+import org.bukkit.command.CommandSender;
 import java.util.Optional;
 
-@ArgumentName("case")
-public class CaseArg implements OneArgument<CaseObject> {
+public class CaseArg extends ArgumentResolver<CommandSender, CaseObject> {
 
     private final CaseManager caseManager;
 
@@ -22,16 +20,13 @@ public class CaseArg implements OneArgument<CaseObject> {
     }
 
     @Override
-    public Result<CaseObject, Object> parse(LiteInvocation invocation, String argument) {
+    protected ParseResult<CaseObject> parse(Invocation<CommandSender> invocation, Argument<CaseObject> context, String argument) {
         Optional<CaseObject> caseByName = this.caseManager.findCaseByName(argument);
-        return caseByName.map(Result::ok).orElseGet(() -> Result.error("&cPodana skrzynia nie istnieje!"));
-
+        return caseByName.map(ParseResult::success).orElseGet(() -> ParseResult.failure("&cPodana skrzynia nie istnieje!"));
     }
     @Override
-    public List<Suggestion> suggest(LiteInvocation invocation) {
-        return invocation.lastArgument()
-                .map(text -> caseManager.getAllNameSuggestionOfCase())
-                .orElse(Collections.emptyList());
+    public SuggestionResult suggest(Invocation<CommandSender> invocation, Argument<CaseObject> argument, SuggestionContext context) {
+        return caseManager.getAllNameSuggestionOfCase();
     }
 
 }

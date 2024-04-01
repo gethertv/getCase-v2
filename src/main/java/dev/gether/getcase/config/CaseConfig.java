@@ -6,11 +6,9 @@ import dev.gether.getconfig.GetConfig;
 import dev.gether.getconfig.annotation.Comment;
 import dev.gether.getconfig.domain.Item;
 import dev.gether.getconfig.domain.config.ItemDecoration;
-import dev.gether.getconfig.utils.ItemBuilder;
 import lombok.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,7 @@ public class CaseConfig extends GetConfig {
             .itemDecorations(Set.of(
                     ItemDecoration.builder()
                             .item(Item.builder()
-                                    .itemStack(new ItemStack(Material.BLACK_STAINED_GLASS_PANE))
+                                    .material(Material.BLACK_STAINED_GLASS_PANE)
                                     .build())
                             .slots(Set.of(0,1,2,3,4,5,6,7,8,18,19,20,21,22,23,24,25,26))
                             .build()
@@ -56,7 +54,7 @@ public class CaseConfig extends GetConfig {
                     Set.of(
                             ItemDecoration.builder()
                                     .item(Item.builder()
-                                            .itemStack(new ItemStack(Material.BLACK_STAINED_GLASS_PANE))
+                                            .material(Material.BLACK_STAINED_GLASS_PANE)
                                             .build())
                                     .slots(Set.of(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26))
                                     .build()
@@ -67,10 +65,15 @@ public class CaseConfig extends GetConfig {
             .noAnimationSlots(Set.of(15))
             .build();
     private Item noAnimationItem = Item.builder()
-            .itemStack(ItemBuilder.create(Material.LIME_DYE, "&7Otworz bez animacji", true))
+            .material(Material.LIME_DYE)
+            .displayname("&7Otworz bez animacji")
+            .glow(true)
             .build();
     private Item animationItem = Item.builder()
-            .itemStack(ItemBuilder.create(Material.PURPLE_DYE, "&7Otworz z animacji", new ArrayList<>(List.of("test")), false))
+            .material(Material.PURPLE_DYE)
+            .displayname("&7Otworz z animacji")
+            .lore(new ArrayList<>(List.of("test")))
+            .glow(false)
             .build();
 
 

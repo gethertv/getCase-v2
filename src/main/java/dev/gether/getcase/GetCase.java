@@ -15,11 +15,8 @@ import dev.gether.getcase.manager.*;
 import dev.gether.getconfig.ConfigManager;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
-import dev.rollczi.litecommands.bukkit.tools.BukkitOnlyPlayerContextual;
-import dev.rollczi.litecommands.bukkit.tools.BukkitPlayerArgument;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -107,7 +104,7 @@ public final class GetCase extends JavaPlugin {
         caseManager.deleteAllHolograms();
 
         if(liteCommands != null)
-            liteCommands.getPlatform().unregisterAll();
+            liteCommands.getCommandManager().unregisterAll();
 
         HandlerList.unregisterAll(this);
 
@@ -138,17 +135,13 @@ public final class GetCase extends JavaPlugin {
         return true;
     }
     private void registerLiteCmd() {
-        this.liteCommands = LiteBukkitFactory.builder(this.getServer(), "getcase")
-                .commandInstance(
+        this.liteCommands =  LiteBukkitFactory.builder("getcase", this)
+                .commands(
                         new GetCaseCmd(this, caseManager, locationCaseManager, adminEditManager)
                 )
-                // contextual bind
-                .contextualBind(Player.class, new BukkitOnlyPlayerContextual<>("&cPodany gracz nie jest online!"))
-
                 // args
-                .argument(Player.class, new BukkitPlayerArgument<>(this.getServer(), "&cPodany gracz nie jest online!"))
                 .argument(CaseObject.class, new CaseArg(caseManager))
-                .register();
+                .build();
 
     }
 
