@@ -1,10 +1,9 @@
 package dev.gether.getcase.listener;
 
-import dev.gether.getcase.config.domain.CaseConfig;
+import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.CaseLocation;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
-import dev.gether.getcase.manager.LocationCaseManager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -19,14 +18,12 @@ import java.util.Optional;
 
 public class PlayerInteractionListener implements Listener {
 
-    private final LocationCaseManager locationCaseManager;
     private final LootBoxManager lootBoxManager;
-    private final CaseConfig caseConfig;
+    private final FileManager fileManager;
 
-    public PlayerInteractionListener(LocationCaseManager locationCaseManager, LootBoxManager lootBoxManager, CaseConfig caseConfig) {
-        this.locationCaseManager = locationCaseManager;
+    public PlayerInteractionListener(LootBoxManager lootBoxManager, FileManager fileManager) {
         this.lootBoxManager = lootBoxManager;
-        this.caseConfig = caseConfig;
+        this.fileManager = fileManager;
     }
 
     @EventHandler
@@ -62,7 +59,7 @@ public class PlayerInteractionListener implements Listener {
         // get location clicked block
         Location location = clickedBlock.getLocation();
 
-        Optional<CaseLocation> caseByLocation = locationCaseManager.findCaseByLocation(location);
+        Optional<CaseLocation> caseByLocation = lootBoxManager.getLocationCaseManager().findCaseByLocation(location);
         // if not found then return
         if(caseByLocation.isEmpty())
             return;
@@ -82,7 +79,7 @@ public class PlayerInteractionListener implements Listener {
         // get case object
         LootBox lootBox = caseByID.get();
         // play sound
-        player.playSound(player.getLocation(), caseConfig.getPreviewCaseSound(), 1F, 1F);
+        player.playSound(player.getLocation(), fileManager.getCaseConfig().getPreviewCaseSound(), 1F, 1F);
         // open inventory with preview drop
         player.openInventory(lootBox.getInventory());
     }

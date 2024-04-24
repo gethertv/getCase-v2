@@ -1,6 +1,6 @@
 package dev.gether.getcase.lootbox.reward;
 
-import dev.gether.getcase.config.domain.CaseConfig;
+import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.chest.BroadcastCase;
 import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.inv.PreviewWinInvHandler;
@@ -17,26 +17,41 @@ import java.util.Set;
 public class RewardsManager {
 
     private final Random random = new Random(System.currentTimeMillis());
-    private final CaseConfig caseConfig;
-
-    public RewardsManager(CaseConfig caseConfig) {
-        this.caseConfig = caseConfig;
+    private final FileManager fileManager;
+    public RewardsManager(FileManager fileManager) {
+        this.fileManager = fileManager;
     }
 
     public ItemCase giveReward(Player player, LootBox lootBox) {
         ItemCase itemCase = getRandomItem(lootBox);
 
-        player.playSound(player.getLocation(), caseConfig.getWinItemSound(), 1F, 1F);
-        // create inventory holder with preview win item
-        PreviewWinInvHandler previewWinInvHandler = new PreviewWinInvHandler(itemCase, caseConfig, lootBox);
-        // open this inv
-        player.openInventory(previewWinInvHandler.getInventory());
         // give winner item to player
         ItemStack itemStack = itemCase.getItemStack().clone();
+
+        player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
+        // create inventory holder with preview win item
+        PreviewWinInvHandler previewWinInvHandler = new PreviewWinInvHandler(itemStack, fileManager.getCaseConfig(), lootBox);
+        // open this inv
+        player.openInventory(previewWinInvHandler.getInventory());
+
         PlayerUtil.giveItem(player, itemStack);
         // broadcast
         broadcast(player, itemStack, lootBox);
         return itemCase;
+    }
+
+    public ItemStack giveReward(Player player, LootBox lootBox, ItemStack itemStack) {
+        ItemStack item = itemStack.clone();
+        player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
+        // create inventory holder with preview win item
+        PreviewWinInvHandler previewWinInvHandler = new PreviewWinInvHandler(item, fileManager.getCaseConfig(), lootBox);
+        // open this inv
+        player.openInventory(previewWinInvHandler.getInventory());
+        // give winner item to player
+        PlayerUtil.giveItem(player, item);
+        // broadcast
+        broadcast(player, item, lootBox);
+        return item;
     }
 
     public ItemCase getRandomItem(LootBox lootBox) {

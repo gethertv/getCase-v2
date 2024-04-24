@@ -1,13 +1,11 @@
 package dev.gether.getcase.listener;
 
-import dev.gether.getcase.lootbox.LootBoxManager;
-import dev.gether.getcase.lootbox.animation.AnimationType;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.inv.EditCaseInvHandler;
 import dev.gether.getcase.inv.PreviewWinInvHandler;
 import dev.gether.getcase.inv.SpinInvHolder;
-import dev.gether.getcase.lootbox.edit.EditLootBoxManager;
-import dev.gether.getcase.lootbox.open.OpenCaseManager;
+import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.animation.AnimationType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,14 +21,9 @@ public class InventoryClickListener implements Listener {
 
 
     private final LootBoxManager lootBoxManager;
-    private final EditLootBoxManager editLootBoxManager;
-    private final OpenCaseManager openCaseManager;
 
-
-    public InventoryClickListener(LootBoxManager lootBoxManager, EditLootBoxManager editLootBoxManager, OpenCaseManager openCaseManager) {
+    public InventoryClickListener(LootBoxManager lootBoxManager) {
         this.lootBoxManager = lootBoxManager;
-        this.editLootBoxManager = editLootBoxManager;
-        this.openCaseManager = openCaseManager;
     }
 
     @EventHandler
@@ -80,15 +73,13 @@ public class InventoryClickListener implements Listener {
     // true means that is admin inv
     private boolean handleAdminEditInv(InventoryClickEvent event, Inventory inventory, int slot) {
         InventoryHolder holder = inventory.getHolder();
-        if(holder==null || !(holder instanceof EditCaseInvHandler))
+        if(!(holder instanceof EditCaseInvHandler editCaseInvHandler))
             return false;
-
-        EditCaseInvHandler editCaseInvHandler = (EditCaseInvHandler) holder;
 
         // if clicked slot is last = save item
         if(slot==editCaseInvHandler.getInventory().getSize()-1) {
             event.setCancelled(true);
-            editLootBoxManager.saveAllItems(editCaseInvHandler);
+            lootBoxManager.getEditLootBoxManager().saveAllItems(editCaseInvHandler);
         }
 
         // if click SHIFT + RIGHT CLICK then run edit inv (anvil api)
@@ -100,9 +91,9 @@ public class InventoryClickListener implements Listener {
 
             event.setCancelled(true);
             // add all items to list
-            editLootBoxManager.saveAllItems(editCaseInvHandler);
+            lootBoxManager.getEditLootBoxManager().saveAllItems(editCaseInvHandler);
             // create anvil gui
-            editLootBoxManager.editItem(editCaseInvHandler, slot, item);
+            lootBoxManager.getEditLootBoxManager().editItem(editCaseInvHandler, slot, item);
         }
         return true;
     }
@@ -116,12 +107,12 @@ public class InventoryClickListener implements Listener {
         LootBox lootBox = previewWinInvHandler.getCaseObject();
         // open case with animation
         if(previewWinInvHandler.isAnimationSlot(slot)) {
-            openCaseManager.openCase(player, lootBox, AnimationType.SPIN);
+            lootBoxManager.openCase(player, lootBox, AnimationType.SPIN);
             return true;
         }
         // open case without the animation
         if(previewWinInvHandler.isNoAnimationSlot(slot)) {
-            openCaseManager.openCase(player, lootBox, AnimationType.QUICK);
+            lootBoxManager.openCase(player, lootBox, AnimationType.QUICK);
             return true;
         }
         return true;
@@ -147,13 +138,13 @@ public class InventoryClickListener implements Listener {
             boolean animationSlot = lootBoxManager.isAnimationSlot(slot, lootBox);
             // if is animation slot than open case with animation
             if(animationSlot) {
-                openCaseManager.openCase(player, lootBox, AnimationType.SPIN);
+                lootBoxManager.openCase(player, lootBox, AnimationType.SPIN);
                 return true;
             }
 
             boolean noAnimation = lootBoxManager.isNoAnimationSlot(slot, lootBox);
             if(noAnimation) {
-                openCaseManager.openCase(player, lootBox, AnimationType.QUICK);
+                lootBoxManager.openCase(player, lootBox, AnimationType.QUICK);
                 return true;
             }
 

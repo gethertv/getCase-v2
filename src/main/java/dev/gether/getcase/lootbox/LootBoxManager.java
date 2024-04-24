@@ -1,19 +1,19 @@
 package dev.gether.getcase.lootbox;
 
 import dev.gether.getcase.GetCase;
-import dev.gether.getcase.config.domain.CaseConfig;
+import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.CaseLocation;
-import dev.gether.getcase.config.domain.CaseLocationConfig;
-import dev.gether.getcase.config.domain.LangConfig;
 import dev.gether.getcase.config.domain.chest.BroadcastCase;
 import dev.gether.getcase.config.domain.chest.CaseHologram;
 import dev.gether.getcase.config.domain.chest.ItemCase;
+import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.hook.HookManager;
 import dev.gether.getcase.lootbox.animation.Animation;
 import dev.gether.getcase.lootbox.animation.AnimationManager;
 import dev.gether.getcase.lootbox.animation.AnimationType;
-import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.lootbox.edit.EditLootBoxManager;
 import dev.gether.getcase.lootbox.reward.RewardsManager;
-import dev.gether.getcase.manager.LocationCaseManager;
+import dev.gether.getcase.lootbox.location.LocationCaseManager;
 import dev.gether.getconfig.ConfigManager;
 import dev.gether.getconfig.domain.Item;
 import dev.gether.getconfig.domain.config.ItemDecoration;
@@ -30,36 +30,37 @@ import org.bukkit.inventory.ItemStack;
 import java.io.File;
 import java.util.*;
 
-public class LootBoxManager implements ILootboxManager {
+public class LootBoxManager {
 
-    private final LangConfig langConfig;
-    private final CaseConfig caseConfig;
+    private final EditLootBoxManager editLootBoxManager;
     private final AnimationManager animationManager;
     private final RewardsManager rewardsManager;
-
-
-    private final CaseLocationConfig caseLocationConfig;
+    private final LocationCaseManager locationCaseManager;
+    private final FileManager fileManager;
     // key: name file (name case) | value: CaseObject
     private final HashMap<String, LootBox> allCases = new HashMap<>();
 
-    public LootBoxManager(LangConfig langConfig, CaseConfig caseConfig, AnimationManager animationManager, RewardsManager rewardsManager, CaseLocationConfig caseLocationConfig) {
-        this.langConfig = langConfig;
-        this.caseConfig = caseConfig;
-        this.animationManager = animationManager;
-        this.rewardsManager = rewardsManager;
-        this.caseLocationConfig = caseLocationConfig;
+    public LootBoxManager(GetCase plugin, FileManager fileManager, HookManager hookManager) {
+        this.fileManager = fileManager;
 
+        rewardsManager = new RewardsManager(fileManager);
+        animationManager = new AnimationManager(plugin, rewardsManager, fileManager);
+
+        locationCaseManager = new LocationCaseManager(fileManager, this, hookManager);
+        editLootBoxManager = new EditLootBoxManager(plugin, this);
+
+        // create hologram for cases
+        locationCaseManager.createHolograms();
 
         implementsAllCases();
 
     }
 
-    @Override
     // open case with animation
     public void openCase(Player player, final LootBox lootBox) {
         // check case is enable
         if(!lootBox.isEnable()) {
-            MessageUtil.sendMessage(player, langConfig.getCaseIsDisable());
+            MessageUtil.sendMessage(player, fileManager.getLangConfig().getCaseIsDisable());
             return;
         }
         // check requirements like CASE is not empty and player has key for this case
@@ -81,12 +82,34 @@ public class LootBoxManager implements ILootboxManager {
             // give reward
             rewardsManager.giveReward(player, lootBox);
         }
-
     }
 
-    @Override
-    public void editCase(LootBox lootBox) {
+    // open case with animation
+    public void openCase(Player player, final LootBox lootBox, AnimationType animationType) {
+        // check case is enable
+        if(!lootBox.isEnable()) {
+            MessageUtil.sendMessage(player, fileManager.getLangConfig().getCaseIsDisable());
+            return;
+        }
+        // check requirements like CASE is not empty and player has key for this case
+        boolean hasRequirements  = checkRequirements(player, lootBox);
+        // is not meets then return
+        if(!hasRequirements)
+            return;
 
+        // take key
+        ItemUtil.removeItem(player, lootBox.getKeyItemStack(), 1);
+
+        // open case with animation
+        if(animationType == AnimationType.SPIN) {
+            // start animation
+            animationManager.startSpin(player, lootBox);
+        }
+        // open case without the animation
+        else if(animationType == AnimationType.QUICK) {
+            // give reward
+            rewardsManager.giveReward(player, lootBox);
+        }
     }
 
     private boolean checkRequirements(Player player, LootBox lootBox) {
@@ -98,8 +121,8 @@ public class LootBoxManager implements ILootboxManager {
         // check user has key
         if(!ItemUtil.hasItemStack(player, lootBox.getKeyItemStack())) {
             // send a message informing the user has not key
-            MessageUtil.sendMessage(player, langConfig.getNoKey());
-            player.playSound(player.getLocation(), caseConfig.getNoKeySound(), 1F, 1F);
+            MessageUtil.sendMessage(player, fileManager.getLangConfig().getNoKey());
+            player.playSound(player.getLocation(), fileManager.getCaseConfig().getNoKeySound(), 1F, 1F);
             player.closeInventory();
             return false;
         }
@@ -111,7 +134,7 @@ public class LootBoxManager implements ILootboxManager {
 
     public void implementsAllCases() {
         allCases.clear();
-        File[] files = GetCase.FILE_PATH_CASES.listFiles();
+        File[] files = FileManager.FILE_PATH_CASES.listFiles();
         if(files == null)
             return;
 
@@ -126,7 +149,7 @@ public class LootBoxManager implements ILootboxManager {
         }
     }
 
-    public boolean createCase(String caseName) {
+    public void createCase(String caseName) {
 
         LootBox lootBox = LootBox.builder()
                 // generate random ID
@@ -179,37 +202,32 @@ public class LootBoxManager implements ILootboxManager {
                 .build();
 
         implementCase(caseName, lootBox);
-        return true;
     }
 
     private void implementCase(String caseName, LootBox lootBox) {
-        lootBox.file(new File(GetCase.FILE_PATH_CASES, "{name}.yml".replace("{name}", caseName)));
+        lootBox.file(new File(FileManager.FILE_PATH_CASES, "{name}.yml".replace("{name}", caseName)));
         lootBox.load();
         // create inv (preview drop)
         lootBox.createInv();
         // add case to map
         allCases.put(caseName, lootBox);
     }
-    public boolean disableCase(LootBox lootBox) {
+    public void disableCase(LootBox lootBox) {
         lootBox.setEnable(false);
         lootBox.save();
-        return true;
     }
 
-    public boolean disableAllCases() {
+    public void disableAllCases() {
         allCases.values().forEach(this::disableCase);
-        return true;
     }
 
-    public boolean enableCase(LootBox lootBox) {
+    public void enableCase(LootBox lootBox) {
         lootBox.setEnable(true);
         lootBox.save();
-        return true;
     }
 
-    public boolean enableAllCases() {
+    public void enableAllCases() {
         allCases.values().forEach(this::enableCase);
-        return true;
     }
 
     // find case by ID
@@ -242,17 +260,17 @@ public class LootBoxManager implements ILootboxManager {
 
 
     public void saveCaseFile() {
-        caseConfig.save();
+        fileManager.getCaseConfig().save();
     }
 
     public void deleteAllHolograms() {
-        for (CaseLocation caseLocation : caseLocationConfig.getCaseLocationData()) {
+        for (CaseLocation caseLocation : fileManager.getCaseLocationConfig().getCaseLocationData()) {
             CaseHologram caseHologram = caseLocation.getCaseHologram();
             if(caseHologram.isEnable())
                 caseHologram.deleteHologram();
         }
     }
-    public boolean deleteCase(LootBox lootBox, LocationCaseManager locationCaseManager) {
+    public void deleteCase(LootBox lootBox) {
         // delete all hologram/action with preview case
         List<CaseLocation> listCaseLocation = locationCaseManager.findCaseLocationById(lootBox.getCaseId());
         if(!listCaseLocation.isEmpty()) {
@@ -267,26 +285,25 @@ public class LootBoxManager implements ILootboxManager {
         // delete object case
         allCases.remove(lootBox.getName());
         // delete file
-        File file = new File(GetCase.FILE_PATH_CASES, lootBox.getName()+".yml");
-        return file.delete();
+        File file = new File(FileManager.FILE_PATH_CASES, lootBox.getName()+".yml");
+        file.delete();
     }
 
 
-    public boolean givePlayerKey(Player target, LootBox lootBox, int amount) {
+    public void givePlayerKey(Player target, LootBox lootBox, int amount) {
         ItemStack itemStack = lootBox.getKeyItemStack().clone();
         itemStack.setAmount(amount);
         // give key
         target.getInventory().addItem(itemStack);
-        return true;
     }
 
-    public boolean giveAllKey(LootBox lootBox, int amount) {
+    public void giveAllKey(LootBox lootBox, int amount) {
         ItemStack itemStack = lootBox.getKeyItemStack().clone();
         itemStack.setAmount(amount);
         // give all key
         Bukkit.getOnlinePlayers().forEach(player -> player.getInventory().addItem(itemStack));
 
-        return true;
+        return;
     }
 
     public boolean checkIsKey(ItemStack itemInMainHand, ItemStack offHand) {
@@ -303,6 +320,19 @@ public class LootBoxManager implements ILootboxManager {
     }
 
 
+    public RewardsManager getRewardsManager() {
+        return rewardsManager;
+    }
 
+    public AnimationManager getAnimationManager() {
+        return animationManager;
+    }
 
+    public EditLootBoxManager getEditLootBoxManager() {
+        return editLootBoxManager;
+    }
+
+    public LocationCaseManager getLocationCaseManager() {
+        return locationCaseManager;
+    }
 }

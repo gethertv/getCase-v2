@@ -19,7 +19,7 @@ public class EditLootBoxManager {
     private final LootBoxManager lootBoxManager;
     private final GetCase plugin;
 
-    public EditLootBoxManager(LootBoxManager lootBoxManager, GetCase plugin) {
+    public EditLootBoxManager(GetCase plugin, LootBoxManager lootBoxManager) {
         this.lootBoxManager = lootBoxManager;
         this.plugin = plugin;
     }

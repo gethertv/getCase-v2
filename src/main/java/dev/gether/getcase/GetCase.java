@@ -3,8 +3,8 @@ package dev.gether.getcase;
 import dev.gether.getcase.bstats.Metrics;
 import dev.gether.getcase.cmd.GetCaseCmd;
 import dev.gether.getcase.cmd.arguments.CaseArg;
-import dev.gether.getcase.config.domain.CaseConfig;
 import dev.gether.getcase.config.FileManager;
+import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getcase.lootbox.edit.EditLootBoxManager;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.hook.HookManager;
@@ -12,8 +12,8 @@ import dev.gether.getcase.listener.InventoryClickListener;
 import dev.gether.getcase.listener.InventoryCloseListener;
 import dev.gether.getcase.listener.PlayerInteractionListener;
 import dev.gether.getcase.lootbox.animation.AnimationManager;
-import dev.gether.getcase.lootbox.open.OpenCaseManager;
-import dev.gether.getcase.manager.*;
+import dev.gether.getcase.lootbox.location.LocationCaseManager;
+import dev.gether.getcase.lootbox.reward.RewardsManager;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
 import org.bukkit.Bukkit;
@@ -28,44 +28,30 @@ public final class GetCase extends JavaPlugin {
     // instance
     private static GetCase instance;
 
-
     // manager
-    private CaseManager caseManager;
-    private LocationCaseManager locationCaseManager;
-    private EditLootBoxManager editLootBoxManager;
-    private AnimationManager spinCaseManager;
+    private LootBoxManager lootBoxManager;
     private LiteCommands<CommandSender> liteCommands;
     private HookManager hookManager;
 
     // file manager/config
     private final FileManager fileManager = new FileManager(this);
 
-    @Override
-    public void onLoad() {
-        instance = this;
-    }
 
     @Override
     public void onEnable() {
+        // skeleton
+        instance = this;
 
         // hooks
         hookManager = new HookManager();
 
-        // manager implement
-        caseManager = new CaseManager(caseConfig, caseLocationConfig);
-        locationCaseManager = new LocationCaseManager(caseLocationConfig, caseManager, hookManager);
-        editLootBoxManager = new EditLootBoxManager(caseManager, this);
-        OpenCaseManager openCaseManager = new OpenCaseManager(this, caseConfig, langConfig);
-        spinCaseManager = new AnimationManager(this,openCaseManager);
-
-        // create hologram for cases
-        locationCaseManager.createHolograms();
+        lootBoxManager = new LootBoxManager(this, fileManager, hookManager);
 
         // register listener
         Stream.of(
-                new InventoryCloseListener(openCaseManager),
-                new InventoryClickListener(caseManager, editLootBoxManager, openCaseManager),
-                new PlayerInteractionListener(locationCaseManager, caseManager, caseConfig)
+                new InventoryCloseListener(lootBoxManager),
+                new InventoryClickListener(lootBoxManager),
+                new PlayerInteractionListener(lootBoxManager, fileManager)
         ).forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
 
         // register cmd
@@ -78,7 +64,7 @@ public final class GetCase extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        caseManager.deleteAllHolograms();
+        lootBoxManager.deleteAllHolograms();
 
         if(liteCommands != null)
             liteCommands.getCommandManager().unregisterAll();
@@ -87,10 +73,10 @@ public final class GetCase extends JavaPlugin {
 
     }
 
-    public boolean reloadPlugin() {
+    public void reloadPlugin() {
         // close for all players inventory with case preview
         Bukkit.getOnlinePlayers().forEach(player -> {
-            for (LootBox caseDatum : caseManager.getAllCases()) {
+            for (LootBox caseDatum : lootBoxManager.getAllCases()) {
                 // if player open inventory is same, then close the inventory
                 if(player.getOpenInventory().getTopInventory().equals(caseDatum.getInventory())) {
                     player.closeInventory();
@@ -99,25 +85,22 @@ public final class GetCase extends JavaPlugin {
             }
         });
         // delete hologram
-        caseManager.deleteAllHolograms();
+        lootBoxManager.deleteAllHolograms();
         // load new config
-        caseLocationConfig.load();
-        caseConfig.load();
+        fileManager.reload();
 
         // implements cases
-        caseManager.implementsAllCases();
+        lootBoxManager.implementsAllCases();
         // create hologram for all cases
-        locationCaseManager.createHolograms();
-
-        return true;
+        lootBoxManager.getLocationCaseManager().createHolograms();
     }
     private void registerLiteCmd() {
         this.liteCommands =  LiteBukkitFactory.builder("getcase", this)
                 .commands(
-                        new GetCaseCmd(this, caseManager, locationCaseManager, editLootBoxManager)
+                        new GetCaseCmd(this, lootBoxManager)
                 )
                 // args
-                .argument(LootBox.class, new CaseArg(caseManager))
+                .argument(LootBox.class, new CaseArg(lootBoxManager))
                 .build();
 
     }
@@ -126,15 +109,11 @@ public final class GetCase extends JavaPlugin {
         return instance;
     }
 
-    public AnimationManager getSpinCaseManager() {
-        return spinCaseManager;
-    }
-
     public HookManager getHookManager() {
         return hookManager;
     }
 
-    public CaseConfig getCaseConfig() {
-        return caseConfig;
+    public FileManager getFileManager() {
+        return fileManager;
     }
 }

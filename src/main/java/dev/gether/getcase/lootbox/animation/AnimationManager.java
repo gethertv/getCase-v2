@@ -1,9 +1,10 @@
 package dev.gether.getcase.lootbox.animation;
 
 import dev.gether.getcase.GetCase;
+import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.inv.SpinInvHolder;
-import dev.gether.getcase.lootbox.open.OpenCaseManager;
+import dev.gether.getcase.lootbox.reward.RewardsManager;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -12,16 +13,18 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class AnimationManager {
 
     private final GetCase plugin;
+    private final RewardsManager rewardsManager;
+    private final FileManager fileManager;
     private static final int MAX_TICKS = 100;
     private static final long DELAY_AFTER_FINISH = 20L;
     private static final int SPEED_CHANGE_TICK = 86;
     private static final double SPEED_MULTIPLIER_AFTER_86 = 1.6;
     private static final double SPEED_MULTIPLIER = 1.01;
-    private final OpenCaseManager openCaseManager;
 
-    public AnimationManager(GetCase plugin, OpenCaseManager openCaseManager) {
+    public AnimationManager(GetCase plugin, RewardsManager rewardsManager, FileManager fileManager) {
         this.plugin = plugin;
-        this.openCaseManager = openCaseManager;
+        this.rewardsManager = rewardsManager;
+        this.fileManager = fileManager;
     }
 
     // prepare inventory with spin
@@ -30,10 +33,10 @@ public class AnimationManager {
         // slot 13 - win
         ItemStack[] itemStacks = new ItemStack[101];
         for (int i = 0; i < 100; i++) {
-            itemStacks[i] = openCaseManager.getRandomItem(lootBox).getItemStack();
+            itemStacks[i] = rewardsManager.getRandomItem(lootBox).getItemStack();
         }
 
-        SpinInvHolder spinInventory = new SpinInvHolder(lootBox, plugin.getCaseConfig().getSpinData(), itemStacks);
+        SpinInvHolder spinInventory = new SpinInvHolder(lootBox, fileManager.getCaseConfig().getSpinData(), itemStacks);
         player.openInventory(spinInventory.getInventory());
 
         // start animation
@@ -42,7 +45,7 @@ public class AnimationManager {
     public void spin(Player player, SpinInvHolder spinInventory, int ticksPassed, double speedCopy, int index) {
         if (spinInventory.isCancel() || spinInventory.isFinish()) {
             if (spinInventory.isFinish()) {
-                openCaseManager.giveReward(player, spinInventory.getCaseObject(), spinInventory.getWinItem());
+                rewardsManager.giveReward(player, spinInventory.getCaseObject(), spinInventory.getWinItem());
             }
             return;
         }
@@ -52,7 +55,7 @@ public class AnimationManager {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    openCaseManager.giveReward(player, spinInventory.getCaseObject(), spinInventory.getWinItem());
+                    rewardsManager.giveReward(player, spinInventory.getCaseObject(), spinInventory.getWinItem());
                 }
             }.runTaskLater(plugin, DELAY_AFTER_FINISH);
             return;
@@ -74,7 +77,7 @@ public class AnimationManager {
     }
 
     private void playSound(Player player) {
-        player.playSound(player.getLocation(), plugin.getCaseConfig().getSpinSound(), 1F, 1F);
+        player.playSound(player.getLocation(), fileManager.getCaseConfig().getSpinSound(), 1F, 1F);
     }
 
 
@@ -87,5 +90,7 @@ public class AnimationManager {
         //ItemCase item = openCaseManager.getRandomItem(caseObject);
         //inventory.setItem(17, item.getItemStack());
     }
+
+
 
 }

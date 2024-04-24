@@ -8,13 +8,14 @@ import dev.gether.getconfig.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
 public class PreviewWinInvHandler implements InventoryHolder {
 
     private final Inventory inventory;
     private final LootBox lootBox;
     private final PreviewWinItem previewWinItem;
-    public PreviewWinInvHandler(ItemCase itemCase, CaseConfig caseConfig, LootBox lootBox) {
+    public PreviewWinInvHandler(ItemStack itemStack, CaseConfig caseConfig, LootBox lootBox) {
         this.lootBox = lootBox;
 
         // preview schemat
@@ -31,7 +32,7 @@ public class PreviewWinInvHandler implements InventoryHolder {
         // set open case item with and without the animation
         fillAnimationItems(caseConfig, previewWinItem);
         // set winner item
-        inventory.setItem(previewWinItem.getSlotWinItem(), itemCase.getItemStack());
+        inventory.setItem(previewWinItem.getSlotWinItem(), itemStack);
 
     }
 

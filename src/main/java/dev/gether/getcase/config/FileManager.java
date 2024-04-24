@@ -18,6 +18,7 @@ public class FileManager {
     private CaseConfig caseConfig;
     private CaseLocationConfig caseLocationConfig;
     private LangConfig langConfig;
+
     // path to cases
     public static File FILE_PATH_CASES;
 
@@ -43,4 +44,9 @@ public class FileManager {
 
     }
 
+    public void reload() {
+        caseConfig.load();
+        caseLocationConfig.load();
+        langConfig.load();
+    }
 }

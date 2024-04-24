@@ -3,10 +3,8 @@ package dev.gether.getcase.config.domain.chest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.domain.CaseConfig;
-import dev.gether.getcase.config.domain.chest.BroadcastCase;
-import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.lootbox.animation.Animation;
-import dev.gether.getcase.lootbox.lootbox.LootboxType;
+import dev.gether.getcase.lootbox.LootboxType;
 import dev.gether.getconfig.GetConfig;
 import dev.gether.getconfig.domain.Item;
 import dev.gether.getconfig.domain.config.ItemDecoration;
@@ -129,7 +127,7 @@ public class LootBox extends GetConfig {
 
     private void fillAnimationItems() {
         // get instance caseConfig
-        CaseConfig caseConfig = GetCase.getInstance().getCaseConfig();
+        CaseConfig caseConfig = GetCase.getInstance().getFileManager().getCaseConfig();
         // animation
         for (Integer slot : animation.getAnimationSlots()) {
             // set animation item
@@ -160,4 +158,7 @@ public class LootBox extends GetConfig {
         return inv;
     }
 
+    public void findItemCaseByItem(ItemStack itemStack) {
+
+    }
 }

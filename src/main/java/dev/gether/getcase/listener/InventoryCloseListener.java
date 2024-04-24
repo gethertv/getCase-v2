@@ -2,7 +2,8 @@ package dev.gether.getcase.listener;
 
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.inv.SpinInvHolder;
-import dev.gether.getcase.lootbox.open.OpenCaseManager;
+import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.reward.RewardsManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,10 +13,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class InventoryCloseListener implements Listener {
 
-    private final OpenCaseManager openCaseManager;
+    private final RewardsManager rewardsManager;
 
-    public InventoryCloseListener(OpenCaseManager openCaseManager) {
-        this.openCaseManager = openCaseManager;
+    public InventoryCloseListener(LootBoxManager lootBoxManager) {
+        this.rewardsManager = lootBoxManager.getRewardsManager();
     }
 
     @EventHandler
@@ -34,7 +35,7 @@ public class InventoryCloseListener implements Listener {
 
                 @Override
                 public void run() {
-                    openCaseManager.giveReward(player, spinInvHolder.getCaseObject(), spinInvHolder.getWinItem());
+                    rewardsManager.giveReward(player, spinInvHolder.getCaseObject(), spinInvHolder.getWinItem());
 
                 }
             }.runTaskLater(GetCase.getInstance(), 1L);
