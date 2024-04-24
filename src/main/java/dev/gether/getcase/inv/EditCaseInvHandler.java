@@ -1,7 +1,7 @@
 package dev.gether.getcase.inv;
 
-import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.config.chest.ItemCase;
+import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getconfig.utils.ColorFixer;
 import dev.gether.getconfig.utils.ItemBuilder;
 import org.bukkit.Bukkit;
@@ -18,18 +18,18 @@ import java.util.List;
 public class EditCaseInvHandler implements InventoryHolder {
 
     private final Player player;
-    private final CaseObject caseObject;
+    private final LootBox lootBox;
     private final Inventory inventory;
 
-    public EditCaseInvHandler(Player player, CaseObject caseObject) {
+    public EditCaseInvHandler(Player player, LootBox lootBox) {
         this.player = player;
-        this.caseObject = caseObject;
+        this.lootBox = lootBox;
 
         // create edit inv
         inventory = Bukkit.createInventory(
                 this,
-                caseObject.getSizeInv(),
-                ColorFixer.addColors("&0Edytowanie "+caseObject.getName()));
+                lootBox.getSizeInv(),
+                ColorFixer.addColors("&0Edytowanie "+ lootBox.getName()));
 
         // fill with items
         fillInvByItems();
@@ -38,7 +38,7 @@ public class EditCaseInvHandler implements InventoryHolder {
 
     public void fillInvByItems() {
         // fill items in case
-        caseObject.getItems().forEach(item -> {
+        lootBox.getItems().forEach(item -> {
             // clone item and add to lore chance
             ItemStack itemStack = prepareItemWithChance(item);
             inventory.setItem(item.getSlot(), itemStack);
@@ -67,8 +67,8 @@ public class EditCaseInvHandler implements InventoryHolder {
         return player;
     }
 
-    public CaseObject getCaseObject() {
-        return caseObject;
+    public LootBox getCaseObject() {
+        return lootBox;
     }
 
     @Override

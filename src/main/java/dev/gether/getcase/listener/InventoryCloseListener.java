@@ -2,7 +2,7 @@ package dev.gether.getcase.listener;
 
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.inv.SpinInvHolder;
-import dev.gether.getcase.manager.OpenCaseManager;
+import dev.gether.getcase.lootbox.open.OpenCaseManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

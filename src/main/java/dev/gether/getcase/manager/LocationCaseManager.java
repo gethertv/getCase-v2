@@ -1,9 +1,9 @@
 package dev.gether.getcase.manager;
 
-import dev.gether.getcase.config.CaseLocation;
-import dev.gether.getcase.config.CaseLocationConfig;
-import dev.gether.getcase.config.chest.CaseHologram;
-import dev.gether.getcase.config.chest.CaseObject;
+import dev.gether.getcase.config.domain.CaseLocation;
+import dev.gether.getcase.config.domain.CaseLocationConfig;
+import dev.gether.getcase.config.domain.chest.CaseHologram;
+import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.hook.HookManager;
 import dev.gether.getconfig.utils.MessageUtil;
 import org.bukkit.Location;
@@ -32,7 +32,7 @@ public class LocationCaseManager {
         return caseLocationConfig.getCaseLocationData().stream().filter(caseLocation -> caseLocation.getLocation().equals(location)).findFirst();
     }
 
-    public void createLocationCase(Player player, CaseObject caseData) {
+    public void createLocationCase(Player player, LootBox caseData) {
         Block targetBlock = player.getTargetBlock(null, 5);
         if(targetBlock.getType() == Material.AIR) {
             MessageUtil.sendMessage(player, "&cMusisz patrzeć na blok!");
@@ -102,7 +102,7 @@ public class LocationCaseManager {
     public List<CaseLocation> findCaseLocationById(UUID id) {
         return caseLocationConfig.getCaseLocationData().stream().filter(caseLocation -> {
             UUID caseId = caseLocation.getCaseId();
-            Optional<CaseObject> caseByID = caseManager.findCaseByID(caseId);
+            Optional<LootBox> caseByID = caseManager.findCaseByID(caseId);
             // check case exists
             if(caseByID.isEmpty())
                 return false;
@@ -123,17 +123,17 @@ public class LocationCaseManager {
                 return;
             }
             // find case by UUID
-            Optional<CaseObject> caseByID = caseManager.findCaseByID(caseLocation.getCaseId());
+            Optional<LootBox> caseByID = caseManager.findCaseByID(caseLocation.getCaseId());
             if(caseByID.isEmpty()) {
                 return;
             }
             // case object
-            CaseObject caseObject = caseByID.get();
+            LootBox lootBox = caseByID.get();
 
             // location case/hologram
             Location location = caseLocation.getLocation();
             // create hologram for this case
-            caseLocation.getCaseHologram().createHologram(caseObject.getName(), location);
+            caseLocation.getCaseHologram().createHologram(lootBox.getName(), location);
         });
     }
 

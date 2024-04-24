@@ -1,9 +1,9 @@
 package dev.gether.getcase.listener;
 
-import dev.gether.getcase.config.CaseConfig;
-import dev.gether.getcase.config.CaseLocation;
-import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.manager.CaseManager;
+import dev.gether.getcase.config.domain.CaseConfig;
+import dev.gether.getcase.config.domain.CaseLocation;
+import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getcase.manager.LocationCaseManager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -20,12 +20,12 @@ import java.util.Optional;
 public class PlayerInteractionListener implements Listener {
 
     private final LocationCaseManager locationCaseManager;
-    private final CaseManager caseManager;
+    private final LootBoxManager lootBoxManager;
     private final CaseConfig caseConfig;
 
-    public PlayerInteractionListener(LocationCaseManager locationCaseManager, CaseManager caseManager, CaseConfig caseConfig) {
+    public PlayerInteractionListener(LocationCaseManager locationCaseManager, LootBoxManager lootBoxManager, CaseConfig caseConfig) {
         this.locationCaseManager = locationCaseManager;
-        this.caseManager = caseManager;
+        this.lootBoxManager = lootBoxManager;
         this.caseConfig = caseConfig;
     }
 
@@ -46,7 +46,7 @@ public class PlayerInteractionListener implements Listener {
         ItemStack offHand = player.getInventory().getItemInOffHand();
 
         // checking, the hand item is a key
-        boolean isKey = caseManager.checkIsKey(itemInMainHand, offHand);
+        boolean isKey = lootBoxManager.checkIsKey(itemInMainHand, offHand);
         // if key item then cancel
         if(isKey)
             event.setCancelled(true);
@@ -73,17 +73,17 @@ public class PlayerInteractionListener implements Listener {
 
         CaseLocation caseLocation = caseByLocation.get();
         // find case by ID
-        Optional<CaseObject> caseByID = caseManager.findCaseByID(caseLocation.getCaseId());
+        Optional<LootBox> caseByID = lootBoxManager.findCaseByID(caseLocation.getCaseId());
         // if not found / then return
         if(caseByID.isEmpty())
             return;
 
         event.setCancelled(true);
         // get case object
-        CaseObject caseObject = caseByID.get();
+        LootBox lootBox = caseByID.get();
         // play sound
         player.playSound(player.getLocation(), caseConfig.getPreviewCaseSound(), 1F, 1F);
         // open inventory with preview drop
-        player.openInventory(caseObject.getInventory());
+        player.openInventory(lootBox.getInventory());
     }
 }

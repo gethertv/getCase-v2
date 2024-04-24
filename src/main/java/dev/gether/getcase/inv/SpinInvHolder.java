@@ -1,7 +1,7 @@
 package dev.gether.getcase.inv;
 
-import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.config.chest.SpinData;
+import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.config.domain.chest.SpinData;
 import dev.gether.getconfig.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
@@ -13,10 +13,10 @@ public class SpinInvHolder implements InventoryHolder {
     private final Inventory inventory;
     private boolean finish;
     private boolean cancel;
-    private final CaseObject caseObject;
+    private final LootBox lootBox;
     private final ItemStack[] itemStacks;
-    public SpinInvHolder(CaseObject caseObject, SpinData spinData, ItemStack[] itemStacks) {
-        this.caseObject = caseObject;
+    public SpinInvHolder(LootBox lootBox, SpinData spinData, ItemStack[] itemStacks) {
+        this.lootBox = lootBox;
 
         // create edit inv
         inventory = Bukkit.createInventory(
@@ -52,8 +52,8 @@ public class SpinInvHolder implements InventoryHolder {
     public Inventory getInventory() {
         return inventory;
     }
-    public CaseObject getCaseObject() {
-        return caseObject;
+    public LootBox getCaseObject() {
+        return lootBox;
     }
 
     public ItemStack getWinItem() {

@@ -1,4 +1,4 @@
-package dev.gether.getcase.config;
+package dev.gether.getcase.config.domain;
 
 import dev.gether.getconfig.GetConfig;
 import lombok.Getter;

@@ -1,7 +1,6 @@
 package dev.gether.getcase.cmd.arguments;
 
-import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.manager.CaseManager;
+import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.rollczi.litecommands.argument.Argument;
 import dev.rollczi.litecommands.argument.parser.ParseResult;
 import dev.rollczi.litecommands.argument.resolver.ArgumentResolver;
@@ -11,7 +10,7 @@ import dev.rollczi.litecommands.suggestion.SuggestionResult;
 import org.bukkit.command.CommandSender;
 import java.util.Optional;
 
-public class CaseArg extends ArgumentResolver<CommandSender, CaseObject> {
+public class CaseArg extends ArgumentResolver<CommandSender, LootBox> {
 
     private final CaseManager caseManager;
 
@@ -20,12 +19,12 @@ public class CaseArg extends ArgumentResolver<CommandSender, CaseObject> {
     }
 
     @Override
-    protected ParseResult<CaseObject> parse(Invocation<CommandSender> invocation, Argument<CaseObject> context, String argument) {
-        Optional<CaseObject> caseByName = this.caseManager.findCaseByName(argument);
+    protected ParseResult<LootBox> parse(Invocation<CommandSender> invocation, Argument<LootBox> context, String argument) {
+        Optional<LootBox> caseByName = this.caseManager.findCaseByName(argument);
         return caseByName.map(ParseResult::success).orElseGet(() -> ParseResult.failure("&cPodana skrzynia nie istnieje!"));
     }
     @Override
-    public SuggestionResult suggest(Invocation<CommandSender> invocation, Argument<CaseObject> argument, SuggestionContext context) {
+    public SuggestionResult suggest(Invocation<CommandSender> invocation, Argument<LootBox> argument, SuggestionContext context) {
         return caseManager.getAllNameSuggestionOfCase();
     }
 

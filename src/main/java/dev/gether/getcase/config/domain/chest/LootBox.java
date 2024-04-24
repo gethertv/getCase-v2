@@ -1,4 +1,4 @@
-package dev.gether.getcase.lootbox.lootbox;
+package dev.gether.getcase.config.domain.chest;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.gether.getcase.GetCase;
@@ -6,6 +6,7 @@ import dev.gether.getcase.config.domain.CaseConfig;
 import dev.gether.getcase.config.domain.chest.BroadcastCase;
 import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.lootbox.animation.Animation;
+import dev.gether.getcase.lootbox.lootbox.LootboxType;
 import dev.gether.getconfig.GetConfig;
 import dev.gether.getconfig.domain.Item;
 import dev.gether.getconfig.domain.config.ItemDecoration;
@@ -19,8 +20,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 // class represent object CASE
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Builder
@@ -47,6 +46,8 @@ public class LootBox extends GetConfig {
     private Animation animation;
     // broadcast
     private BroadcastCase broadcastCase;
+
+    public LootBox() {}
 
     public void createInv() {
         inv = Bukkit.createInventory(null, sizeInv, ColorFixer.addColors(titleInv));

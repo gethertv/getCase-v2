@@ -1,4 +1,4 @@
-package dev.gether.getcase.lootbox.type;
+package dev.gether.getcase.lootbox.lootbox;
 
 public enum LootboxType {
     LOOTBOX,

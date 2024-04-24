@@ -1,13 +1,13 @@
 package dev.gether.getcase.listener;
 
-import dev.gether.getcase.config.chest.CaseObject;
+import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.animation.AnimationType;
+import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.inv.EditCaseInvHandler;
 import dev.gether.getcase.inv.PreviewWinInvHandler;
 import dev.gether.getcase.inv.SpinInvHolder;
-import dev.gether.getcase.manager.AdminEditManager;
-import dev.gether.getcase.manager.CaseManager;
-import dev.gether.getcase.manager.OpenCaseManager;
-import dev.gether.getcase.type.OpenType;
+import dev.gether.getcase.lootbox.edit.EditLootBoxManager;
+import dev.gether.getcase.lootbox.open.OpenCaseManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,14 +22,14 @@ import java.util.Optional;
 public class InventoryClickListener implements Listener {
 
 
-    private final CaseManager caseManager;
-    private final AdminEditManager adminEditManager;
+    private final LootBoxManager lootBoxManager;
+    private final EditLootBoxManager editLootBoxManager;
     private final OpenCaseManager openCaseManager;
 
 
-    public InventoryClickListener(CaseManager caseManager, AdminEditManager adminEditManager, OpenCaseManager openCaseManager) {
-        this.caseManager = caseManager;
-        this.adminEditManager = adminEditManager;
+    public InventoryClickListener(LootBoxManager lootBoxManager, EditLootBoxManager editLootBoxManager, OpenCaseManager openCaseManager) {
+        this.lootBoxManager = lootBoxManager;
+        this.editLootBoxManager = editLootBoxManager;
         this.openCaseManager = openCaseManager;
     }
 
@@ -88,7 +88,7 @@ public class InventoryClickListener implements Listener {
         // if clicked slot is last = save item
         if(slot==editCaseInvHandler.getInventory().getSize()-1) {
             event.setCancelled(true);
-            adminEditManager.saveAllItems(editCaseInvHandler);
+            editLootBoxManager.saveAllItems(editCaseInvHandler);
         }
 
         // if click SHIFT + RIGHT CLICK then run edit inv (anvil api)
@@ -100,9 +100,9 @@ public class InventoryClickListener implements Listener {
 
             event.setCancelled(true);
             // add all items to list
-            adminEditManager.saveAllItems(editCaseInvHandler);
+            editLootBoxManager.saveAllItems(editCaseInvHandler);
             // create anvil gui
-            adminEditManager.editItem(editCaseInvHandler, slot, item);
+            editLootBoxManager.editItem(editCaseInvHandler, slot, item);
         }
         return true;
     }
@@ -113,15 +113,15 @@ public class InventoryClickListener implements Listener {
             return false;
 
         event.setCancelled(true);
-        CaseObject caseObject = previewWinInvHandler.getCaseObject();
+        LootBox lootBox = previewWinInvHandler.getCaseObject();
         // open case with animation
         if(previewWinInvHandler.isAnimationSlot(slot)) {
-            openCaseManager.openCase(player, caseObject, OpenType.ANIMATION);
+            openCaseManager.openCase(player, lootBox, AnimationType.SPIN);
             return true;
         }
         // open case without the animation
         if(previewWinInvHandler.isNoAnimationSlot(slot)) {
-            openCaseManager.openCase(player, caseObject, OpenType.NORMAL);
+            openCaseManager.openCase(player, lootBox, AnimationType.QUICK);
             return true;
         }
         return true;
@@ -130,30 +130,30 @@ public class InventoryClickListener implements Listener {
     // this call the inventory is this same what preview from case
     private boolean handlePreviewCaseInv(InventoryClickEvent event, Player player, Inventory inventory, int slot) {
         // find inventory
-        Optional<CaseObject> caseByInv = caseManager.findCaseByInv(inventory);
+        Optional<LootBox> caseByInv = lootBoxManager.findCaseByInv(inventory);
         // if inventory is this same what the case then return Case object
         if(caseByInv.isPresent()) {
             // cancel event
             event.setCancelled(true);
 
             // get object of case
-            CaseObject caseObject = caseByInv.get();
+            LootBox lootBox = caseByInv.get();
 
 //            // check the clicked inventory is not null AND the same what returned from method
 //            // IF IS NULL OR NOT THIS SAME - RETURN
 //            if(clickedInventory==null || clickedInventory.equals(caseObject.getInventory()))
 //                return;
 
-            boolean animationSlot = caseManager.isAnimationSlot(slot, caseObject);
+            boolean animationSlot = lootBoxManager.isAnimationSlot(slot, lootBox);
             // if is animation slot than open case with animation
             if(animationSlot) {
-                openCaseManager.openCase(player, caseObject, OpenType.ANIMATION);
+                openCaseManager.openCase(player, lootBox, AnimationType.SPIN);
                 return true;
             }
 
-            boolean noAnimation = caseManager.isNoAnimationSlot(slot, caseObject);
+            boolean noAnimation = lootBoxManager.isNoAnimationSlot(slot, lootBox);
             if(noAnimation) {
-                openCaseManager.openCase(player, caseObject, OpenType.NORMAL);
+                openCaseManager.openCase(player, lootBox, AnimationType.QUICK);
                 return true;
             }
 

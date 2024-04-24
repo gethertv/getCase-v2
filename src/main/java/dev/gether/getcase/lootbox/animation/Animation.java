@@ -1,4 +1,4 @@
-package dev.gether.getcase.lootbox.domain;
+package dev.gether.getcase.lootbox.animation;
 
 import dev.gether.getcase.lootbox.animation.AnimationType;
 import lombok.Builder;

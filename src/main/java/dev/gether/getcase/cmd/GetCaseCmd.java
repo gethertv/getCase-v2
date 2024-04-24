@@ -1,9 +1,8 @@
 package dev.gether.getcase.cmd;
 
 import dev.gether.getcase.GetCase;
-import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.manager.AdminEditManager;
-import dev.gether.getcase.manager.CaseManager;
+import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.lootbox.edit.EditLootBoxManager;
 import dev.gether.getcase.manager.LocationCaseManager;
 import dev.gether.getconfig.utils.MessageUtil;
 import dev.rollczi.litecommands.annotations.argument.Arg;
@@ -23,19 +22,19 @@ public class GetCaseCmd {
     private final GetCase getCase;
     private final CaseManager caseManager;
     private final LocationCaseManager locationCaseManager;
-    private final AdminEditManager adminEditManager;
+    private final EditLootBoxManager editLootBoxManager;
 
-    public GetCaseCmd(GetCase getCase, CaseManager caseManager, LocationCaseManager locationCaseManager, AdminEditManager adminEditManager) {
+    public GetCaseCmd(GetCase getCase, CaseManager caseManager, LocationCaseManager locationCaseManager, EditLootBoxManager editLootBoxManager) {
         this.getCase = getCase;
         this.caseManager = caseManager;
         this.locationCaseManager = locationCaseManager;
-        this.adminEditManager = adminEditManager;
+        this.editLootBoxManager = editLootBoxManager;
     }
 
     @Execute(name = "create")
     public void createCase(@Context CommandSender sender, @Arg("nazwa skrzynki") String caseName) {
         // check case exists
-        Optional<CaseObject> caseByName = caseManager.findCaseByName(caseName);
+        Optional<LootBox> caseByName = caseManager.findCaseByName(caseName);
         if(caseByName.isPresent()) {
             MessageUtil.sendMessage(sender, "&cPodana skrzynka juz istnieje!");
             return;
@@ -50,9 +49,9 @@ public class GetCaseCmd {
 
 
     @Execute(name = "enable")
-    public void enableCase(@Context CommandSender sender, @Arg("nazwa skrzynki") CaseObject caseObject) {
+    public void enableCase(@Context CommandSender sender, @Arg("nazwa skrzynki") LootBox lootBox) {
         // check case exists
-        boolean success = caseManager.enableCase(caseObject);
+        boolean success = caseManager.enableCase(lootBox);
         if(success)
             MessageUtil.sendMessage(sender, "&aPomyslnie wlaczono skrzynke!");
         else
@@ -71,9 +70,9 @@ public class GetCaseCmd {
 
 
     @Execute(name = "disable")
-    public void disableCase(@Context CommandSender sender, @Arg("nazwa skrzynki") CaseObject caseObject) {
+    public void disableCase(@Context CommandSender sender, @Arg("nazwa skrzynki") LootBox lootBox) {
         // check case exists
-        boolean success = caseManager.disableCase(caseObject);
+        boolean success = caseManager.disableCase(lootBox);
         if(success)
             MessageUtil.sendMessage(sender, "&aPomyslnie wylaczono skrzynke!");
         else
@@ -91,7 +90,7 @@ public class GetCaseCmd {
     }
 
     @Execute(name = "setlocation")
-    public void setLocation(@Context CommandSender sender, @Arg("case") CaseObject caseName) {
+    public void setLocation(@Context CommandSender sender, @Arg("case") LootBox caseName) {
         if(!(sender instanceof Player player)) {
             MessageUtil.sendMessage(sender, "&cNie mozesz tego przez konsole!");
             return;
@@ -100,16 +99,16 @@ public class GetCaseCmd {
     }
 
     @Execute(name = "give")
-    public void giveKey(@Context CommandSender sender, @Arg("player") Player target, @Arg("case") CaseObject caseObject, @Arg("ilosc") int amount) {
-        boolean success = caseManager.givePlayerKey(target, caseObject, amount);
+    public void giveKey(@Context CommandSender sender, @Arg("player") Player target, @Arg("case") LootBox lootBox, @Arg("ilosc") int amount) {
+        boolean success = caseManager.givePlayerKey(target, lootBox, amount);
         if(success) {
             MessageUtil.sendMessage(sender, "&aPomyslnie nadano klucz!");
         }
     }
 
     @Execute(name = "giveall")
-    public void giveAllKey(@Context CommandSender sender, @Arg("case") CaseObject caseObject, @Arg("ilosc") int amount) {
-        boolean success = caseManager.giveAllKey(caseObject, amount);
+    public void giveAllKey(@Context CommandSender sender, @Arg("case") LootBox lootBox, @Arg("ilosc") int amount) {
+        boolean success = caseManager.giveAllKey(lootBox, amount);
         if(success) {
             MessageUtil.sendMessage(sender, "&aPomyslnie nadano wszystkim klucze!");
         }
@@ -123,16 +122,16 @@ public class GetCaseCmd {
     }
 
     @Execute(name = "edit")
-    public void edit(@Context CommandSender sender, @Arg("case") CaseObject caseName) {
+    public void edit(@Context CommandSender sender, @Arg("case") LootBox caseName) {
         if(!(sender instanceof Player player)) {
             MessageUtil.sendMessage(sender, "&cNie mozesz tego przez konsole!");
             return;
         }
-        adminEditManager.editCase(player, caseName);
+        editLootBoxManager.editCase(player, caseName);
     }
 
     @Execute(name = "delete")
-    public void delete(@Context CommandSender sender, @Arg("case") CaseObject caseName) {
+    public void delete(@Context CommandSender sender, @Arg("case") LootBox caseName) {
         boolean success = caseManager.deleteCase(caseName, locationCaseManager);
         if(success)
             MessageUtil.sendMessage(sender, "&aPomyslnie usunieto skrzynie!");

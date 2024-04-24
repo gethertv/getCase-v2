@@ -1,21 +1,21 @@
 package dev.gether.getcase.inv;
 
-import dev.gether.getcase.config.CaseConfig;
-import dev.gether.getcase.config.chest.CaseObject;
-import dev.gether.getcase.config.chest.PreviewWinItem;
+import dev.gether.getcase.config.domain.CaseConfig;
+import dev.gether.getcase.config.domain.chest.ItemCase;
+import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.config.domain.chest.PreviewWinItem;
 import dev.gether.getconfig.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 
 public class PreviewWinInvHandler implements InventoryHolder {
 
     private final Inventory inventory;
-    private final CaseObject caseObject;
+    private final LootBox lootBox;
     private final PreviewWinItem previewWinItem;
-    public PreviewWinInvHandler(ItemStack itemStack, CaseConfig caseConfig, CaseObject caseObject) {
-        this.caseObject = caseObject;
+    public PreviewWinInvHandler(ItemCase itemCase, CaseConfig caseConfig, LootBox lootBox) {
+        this.lootBox = lootBox;
 
         // preview schemat
         previewWinItem = caseConfig.getPreviewWinItem();
@@ -31,7 +31,7 @@ public class PreviewWinInvHandler implements InventoryHolder {
         // set open case item with and without the animation
         fillAnimationItems(caseConfig, previewWinItem);
         // set winner item
-        inventory.setItem(previewWinItem.getSlotWinItem(), itemStack);
+        inventory.setItem(previewWinItem.getSlotWinItem(), itemCase.getItemStack());
 
     }
 
@@ -57,8 +57,8 @@ public class PreviewWinInvHandler implements InventoryHolder {
         return previewWinItem.getNoAnimationSlots().contains(slot);
     }
 
-    public CaseObject getCaseObject() {
-        return caseObject;
+    public LootBox getCaseObject() {
+        return lootBox;
     }
 
     @Override

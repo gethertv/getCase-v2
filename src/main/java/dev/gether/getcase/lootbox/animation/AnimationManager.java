@@ -1,7 +1,7 @@
-package dev.gether.getcase.manager;
+package dev.gether.getcase.lootbox.animation;
 
 import dev.gether.getcase.GetCase;
-import dev.gether.getcase.config.chest.CaseObject;
+import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.inv.SpinInvHolder;
 import dev.gether.getcase.lootbox.open.OpenCaseManager;
 import org.bukkit.entity.Player;
@@ -9,7 +9,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class SpinCaseManager {
+public class AnimationManager {
 
     private final GetCase plugin;
     private static final int MAX_TICKS = 100;
@@ -19,21 +19,21 @@ public class SpinCaseManager {
     private static final double SPEED_MULTIPLIER = 1.01;
     private final OpenCaseManager openCaseManager;
 
-    public SpinCaseManager(GetCase plugin, OpenCaseManager openCaseManager) {
+    public AnimationManager(GetCase plugin, OpenCaseManager openCaseManager) {
         this.plugin = plugin;
         this.openCaseManager = openCaseManager;
     }
 
     // prepare inventory with spin
-    public void startSpin(Player player, CaseObject caseObject) {
+    public void startSpin(Player player, LootBox lootBox) {
         // get random item
         // slot 13 - win
         ItemStack[] itemStacks = new ItemStack[101];
         for (int i = 0; i < 100; i++) {
-            itemStacks[i] = openCaseManager.getRandomItem(caseObject).getItemStack();
+            itemStacks[i] = openCaseManager.getRandomItem(lootBox).getItemStack();
         }
 
-        SpinInvHolder spinInventory = new SpinInvHolder(caseObject, plugin.getCaseConfig().getSpinData(), itemStacks);
+        SpinInvHolder spinInventory = new SpinInvHolder(lootBox, plugin.getCaseConfig().getSpinData(), itemStacks);
         player.openInventory(spinInventory.getInventory());
 
         // start animation

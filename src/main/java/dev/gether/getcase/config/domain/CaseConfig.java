@@ -1,7 +1,7 @@
-package dev.gether.getcase.config;
+package dev.gether.getcase.config.domain;
 
-import dev.gether.getcase.config.chest.PreviewWinItem;
-import dev.gether.getcase.config.chest.SpinData;
+import dev.gether.getcase.config.domain.chest.PreviewWinItem;
+import dev.gether.getcase.config.domain.chest.SpinData;
 import dev.gether.getconfig.GetConfig;
 import dev.gether.getconfig.annotation.Comment;
 import dev.gether.getconfig.domain.Item;
@@ -67,12 +67,15 @@ public class CaseConfig extends GetConfig {
     private Item noAnimationItem = Item.builder()
             .material(Material.LIME_DYE)
             .displayname("&7Otworz bez animacji")
+            .unbreakable(true)
             .glow(true)
             .build();
+
     private Item animationItem = Item.builder()
             .material(Material.PURPLE_DYE)
             .displayname("&7Otworz z animacji")
             .lore(new ArrayList<>(List.of("test")))
+            .unbreakable(true)
             .glow(false)
             .build();
 

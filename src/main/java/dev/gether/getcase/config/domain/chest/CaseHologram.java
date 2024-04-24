@@ -1,4 +1,4 @@
-package dev.gether.getcase.config.chest;
+package dev.gether.getcase.config.domain.chest;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.gether.getcase.GetCase;
@@ -10,17 +10,19 @@ import org.bukkit.Location;
 import java.util.List;
 import java.util.UUID;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Builder
 public class CaseHologram {
+
     @JsonIgnore
     private Hologram hologram;
     private boolean enable;
     private List<String> lines;
     private double heightY;
+
+
+    public CaseHologram() {}
 
     @JsonIgnore
     public void createHologram(String caseName, Location location) {
