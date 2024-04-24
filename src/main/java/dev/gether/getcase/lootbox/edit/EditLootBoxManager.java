@@ -1,9 +1,10 @@
-package dev.gether.getcase.manager;
+package dev.gether.getcase.lootbox.edit;
 
 import dev.gether.getcase.GetCase;
-import dev.gether.getcase.config.chest.CaseObject;
+import dev.gether.getcase.lootbox.lootbox.LootBox;
 import dev.gether.getcase.config.chest.ItemCase;
 import dev.gether.getcase.inv.EditCaseInvHandler;
+import dev.gether.getcase.manager.CaseManager;
 import net.md_5.bungee.api.ChatColor;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Material;
@@ -24,8 +25,8 @@ public class AdminEditManager {
         this.plugin = plugin;
     }
 
-    public void editCase(Player player, CaseObject caseObject) {
-        EditCaseInvHandler editCaseInventory = new EditCaseInvHandler(player, caseObject);
+    public void editCase(Player player, LootBox lootBox) {
+        EditCaseInvHandler editCaseInventory = new EditCaseInvHandler(player, lootBox);
         // this inv
         Inventory inventory = editCaseInventory.getInventory();
         // open inv
@@ -159,8 +160,5 @@ public class AdminEditManager {
         return itemStack;
     }
 
-    public static String deserializeLore(String serializedLore) {
-        return ChatColor.translateAlternateColorCodes('§', serializedLore);
-    }
 
 }

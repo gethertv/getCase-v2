@@ -1,8 +1,11 @@
-package dev.gether.getcase.config.chest;
+package dev.gether.getcase.lootbox.lootbox;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.gether.getcase.GetCase;
-import dev.gether.getcase.config.CaseConfig;
+import dev.gether.getcase.config.domain.CaseConfig;
+import dev.gether.getcase.config.domain.chest.BroadcastCase;
+import dev.gether.getcase.config.domain.chest.ItemCase;
+import dev.gether.getcase.lootbox.animation.Animation;
 import dev.gether.getconfig.GetConfig;
 import dev.gether.getconfig.domain.Item;
 import dev.gether.getconfig.domain.config.ItemDecoration;
@@ -21,11 +24,13 @@ import java.util.*;
 @Getter
 @Setter
 @Builder
-public class CaseObject extends GetConfig {
+public class LootBox extends GetConfig {
 
-    // this$ - ignore implement okaeri config
     @JsonIgnore
     private Inventory inv;
+
+    // type case/lootbox may be a luckblock or normal case
+    private LootboxType lootboxType;
 
     private boolean enable;
     private UUID caseId;
@@ -38,23 +43,18 @@ public class CaseObject extends GetConfig {
     private Set<ItemCase> items;
     // background decoration
     private Set<ItemDecoration> decorations;
-
-    // animation slots
-    private Set<Integer> animationSlots;
-    // no animation slots
-    private Set<Integer> noAnimationSlots;
-
+    // animation data
+    private Animation animation;
     // broadcast
     private BroadcastCase broadcastCase;
 
     public void createInv() {
-
         inv = Bukkit.createInventory(null, sizeInv, ColorFixer.addColors(titleInv));
         // fill inv with items
-        fillItems();
+        fillInventory();
     }
 
-    public void fillItems() {
+    public void fillInventory() {
         // clear inv
         inv.clear();
         // fill [ background items]
@@ -88,7 +88,7 @@ public class CaseObject extends GetConfig {
 
         // sorted to lowest chance
         List<Map.Entry<ItemCase, Double>> sortedItems = adjustedChances.entrySet().stream()
-                .sorted(Map.Entry.<ItemCase, Double>comparingByValue())
+                .sorted(Map.Entry.comparingByValue())
                 .toList();
 
         // correct last item chance to fix the sum chance (100%)
@@ -102,43 +102,40 @@ public class CaseObject extends GetConfig {
             double chance = entry.getValue();
             inv.setItem(item.getSlot(), addExtraLore(item, String.format("%.2f", chance)));
         }
+
     }
 
-    private ItemStack addExtraLore(ItemCase item, String chance) {
-        ItemStack itemStack = item.getItemStack().clone();
-        ItemMeta itemMeta = itemStack.getItemMeta();
+    public ItemStack addExtraLore(ItemCase item, String chance) {
+        final ItemStack itemStack = item.getItemStack().clone();
+        final ItemMeta itemMeta = Optional.ofNullable(itemStack.getItemMeta()).orElseThrow(() -> new IllegalStateException("ItemMeta cannot be null"));
 
-        if (itemMeta == null) {
-            return itemStack;
-        }
-
-        List<String> lore = itemMeta.getLore();
-        if (lore == null) {
-            lore = new ArrayList<>();
-        }
-
-        if (item.getExtraLore() != null) {
-            for (String line : item.getExtraLore()) {
-                line = line.replace("{chance}", chance);
-                lore.add(ColorFixer.addColors(line));
-            }
-        }
+        List<String> lore = Optional.ofNullable(itemMeta.getLore()).orElse(new ArrayList<>());
+        addFormattedExtraLore(lore, item.getExtraLore(), chance);
 
         itemMeta.setLore(lore);
         itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
 
+    private void addFormattedExtraLore(List<String> lore, List<String> extraLore, String chance) {
+        if (extraLore != null) {
+            extraLore.stream()
+                    .map(line -> line.replace("{chance}", chance))
+                    .map(ColorFixer::addColors)
+                    .forEach(lore::add);
+        }
+    }
+
     private void fillAnimationItems() {
         // get instance caseConfig
         CaseConfig caseConfig = GetCase.getInstance().getCaseConfig();
         // animation
-        for (Integer slot : animationSlots) {
+        for (Integer slot : animation.getAnimationSlots()) {
             // set animation item
             inv.setItem(slot, caseConfig.getAnimationItem().getItemStack());
         }
         // no animation
-        for (Integer slot : noAnimationSlots) {
+        for (Integer slot : animation.getNoAnimationSlots()) {
             // set no animation item
             inv.setItem(slot, caseConfig.getNoAnimationItem().getItemStack());
         }
@@ -152,10 +149,9 @@ public class CaseObject extends GetConfig {
         }
     }
 
-
     @JsonIgnore
-    public Item getKeyItem() {
-        return itemKey;
+    public ItemStack getKeyItemStack() {
+        return itemKey.getItemStack();
     }
 
     @JsonIgnore

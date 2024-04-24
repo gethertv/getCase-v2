@@ -3,7 +3,7 @@ package dev.gether.getcase.manager;
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.chest.CaseObject;
 import dev.gether.getcase.inv.SpinInvHolder;
-import org.bukkit.Bukkit;
+import dev.gether.getcase.lootbox.open.OpenCaseManager;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
