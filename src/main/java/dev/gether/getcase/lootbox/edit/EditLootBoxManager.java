@@ -32,9 +32,6 @@ public class EditLootBoxManager {
         player.openInventory(inventory);
     }
 
-    public void saveCase() {
-        lootBoxManager.saveCaseFile();
-    }
 
     public void editItem(EditCaseInvHandler editCaseInvHandler, int slot, ItemStack itemStack) {
 
@@ -69,7 +66,7 @@ public class EditLootBoxManager {
 
             String text = stateSnapshot.getText();
             if(!isDouble(text)) {
-                return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Podaj liczbe"));
+                return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Number"));
             }
             // parse chance from text to double
             double chance = Double.parseDouble(text);
@@ -86,7 +83,7 @@ public class EditLootBoxManager {
             );
         });
         // title gui
-        builder.title("Podaj szanse");
+        builder.title("Chance");
         // left item text
         builder.text("0.00");
         // left item
@@ -164,7 +161,7 @@ public class EditLootBoxManager {
         ItemMeta itemMeta = itemStack.getItemMeta();
         List<String> lore = itemMeta.getLore();
         if (lore != null && !lore.isEmpty()) {
-            lore.removeIf(loreLine -> loreLine.contains("× Szansa:") || loreLine.contains("× Shift + Prawy przycisk"));
+            lore.removeIf(loreLine -> loreLine.contains("× Chance:") || loreLine.contains("× Shift + Right click"));
             itemMeta.setLore(lore);
             itemStack.setItemMeta(itemMeta);
         }

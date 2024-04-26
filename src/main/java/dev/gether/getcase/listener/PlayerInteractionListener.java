@@ -4,6 +4,8 @@ import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.CaseLocation;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.LootboxType;
+import dev.gether.getcase.lootbox.animation.AnimationType;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -43,12 +45,38 @@ public class PlayerInteractionListener implements Listener {
         ItemStack offHand = player.getInventory().getItemInOffHand();
 
         // checking, the hand item is a key
-        boolean isKey = lootBoxManager.checkIsKey(itemInMainHand, offHand);
+        Optional<LootBox> lootBoxOpt = lootBoxManager.checkIsKey(itemInMainHand, offHand);
         // if key item then cancel
-        if(isKey)
+        lootBoxOpt.ifPresent(lootBox -> {
             event.setCancelled(true);
+
+            // open all cases by one click
+            if(fileManager.getCaseConfig().isQuickOpenCase() &&
+                    player.isSneaking() &&
+                    event.getAction().toString().contains("RIGHT")) {
+
+                lootBoxManager.openAllCase(player, lootBox);
+                return;
+            }
+
+            // if is not the luckblock then ignore otherwise just open case
+            if(lootBox.getLootboxType() != LootboxType.LUCKBLOCK)
+                return;
+
+            lootBoxManager.openCase(player, lootBox, getTypeAnimation(event.getAction()));
+        });
     }
 
+    public AnimationType getTypeAnimation(Action action) {
+        switch (action) {
+            case LEFT_CLICK_AIR, LEFT_CLICK_BLOCK -> {
+                return AnimationType.QUICK;
+            }
+            default -> {
+                return AnimationType.SPIN;
+            }
+        }
+    }
     private void handleCasePreview(PlayerInteractEvent event, Player player, Action action) {
         // if not RIGHT-CLICK BLOCK AND not LEFT-CLICK BLOCK THEN RETURN
         if(action != Action.LEFT_CLICK_BLOCK && action != Action.RIGHT_CLICK_BLOCK)

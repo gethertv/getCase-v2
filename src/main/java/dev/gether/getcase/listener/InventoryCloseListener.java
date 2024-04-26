@@ -23,11 +23,10 @@ public class InventoryCloseListener implements Listener {
     public void onCloseInv(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
         InventoryHolder holder = event.getInventory().getHolder();
-        if (!(holder instanceof SpinInvHolder))
+        if (!(holder instanceof SpinInvHolder spinInvHolder))
             return;
 
-        // check the closen inventory it's the same like spin
-        SpinInvHolder spinInvHolder = (SpinInvHolder) holder;
+        // check the closed inventory it's the same that the spin inv
         if (!spinInvHolder.isFinish() && !spinInvHolder.isCancel()) {
             spinInvHolder.cancel();
             // give reward

@@ -22,24 +22,28 @@ import java.util.Set;
 @Builder
 public class CaseConfig extends GetConfig {
 
-    @Comment({"dzwiek gdy nie posiadasz kluczyka",
-            "lista dzwiekow https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html"})
+    @Comment({"sound when you don't have a key",
+            "list of sound https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html"})
     private Sound noKeySound = Sound.ENTITY_VILLAGER_NO;
-    @Comment("dzwiek gdy otwierasz podglad skrzynki")
+    @Comment("sound when you open a preview menu")
     private Sound previewCaseSound = Sound.UI_BUTTON_CLICK;
-    @Comment("dzwiek podczas przesuwania animacji")
+    @Comment("sound while spin animation")
     private Sound spinSound = Sound.UI_BUTTON_CLICK;
-    @Comment("dzwiek przy otrzymanej nagrodzie")
+    @Comment("sound when you got the reward")
     private Sound winItemSound = Sound.ENTITY_PLAYER_LEVELUP;
 
+    @Comment("it's responsible for open all loot box by SHIFT + RIGHT_CLICK")
+    private boolean quickOpenCase = false;
     // drawing inventory data
     private SpinData spinData = SpinData.builder()
             .size(27)
-            .title("Losowanie...")
+            .title("Drawing...")
             .itemDecorations(Set.of(
                     ItemDecoration.builder()
                             .item(Item.builder()
                                     .material(Material.BLACK_STAINED_GLASS_PANE)
+                                    .displayname(" ")
+                                    .lore(new ArrayList<>())
                                     .build())
                             .slots(Set.of(0,1,2,3,4,5,6,7,8,18,19,20,21,22,23,24,25,26))
                             .build()
@@ -48,13 +52,15 @@ public class CaseConfig extends GetConfig {
 
     // preview win item
     private PreviewWinItem previewWinItem = PreviewWinItem.builder()
-            .title("&0Wygrales...")
+            .title("&0You won...")
             .size(27)
             .itemDecorations(
                     Set.of(
                             ItemDecoration.builder()
                                     .item(Item.builder()
                                             .material(Material.BLACK_STAINED_GLASS_PANE)
+                                            .displayname(" ")
+                                            .lore(new ArrayList<>())
                                             .build())
                                     .slots(Set.of(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26))
                                     .build()
@@ -66,19 +72,19 @@ public class CaseConfig extends GetConfig {
             .build();
     private Item noAnimationItem = Item.builder()
             .material(Material.LIME_DYE)
-            .displayname("&7Otworz bez animacji")
+            .displayname("&7Open without the animation")
+            .lore(new ArrayList<>(List.of("&7")))
             .unbreakable(true)
             .glow(true)
             .build();
 
     private Item animationItem = Item.builder()
             .material(Material.PURPLE_DYE)
-            .displayname("&7Otworz z animacji")
-            .lore(new ArrayList<>(List.of("test")))
+            .displayname("&7Open with spin animation")
+            .lore(new ArrayList<>(List.of("&7")))
             .unbreakable(true)
             .glow(false)
             .build();
-
 
 
 }

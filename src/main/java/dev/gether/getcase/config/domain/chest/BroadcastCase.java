@@ -8,9 +8,10 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BroadcastCase {
     private boolean enable;
     private List<String> messages;
 
-    public BroadcastCase() {}
 }

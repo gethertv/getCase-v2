@@ -40,6 +40,17 @@ public class RewardsManager {
         return itemCase;
     }
 
+    public ItemCase giveRewardWithoutPreview(Player player, LootBox lootBox) {
+        ItemCase itemCase = getRandomItem(lootBox);
+        // give winner item to player
+        ItemStack itemStack = itemCase.getItemStack().clone();
+        PlayerUtil.giveItem(player, itemStack);
+        // broadcast
+        broadcast(player, itemStack, lootBox);
+        player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
+        return itemCase;
+    }
+
     public ItemStack giveReward(Player player, LootBox lootBox, ItemStack itemStack) {
         ItemStack item = itemStack.clone();
         player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
@@ -69,7 +80,7 @@ public class RewardsManager {
             }
         }
 
-        throw new RuntimeException("Nie mozna wylosowac przedmiotu!");
+        throw new RuntimeException("Item cannot be draw. Probably loot box is empty!");
     }
 
 

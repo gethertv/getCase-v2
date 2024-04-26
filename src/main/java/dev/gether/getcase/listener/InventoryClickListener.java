@@ -5,6 +5,7 @@ import dev.gether.getcase.inv.EditCaseInvHandler;
 import dev.gether.getcase.inv.PreviewWinInvHandler;
 import dev.gether.getcase.inv.SpinInvHolder;
 import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.LootboxType;
 import dev.gether.getcase.lootbox.animation.AnimationType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -61,7 +62,7 @@ public class InventoryClickListener implements Listener {
 
     private boolean handleSpinInv(InventoryClickEvent event, Inventory inventory) {
         InventoryHolder holder = inventory.getHolder();
-        if(holder==null || !(holder instanceof SpinInvHolder))
+        if(!(holder instanceof SpinInvHolder))
             return false;
 
         event.setCancelled(true);
@@ -105,6 +106,7 @@ public class InventoryClickListener implements Listener {
 
         event.setCancelled(true);
         LootBox lootBox = previewWinInvHandler.getCaseObject();
+
         // open case with animation
         if(previewWinInvHandler.isAnimationSlot(slot)) {
             lootBoxManager.openCase(player, lootBox, AnimationType.SPIN);
@@ -129,6 +131,10 @@ public class InventoryClickListener implements Listener {
 
             // get object of case
             LootBox lootBox = caseByInv.get();
+
+            // check is the luckblock case
+            if(lootBox.getLootboxType() == LootboxType.LUCKBLOCK)
+                return true;
 
 //            // check the clicked inventory is not null AND the same what returned from method
 //            // IF IS NULL OR NOT THIS SAME - RETURN

@@ -1,6 +1,5 @@
 package dev.gether.getcase.config.domain.chest;
 
-import dev.gether.getconfig.GetConfig;
 import dev.gether.getconfig.domain.config.ItemDecoration;
 import lombok.*;
 
@@ -9,6 +8,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 // preview inventory settings
 public class PreviewWinItem {
 
@@ -19,7 +20,6 @@ public class PreviewWinItem {
     private Set<Integer> noAnimationSlots;
     private int slotWinItem;
 
-    public PreviewWinItem() {}
 
 }
 

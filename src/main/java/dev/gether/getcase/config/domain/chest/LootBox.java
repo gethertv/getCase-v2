@@ -21,6 +21,8 @@ import java.util.*;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LootBox extends GetConfig {
 
     @JsonIgnore
@@ -45,7 +47,7 @@ public class LootBox extends GetConfig {
     // broadcast
     private BroadcastCase broadcastCase;
 
-    public LootBox() {}
+
 
     public void createInv() {
         inv = Bukkit.createInventory(null, sizeInv, ColorFixer.addColors(titleInv));
@@ -126,6 +128,9 @@ public class LootBox extends GetConfig {
     }
 
     private void fillAnimationItems() {
+        if(lootboxType == LootboxType.LUCKBLOCK)
+            return;
+
         // get instance caseConfig
         CaseConfig caseConfig = GetCase.getInstance().getFileManager().getCaseConfig();
         // animation
@@ -158,7 +163,4 @@ public class LootBox extends GetConfig {
         return inv;
     }
 
-    public void findItemCaseByItem(ItemStack itemStack) {
-
-    }
 }

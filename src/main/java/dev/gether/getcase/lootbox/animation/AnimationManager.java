@@ -82,13 +82,11 @@ public class AnimationManager {
 
 
     private void updateInventory(Inventory inventory, SpinInvHolder spinInvHolder, int index) {
-        for (int i = 9; i < 18; i++) {
+        int startIndex = 9 * spinInvHolder.getSpinData().getRowIndex();
+        for (int i = startIndex; i < startIndex + 9; i++) {
             ItemStack itemStack = spinInvHolder.getItemStacks()[i + index - 9];
             inventory.setItem(i, itemStack);
         }
-        //
-        //ItemCase item = openCaseManager.getRandomItem(caseObject);
-        //inventory.setItem(17, item.getItemStack());
     }
 
 

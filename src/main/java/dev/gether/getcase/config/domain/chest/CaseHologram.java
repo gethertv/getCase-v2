@@ -13,6 +13,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CaseHologram {
 
     @JsonIgnore
@@ -22,7 +24,6 @@ public class CaseHologram {
     private double heightY;
 
 
-    public CaseHologram() {}
 
     @JsonIgnore
     public void createHologram(String caseName, Location location) {
@@ -30,6 +31,7 @@ public class CaseHologram {
         // check hook decent holograms
         if(!GetCase.getInstance().getHookManager().isDecentHologramsEnable())
             return;
+
         // hologram is enable
         if(!enable)
             return;

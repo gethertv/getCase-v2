@@ -28,6 +28,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 public class LootBoxManager {
@@ -49,10 +51,12 @@ public class LootBoxManager {
         locationCaseManager = new LocationCaseManager(fileManager, this, hookManager);
         editLootBoxManager = new EditLootBoxManager(plugin, this);
 
+        // first implement case, after this create a hologram
+        implementsAllCases();
+
         // create hologram for cases
         locationCaseManager.createHolograms();
 
-        implementsAllCases();
 
     }
 
@@ -112,6 +116,26 @@ public class LootBoxManager {
         }
     }
 
+    public void openAllCase(Player player, final LootBox lootBox) {
+        int amountKey = ItemUtil.calcItem(player, lootBox.getKeyItemStack());
+        for (int i = 0; i < amountKey; i++) {
+            // check case is enable
+            if(!lootBox.isEnable()) {
+                MessageUtil.sendMessage(player, fileManager.getLangConfig().getCaseIsDisable());
+                return;
+            }
+            // check requirements like CASE is not empty and player has key for this case
+            boolean hasRequirements  = checkRequirements(player, lootBox);
+            // is not meets then return
+            if(!hasRequirements)
+                return;
+
+            // take key
+            ItemUtil.removeItem(player, lootBox.getKeyItemStack(), 1);
+            rewardsManager.giveRewardWithoutPreview(player, lootBox);
+        }
+    }
+
     private boolean checkRequirements(Player player, LootBox lootBox) {
         // check case is not empty
         if(lootBox.getItems().isEmpty()) {
@@ -154,18 +178,20 @@ public class LootBoxManager {
         LootBox lootBox = LootBox.builder()
                 // generate random ID
                 .enable(true)
+                .lootboxType(LootboxType.LOOTBOX)
                 .caseId(UUID.randomUUID())
                 .name(caseName)
                 // title inv
-                .titleInv("&0Skrzynia "+caseName)
+                .titleInv("&0LootBox "+caseName)
                 // size inv
                 .sizeInv(54)
                 // key
                 .itemKey(Item.builder()
                         .material(Material.TRIPWIRE_HOOK)
-                        .displayname("#77ff00&lKlucz "+caseName)
-                        .lore(new ArrayList<>(List.of("&7")))
+                        .displayname("#77ff00&lKey "+caseName)
+                        .lore(new ArrayList<>(List.of(" ")))
                         .glow(true)
+                        .unbreakable(true)
                         .build()
 
                 )
@@ -183,6 +209,7 @@ public class LootBoxManager {
                                 .item(Item.builder()
                                         .material(Material.BLACK_STAINED_GLASS_PANE)
                                         .displayname("&7")
+                                        .lore(new ArrayList<>(List.of(" ")))
                                         .glow(false)
                                         .build())
                                 .slots(Set.of(0,1,2,3,4,5,6,7,8))
@@ -259,10 +286,6 @@ public class LootBoxManager {
     }
 
 
-    public void saveCaseFile() {
-        fileManager.getCaseConfig().save();
-    }
-
     public void deleteAllHolograms() {
         for (CaseLocation caseLocation : fileManager.getCaseLocationConfig().getCaseLocationData()) {
             CaseHologram caseHologram = caseLocation.getCaseHologram();
@@ -286,7 +309,11 @@ public class LootBoxManager {
         allCases.remove(lootBox.getName());
         // delete file
         File file = new File(FileManager.FILE_PATH_CASES, lootBox.getName()+".yml");
-        file.delete();
+        try {
+            Files.delete(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -302,17 +329,15 @@ public class LootBoxManager {
         itemStack.setAmount(amount);
         // give all key
         Bukkit.getOnlinePlayers().forEach(player -> player.getInventory().addItem(itemStack));
-
-        return;
     }
 
-    public boolean checkIsKey(ItemStack itemInMainHand, ItemStack offHand) {
-        for (LootBox caseDatum : allCases.values()) {
-            ItemStack keyItem = caseDatum.getKeyItemStack();
+    public Optional<LootBox> checkIsKey(ItemStack itemInMainHand, ItemStack offHand) {
+        for (LootBox lootBox : allCases.values()) {
+            ItemStack keyItem = lootBox.getKeyItemStack();
             if(keyItem.isSimilar(itemInMainHand) || keyItem.isSimilar(offHand))
-                return true;
+                return Optional.of(lootBox);
         }
-        return false;
+        return Optional.empty();
     }
 
     public List<LootBox> getAllCases() {
@@ -322,10 +347,6 @@ public class LootBoxManager {
 
     public RewardsManager getRewardsManager() {
         return rewardsManager;
-    }
-
-    public AnimationManager getAnimationManager() {
-        return animationManager;
     }
 
     public EditLootBoxManager getEditLootBoxManager() {

@@ -9,11 +9,14 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CaseLocation {
 
     private CaseHologram caseHologram;
     private Location location;
     private UUID caseId;
 
-    public CaseLocation() {}
+
+
 }

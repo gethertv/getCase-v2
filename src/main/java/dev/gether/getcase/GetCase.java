@@ -3,17 +3,15 @@ package dev.gether.getcase;
 import dev.gether.getcase.bstats.Metrics;
 import dev.gether.getcase.cmd.GetCaseCmd;
 import dev.gether.getcase.cmd.arguments.CaseArg;
+import dev.gether.getcase.cmd.handler.InvalidUsageCommandHandler;
+import dev.gether.getcase.cmd.handler.PermissionHandler;
 import dev.gether.getcase.config.FileManager;
-import dev.gether.getcase.lootbox.LootBoxManager;
-import dev.gether.getcase.lootbox.edit.EditLootBoxManager;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.hook.HookManager;
 import dev.gether.getcase.listener.InventoryClickListener;
 import dev.gether.getcase.listener.InventoryCloseListener;
 import dev.gether.getcase.listener.PlayerInteractionListener;
-import dev.gether.getcase.lootbox.animation.AnimationManager;
-import dev.gether.getcase.lootbox.location.LocationCaseManager;
-import dev.gether.getcase.lootbox.reward.RewardsManager;
+import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
 import org.bukkit.Bukkit;
@@ -34,13 +32,14 @@ public final class GetCase extends JavaPlugin {
     private HookManager hookManager;
 
     // file manager/config
-    private final FileManager fileManager = new FileManager(this);
+    private FileManager fileManager;
 
 
     @Override
     public void onEnable() {
         // skeleton
         instance = this;
+        fileManager = new FileManager(this);
 
         // hooks
         hookManager = new HookManager();
@@ -101,6 +100,9 @@ public final class GetCase extends JavaPlugin {
                 )
                 // args
                 .argument(LootBox.class, new CaseArg(lootBoxManager))
+                //
+                .invalidUsage(new InvalidUsageCommandHandler(fileManager))
+                .missingPermission(new PermissionHandler(fileManager))
                 .build();
 
     }

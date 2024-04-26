@@ -6,7 +6,7 @@
 
     <groupId>dev.gether</groupId>
     <artifactId>getCase</artifactId>
-    <version>2.2.2</version>
+    <version>3.0-beta</version>
     <packaging>jar</packaging>
 
     <name>getCase</name>

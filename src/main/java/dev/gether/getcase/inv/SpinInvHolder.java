@@ -14,9 +14,11 @@ public class SpinInvHolder implements InventoryHolder {
     private boolean finish;
     private boolean cancel;
     private final LootBox lootBox;
+    private final SpinData spinData;
     private final ItemStack[] itemStacks;
     public SpinInvHolder(LootBox lootBox, SpinData spinData, ItemStack[] itemStacks) {
         this.lootBox = lootBox;
+        this.spinData = spinData;
 
         // create edit inv
         inventory = Bukkit.createInventory(
@@ -69,5 +71,9 @@ public class SpinInvHolder implements InventoryHolder {
 
     public boolean isFinish() {
         return finish;
+    }
+
+    public SpinData getSpinData() {
+        return spinData;
     }
 }

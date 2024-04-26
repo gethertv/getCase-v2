@@ -29,7 +29,7 @@ public class EditCaseInvHandler implements InventoryHolder {
         inventory = Bukkit.createInventory(
                 this,
                 lootBox.getSizeInv(),
-                ColorFixer.addColors("&0Edytowanie "+ lootBox.getName()));
+                ColorFixer.addColors("&0Edit "+ lootBox.getName()));
 
         // fill with items
         fillInvByItems();
@@ -45,7 +45,7 @@ public class EditCaseInvHandler implements InventoryHolder {
         });
 
         // save button/item
-        inventory.setItem(inventory.getSize()-1, ItemBuilder.create(Material.LIME_DYE, "&aZapisz", true));
+        inventory.setItem(inventory.getSize()-1, ItemBuilder.create(Material.LIME_DYE, "&aSave", true));
     }
 
     private ItemStack prepareItemWithChance(ItemCase item) {
@@ -56,8 +56,8 @@ public class EditCaseInvHandler implements InventoryHolder {
         if(tempLore!=null)
             lore.addAll(tempLore);
 
-        lore.add("&c× Szansa: &f"+item.getChance());
-        lore.add("&c× Shift + Prawy przycisk &f- Edycja");
+        lore.add("&c× Chance: &f"+item.getChance());
+        lore.add("&c× Shift + Right click &f- Edit drop");
         itemMeta.setLore(ColorFixer.addColors(lore));
         itemStack.setItemMeta(itemMeta);
         return itemStack;

@@ -8,10 +8,11 @@ import java.util.Set;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CaseLocationConfig extends GetConfig {
 
     private Set<CaseLocation> caseLocationData = new HashSet<>();
 
-    public CaseLocationConfig() {}
 
 }

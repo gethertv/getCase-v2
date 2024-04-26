@@ -8,6 +8,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemCase {
 
     private int slot;
@@ -15,6 +17,4 @@ public class ItemCase {
     private ItemStack itemStack;
     private List<String> extraLore;
 
-
-    public ItemCase() {}
 }

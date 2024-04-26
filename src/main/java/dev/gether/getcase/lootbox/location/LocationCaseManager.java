@@ -114,7 +114,7 @@ public class LocationCaseManager {
     }
 
     // create hologram
-    // for all cases
+    // foreach cases
     public void createHolograms() {
         if(fileManager.getCaseLocationConfig().getCaseLocationData().isEmpty())
             return;
