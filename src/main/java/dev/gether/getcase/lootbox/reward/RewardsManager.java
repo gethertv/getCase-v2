@@ -27,6 +27,7 @@ public class RewardsManager {
 
         // give winner item to player
         ItemStack itemStack = itemCase.getItemStack().clone();
+        final int amount = itemStack.getAmount();
 
         player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
         // create inventory holder with preview win item
@@ -36,7 +37,7 @@ public class RewardsManager {
 
         PlayerUtil.giveItem(player, itemStack);
         // broadcast
-        broadcast(player, itemStack, lootBox);
+        broadcast(player, itemStack, amount, lootBox);
         return itemCase;
     }
 
@@ -44,15 +45,18 @@ public class RewardsManager {
         ItemCase itemCase = getRandomItem(lootBox);
         // give winner item to player
         ItemStack itemStack = itemCase.getItemStack().clone();
+        final int amount = itemStack.getAmount();
+
         PlayerUtil.giveItem(player, itemStack);
         // broadcast
-        broadcast(player, itemStack, lootBox);
+        broadcast(player, itemStack, amount, lootBox);
         player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
         return itemCase;
     }
 
     public ItemStack giveReward(Player player, LootBox lootBox, ItemStack itemStack) {
         ItemStack item = itemStack.clone();
+        final int amount = item.getAmount();
         player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
         // create inventory holder with preview win item
         PreviewWinInvHandler previewWinInvHandler = new PreviewWinInvHandler(item, fileManager.getCaseConfig(), lootBox);
@@ -61,7 +65,7 @@ public class RewardsManager {
         // give winner item to player
         PlayerUtil.giveItem(player, item);
         // broadcast
-        broadcast(player, item, lootBox);
+        broadcast(player, item, amount, lootBox);
         return item;
     }
 
@@ -85,7 +89,7 @@ public class RewardsManager {
 
 
 
-    public void broadcast(Player player, ItemStack itemStack, LootBox lootBox) {
+    public void broadcast(Player player, ItemStack itemStack, final int amount, LootBox lootBox) {
         BroadcastCase broadcastCase = lootBox.getBroadcastCase();
         if(!broadcastCase.isEnable())
             return;
@@ -96,7 +100,7 @@ public class RewardsManager {
 
         String message = String.join("\n", broadcastCase.getMessages());
         message = message
-                .replace("{amount}", String.valueOf(itemStack.getAmount()))
+                .replace("{amount}", String.valueOf(amount))
                 .replace("{player}", player.getName())
                 .replace("{item}", ItemUtil.getItemName(itemStack));
         MessageUtil.broadcast(message);

@@ -61,34 +61,6 @@ public class LootBoxManager {
     }
 
     // open case with animation
-    public void openCase(Player player, final LootBox lootBox) {
-        // check case is enable
-        if(!lootBox.isEnable()) {
-            MessageUtil.sendMessage(player, fileManager.getLangConfig().getCaseIsDisable());
-            return;
-        }
-        // check requirements like CASE is not empty and player has key for this case
-        boolean hasRequirements  = checkRequirements(player, lootBox);
-        // is not meets then return
-        if(!hasRequirements)
-            return;
-
-        // take key
-        ItemUtil.removeItem(player, lootBox.getKeyItemStack(), 1);
-
-        // open case with animation
-        if(lootBox.getAnimation().getAnimationType() == AnimationType.SPIN) {
-            // start animation
-            animationManager.startSpin(player, lootBox);
-        }
-        // open case without the animation
-        else if(lootBox.getAnimation().getAnimationType() == AnimationType.QUICK) {
-            // give reward
-            rewardsManager.giveReward(player, lootBox);
-        }
-    }
-
-    // open case with animation
     public void openCase(Player player, final LootBox lootBox, AnimationType animationType) {
         // check case is enable
         if(!lootBox.isEnable()) {

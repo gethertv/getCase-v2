@@ -84,7 +84,7 @@ public class AnimationManager {
     private void updateInventory(Inventory inventory, SpinInvHolder spinInvHolder, int index) {
         int startIndex = 9 * spinInvHolder.getSpinData().getRowIndex();
         for (int i = startIndex; i < startIndex + 9; i++) {
-            ItemStack itemStack = spinInvHolder.getItemStacks()[i + index - 9];
+            ItemStack itemStack = spinInvHolder.getItemStacks()[i + index];
             inventory.setItem(i, itemStack);
         }
     }
