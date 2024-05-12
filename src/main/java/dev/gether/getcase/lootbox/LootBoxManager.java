@@ -111,7 +111,7 @@ public class LootBoxManager {
     private boolean checkRequirements(Player player, LootBox lootBox) {
         // check case is not empty
         if(lootBox.getItems().isEmpty()) {
-            MessageUtil.logMessage(ConsoleColor.RED, "Blad! Skrzynia nie posiada przedmiotow!");
+            MessageUtil.logMessage(ConsoleColor.RED, "Error! This lootbox is empty! (No items)");
             return false;
         }
         // check user has key
@@ -141,7 +141,7 @@ public class LootBoxManager {
             String caseName = file.getName().replace(".yml", "");
             LootBox lootBox = ConfigManager.create(LootBox.class, it -> {});
             implementCase(caseName, lootBox);
-            MessageUtil.logMessage(ConsoleColor.GREEN, "Wczytano skrzynie "+caseName);
+            MessageUtil.logMessage(ConsoleColor.GREEN, "Loaded case "+caseName);
         }
     }
 

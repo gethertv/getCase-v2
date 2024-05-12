@@ -36,7 +36,7 @@ public class LocationCaseManager {
     public void createLocationCase(Player player, LootBox caseData) {
         Block targetBlock = player.getTargetBlock(null, 5);
         if(targetBlock.getType() == Material.AIR) {
-            MessageUtil.sendMessage(player, "&cMusisz patrzeć na blok!");
+            MessageUtil.sendMessage(player, "&cYou have to look at the block");
             return;
         }
 
@@ -46,7 +46,7 @@ public class LocationCaseManager {
         Optional<CaseLocation> caseByLocation = findCaseByLocation(location);
         // if exists then cancel
         if(caseByLocation.isPresent()) {
-            MessageUtil.sendMessage(player, "&cTutaj znajduje sie juz skrzynia!");
+            MessageUtil.sendMessage(player, "&cThere already exists case with location");
             return;
         }
 
@@ -54,7 +54,7 @@ public class LocationCaseManager {
         CaseHologram caseHologram = CaseHologram.builder()
                 // check hook hologram plugin
                 .enable(hookManager.isDecentHologramsEnable())
-                .lines(List.of("&7-----------------", "#eaff4fSkrzynia " + caseData.getName(), "&7-----------------"))
+                .lines(List.of("&7-----------------", "#eaff4fCase " + caseData.getName(), "&7-----------------"))
                 .heightY(2.1)
                 .build();
 
@@ -72,32 +72,31 @@ public class LocationCaseManager {
         caseHologram.createHologram(caseData.getName(), location);
         // save config
         fileManager.getCaseLocationConfig().save();
-        MessageUtil.sendMessage(player, "&aPomyslnie utworzono lokalizacje ze skrzynia!");
+        MessageUtil.sendMessage(player, "&aSuccessfully created the case with this location.");
     }
 
-    public boolean removeLocation(Player player) {
+    public void removeLocation(Player player) {
         Block targetBlock = player.getTargetBlock(null, 5);
         if(targetBlock.getType() == Material.AIR)
-            return false;
+            return;
 
         // location block where player at looking
         Location location = targetBlock.getLocation();
         Optional<CaseLocation> caseByLocation = findCaseByLocation(location);
         if(caseByLocation.isEmpty())
-            return false;
+            return;
 
         // get object with caseLocation
         CaseLocation caseLocation = caseByLocation.get();
-        return removeCaseLocation(caseLocation);
+        removeCaseLocation(caseLocation);
     }
-    public boolean removeCaseLocation(CaseLocation caseLocation) {
+    public void removeCaseLocation(CaseLocation caseLocation) {
         // remove hologram
         caseLocation.getCaseHologram().deleteHologram();
         // remove object from set<>
         fileManager.getCaseLocationConfig().getCaseLocationData().remove(caseLocation);
         // save config
         fileManager.getCaseLocationConfig().save();
-        return true;
     }
 
     public List<CaseLocation> findCaseLocationById(UUID id) {

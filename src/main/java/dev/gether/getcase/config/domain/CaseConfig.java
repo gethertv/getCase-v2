@@ -38,6 +38,7 @@ public class CaseConfig extends GetConfig {
     private SpinData spinData = SpinData.builder()
             .size(27)
             .title("Drawing...")
+            .animationSlots(new int[] {11,12,13,14,15})
             .itemDecorations(Set.of(
                     ItemDecoration.builder()
                             .item(Item.builder()

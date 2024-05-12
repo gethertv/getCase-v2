@@ -59,7 +59,8 @@ public class SpinInvHolder implements InventoryHolder {
     }
 
     public ItemStack getWinItem() {
-        return itemStacks[54];
+        int index = 49 + (spinData.getAnimationSlots().length / 2);
+        return itemStacks[index];
     }
     public void cancel() {
         this.cancel = true;

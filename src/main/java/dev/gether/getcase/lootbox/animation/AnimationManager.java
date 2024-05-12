@@ -30,17 +30,15 @@ public class AnimationManager {
     // prepare inventory with spin
     public void startSpin(Player player, LootBox lootBox) {
         // get random item
-        // slot 13 - win
-        ItemStack[] itemStacks = new ItemStack[101];
-        for (int i = 0; i < 100; i++) {
+        ItemStack[] itemStacks = new ItemStack[201];
+        for (int i = 0; i < itemStacks.length; i++) {
             itemStacks[i] = rewardsManager.getRandomItem(lootBox).getItemStack();
         }
-
         SpinInvHolder spinInventory = new SpinInvHolder(lootBox, fileManager.getCaseConfig().getSpinData(), itemStacks);
         player.openInventory(spinInventory.getInventory());
 
         // start animation
-        spin(player, spinInventory, 1, 1, 1);
+        spin(player, spinInventory, 1, 1, 0);
     }
     public void spin(Player player, SpinInvHolder spinInventory, int ticksPassed, double speedCopy, int index) {
         if (spinInventory.isCancel() || spinInventory.isFinish()) {
@@ -82,10 +80,12 @@ public class AnimationManager {
 
 
     private void updateInventory(Inventory inventory, SpinInvHolder spinInvHolder, int index) {
-        int startIndex = 9 * spinInvHolder.getSpinData().getRowIndex();
-        for (int i = startIndex; i < startIndex + 9; i++) {
-            ItemStack itemStack = spinInvHolder.getItemStacks()[i + index];
-            inventory.setItem(i, itemStack);
+        int[] animationSlots = spinInvHolder.getSpinData().getAnimationSlots();
+        for (int i = 0; i < animationSlots.length; i++) {
+            int slot = animationSlots[i];
+            //ItemStack itemStack = spinInvHolder.getItemStacks()[animationSlots.length * index + i];
+            ItemStack itemStack = spinInvHolder.getItemStacks()[index + i];
+            inventory.setItem(slot, itemStack);
         }
     }
 
