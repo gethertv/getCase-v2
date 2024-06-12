@@ -35,7 +35,6 @@ public final class GetCase extends JavaPlugin {
     // file manager/config
     public static FileManager fileManager;
 
-
     private String secretKey;
 
 

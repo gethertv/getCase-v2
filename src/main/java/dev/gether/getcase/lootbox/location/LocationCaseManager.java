@@ -1,5 +1,6 @@
 package dev.gether.getcase.lootbox.location;
 
+import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.CaseLocation;
 import dev.gether.getcase.config.domain.chest.CaseHologram;
@@ -7,20 +8,21 @@ import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.hook.HookManager;
 import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getconfig.utils.MessageUtil;
+import eu.decentsoftware.holograms.api.DHAPI;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class LocationCaseManager {
 
     private final FileManager fileManager;
     private final LootBoxManager lootBoxManager;
     private final HookManager hookManager;
+    private final Map<String, Hologram> holograms = new HashMap<>();
 
     public LocationCaseManager(FileManager fileManager, LootBoxManager lootBoxManager, HookManager hookManager) {
         this.fileManager = fileManager;
@@ -53,6 +55,7 @@ public class LocationCaseManager {
         // create hologram
         CaseHologram caseHologram = CaseHologram.builder()
                 // check hook hologram plugin
+                .hologramKey(caseData.getName()+"_"+UUID.randomUUID())
                 .enable(hookManager.isDecentHologramsEnable())
                 .lines(List.of("&7-----------------", "#eaff4fCase " + caseData.getName(), "&7-----------------"))
                 .heightY(2.1)
@@ -69,30 +72,31 @@ public class LocationCaseManager {
         // add object to set<>
         fileManager.getCaseLocationConfig().getCaseLocationData().add(caseLocation);
         // create hologram
-        caseHologram.createHologram(caseData.getName(), location);
+        createHologram(location, caseHologram);
         // save config
         fileManager.getCaseLocationConfig().save();
         MessageUtil.sendMessage(player, "&aSuccessfully created the case with this location.");
     }
 
-    public void removeLocation(Player player) {
+    public boolean removeLocation(Player player) {
         Block targetBlock = player.getTargetBlock(null, 5);
         if(targetBlock.getType() == Material.AIR)
-            return;
+            return false;
 
         // location block where player at looking
         Location location = targetBlock.getLocation();
         Optional<CaseLocation> caseByLocation = findCaseByLocation(location);
         if(caseByLocation.isEmpty())
-            return;
+            return false;
 
         // get object with caseLocation
         CaseLocation caseLocation = caseByLocation.get();
         removeCaseLocation(caseLocation);
+        return true;
     }
     public void removeCaseLocation(CaseLocation caseLocation) {
         // remove hologram
-        caseLocation.getCaseHologram().deleteHologram();
+        deleteHologram(caseLocation.getCaseHologram().getHologramKey());
         // remove object from set<>
         fileManager.getCaseLocationConfig().getCaseLocationData().remove(caseLocation);
         // save config
@@ -115,6 +119,9 @@ public class LocationCaseManager {
     // create hologram
     // foreach cases
     public void createHolograms() {
+        if(!hookManager.isDecentHologramsEnable())
+            return;
+
         if(fileManager.getCaseLocationConfig().getCaseLocationData().isEmpty())
             return;
 
@@ -127,16 +134,44 @@ public class LocationCaseManager {
             if(caseByID.isEmpty()) {
                 return;
             }
-            // case object
-            LootBox lootBox = caseByID.get();
 
             // location case/hologram
             Location location = caseLocation.getLocation();
             // create hologram for this case
-            caseLocation.getCaseHologram().createHologram(lootBox.getName(), location);
+            createHologram(location, caseLocation.getCaseHologram());
         });
     }
 
+    public void createHologram(Location location, CaseHologram caseHologram) {
+
+        // check hook decent holograms
+        if(!GetCase.getInstance().getHookManager().isDecentHologramsEnable())
+            return;
+
+        // hologram is enable
+        if(!caseHologram.isEnable())
+            return;
+
+
+        // create hologram
+        Hologram hologram = DHAPI.createHologram(
+                caseHologram.getHologramKey(),
+                location.clone().add(0.5, caseHologram.getHeightY(), 0.5),
+                caseHologram.getLines());
+
+        holograms.put(caseHologram.getHologramKey(), hologram);
+    }
+
+    public void deleteHologram(String hologramKey) {
+        Hologram hologram = holograms.get(hologramKey);
+        if(hologram != null) {
+            hologram.destroy();
+        }
+    }
+
+    public List<Hologram> getHolograms() {
+        return holograms.values().stream().toList();
+    }
 
     public void saveFile() {
         fileManager.getCaseLocationConfig().save();

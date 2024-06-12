@@ -22,7 +22,7 @@ public class CaseArg extends ArgumentResolver<CommandSender, LootBox> {
     @Override
     protected ParseResult<LootBox> parse(Invocation<CommandSender> invocation, Argument<LootBox> context, String argument) {
         Optional<LootBox> caseByName = this.lootBoxManager.findCaseByName(argument);
-        return caseByName.map(ParseResult::success).orElseGet(() -> ParseResult.failure("&cPodana skrzynia nie istnieje!"));
+        return caseByName.map(ParseResult::success).orElseGet(() -> ParseResult.failure("&cThe specified case does not exists!"));
     }
     @Override
     public SuggestionResult suggest(Invocation<CommandSender> invocation, Argument<LootBox> argument, SuggestionContext context) {

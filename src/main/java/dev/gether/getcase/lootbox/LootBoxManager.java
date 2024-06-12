@@ -21,6 +21,7 @@ import dev.gether.getconfig.utils.ConsoleColor;
 import dev.gether.getconfig.utils.ItemUtil;
 import dev.gether.getconfig.utils.MessageUtil;
 import dev.rollczi.litecommands.suggestion.SuggestionResult;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -259,10 +260,8 @@ public class LootBoxManager {
 
 
     public void deleteAllHolograms() {
-        for (CaseLocation caseLocation : fileManager.getCaseLocationConfig().getCaseLocationData()) {
-            CaseHologram caseHologram = caseLocation.getCaseHologram();
-            if(caseHologram.isEnable())
-                caseHologram.deleteHologram();
+        for (Hologram hologram : locationCaseManager.getHolograms()) {
+            hologram.destroy();
         }
     }
     public void deleteCase(LootBox lootBox) {

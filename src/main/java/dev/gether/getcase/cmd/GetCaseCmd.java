@@ -116,7 +116,11 @@ public class GetCaseCmd {
             MessageUtil.sendMessage(sender, "&cYou can't do it from console!");
             return;
         }
-        lootBoxManager.getLocationCaseManager().removeLocation(player);
-        MessageUtil.sendMessage(player, "&aSuccessful remove location of case!");
+        boolean status = lootBoxManager.getLocationCaseManager().removeLocation(player);
+        if(status) {
+            MessageUtil.sendMessage(player, "&aSuccessful remove location of case!");
+        } else {
+            MessageUtil.sendMessage(player, "&cSomething wrong! Maybe there case location isn't exists!");
+        }
     }
 }
