@@ -42,7 +42,7 @@ public class GetCaseCmd {
 
     @Execute(name = "enable")
     public void enableCase(@Context CommandSender sender, @Arg("case-name") LootBox lootBox) {
-        // check case exists
+        // check case exists<
         lootBoxManager.enableCase(lootBox);
         MessageUtil.sendMessage(sender, "&aSuccessful enabled the case!");
     }

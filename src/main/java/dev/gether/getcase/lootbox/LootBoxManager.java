@@ -74,7 +74,7 @@ public class LootBoxManager {
             return;
 
         // take key
-        ItemUtil.removeItem(player, lootBox.getKeyItemStack(), 1);
+        ItemUtil.removeItem(player, lootBox.getKey(), 1);
 
         // open case with animation
         if(animationType == AnimationType.SPIN) {
@@ -89,7 +89,7 @@ public class LootBoxManager {
     }
 
     public void openAllCase(Player player, final LootBox lootBox) {
-        int amountKey = ItemUtil.calcItem(player, lootBox.getKeyItemStack());
+        int amountKey = ItemUtil.calcItem(player, lootBox.getKey());
         for (int i = 0; i < amountKey; i++) {
             // check case is enable
             if(!lootBox.isEnable()) {
@@ -103,7 +103,7 @@ public class LootBoxManager {
                 return;
 
             // take key
-            ItemUtil.removeItem(player, lootBox.getKeyItemStack(), 1);
+            ItemUtil.removeItem(player, lootBox.getKey(), 1);
             rewardsManager.giveRewardWithoutPreview(player, lootBox);
         }
     }
@@ -115,7 +115,7 @@ public class LootBoxManager {
             return false;
         }
         // check user has key
-        if(!ItemUtil.hasItemStack(player, lootBox.getKeyItemStack())) {
+        if(!ItemUtil.hasItemStack(player, lootBox.getKey())) {
             // send a message informing the user has not key
             MessageUtil.sendMessage(player, fileManager.getLangConfig().getNoKey());
             player.playSound(player.getLocation(), fileManager.getCaseConfig().getNoKeySound(), 1F, 1F);
@@ -284,20 +284,20 @@ public class LootBoxManager {
         try {
             Files.delete(file.toPath());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
 
     public void givePlayerKey(Player target, LootBox lootBox, int amount) {
-        ItemStack itemStack = lootBox.getKeyItemStack().clone();
+        ItemStack itemStack = lootBox.getKey().clone();
         itemStack.setAmount(amount);
         // give key
         target.getInventory().addItem(itemStack);
     }
 
     public void giveAllKey(LootBox lootBox, int amount) {
-        ItemStack itemStack = lootBox.getKeyItemStack().clone();
+        ItemStack itemStack = lootBox.getKey().clone();
         itemStack.setAmount(amount);
         // give all key
         Bukkit.getOnlinePlayers().forEach(player -> player.getInventory().addItem(itemStack));
@@ -305,7 +305,7 @@ public class LootBoxManager {
 
     public Optional<LootBox> checkIsKey(ItemStack itemInMainHand, ItemStack offHand) {
         for (LootBox lootBox : allCases.values()) {
-            ItemStack keyItem = lootBox.getKeyItemStack();
+            ItemStack keyItem = lootBox.getKey();
             if(keyItem.isSimilar(itemInMainHand) || keyItem.isSimilar(offHand))
                 return Optional.of(lootBox);
         }

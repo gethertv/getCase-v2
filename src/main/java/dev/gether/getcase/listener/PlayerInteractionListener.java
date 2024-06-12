@@ -7,6 +7,7 @@ import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getcase.lootbox.LootboxType;
 import dev.gether.getcase.lootbox.animation.AnimationType;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,6 +37,10 @@ public class PlayerInteractionListener implements Listener {
         // check is case
         handleCasePreview(event, player, action);
         // check player hand case
+        if(player.getInventory().getItemInMainHand().getType() != Material.TRIPWIRE_HOOK &&
+                player.getInventory().getItemInOffHand().getType() != Material.TRIPWIRE_HOOK)
+            return;
+
         handleKeyItemInteract(event, player);
 
     }
@@ -45,6 +50,7 @@ public class PlayerInteractionListener implements Listener {
         ItemStack offHand = player.getInventory().getItemInOffHand();
 
         // checking, the hand item is a key
+
         Optional<LootBox> lootBoxOpt = lootBoxManager.checkIsKey(itemInMainHand, offHand);
         // if key item then cancel
         lootBoxOpt.ifPresent(lootBox -> {

@@ -6,7 +6,7 @@
 
     <groupId>dev.gether</groupId>
     <artifactId>getCase</artifactId>
-    <version>3.0.3-beta</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
 
     <name>getCase</name>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
-            <version>1.9.3-SNAPSHOT</version>
+            <version>1.9.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.decentsoftware-eu</groupId>

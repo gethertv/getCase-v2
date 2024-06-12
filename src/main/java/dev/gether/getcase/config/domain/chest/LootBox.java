@@ -38,6 +38,8 @@ public class LootBox extends GetConfig {
     private String name;
     // key section
     private Item itemKey;
+    @JsonIgnore
+    private ItemStack key;
     // item key
     private Set<ItemCase> items;
     // background decoration
@@ -64,6 +66,9 @@ public class LootBox extends GetConfig {
         fillAnimationItems();
         // fill [ items case ]
         fillItemCase();
+
+        // set key
+        this.key = itemKey.getItemStack();
     }
 
     private void fillItemCase() {
@@ -151,11 +156,6 @@ public class LootBox extends GetConfig {
                 inv.setItem(slot, decoration.getItemStack());
             }
         }
-    }
-
-    @JsonIgnore
-    public ItemStack getKeyItemStack() {
-        return itemKey.getItemStack();
     }
 
     @JsonIgnore

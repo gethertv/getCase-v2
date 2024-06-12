@@ -19,6 +19,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Field;
 import java.util.stream.Stream;
 
 public final class GetCase extends JavaPlugin {
@@ -32,7 +33,10 @@ public final class GetCase extends JavaPlugin {
     private HookManager hookManager;
 
     // file manager/config
-    private FileManager fileManager;
+    public static FileManager fileManager;
+
+
+    private String secretKey;
 
 
     @Override
@@ -40,6 +44,8 @@ public final class GetCase extends JavaPlugin {
         // skeleton
         instance = this;
         fileManager = new FileManager(this);
+
+
 
         // hooks
         hookManager = new HookManager();
