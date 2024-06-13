@@ -4,7 +4,6 @@ import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.CaseLocation;
 import dev.gether.getcase.config.domain.chest.BroadcastCase;
-import dev.gether.getcase.config.domain.chest.CaseHologram;
 import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.hook.HookManager;

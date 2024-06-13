@@ -37,10 +37,6 @@ public class PlayerInteractionListener implements Listener {
         // check is case
         handleCasePreview(event, player, action);
         // check player hand case
-        if(player.getInventory().getItemInMainHand().getType() != Material.TRIPWIRE_HOOK &&
-                player.getInventory().getItemInOffHand().getType() != Material.TRIPWIRE_HOOK)
-            return;
-
         handleKeyItemInteract(event, player);
 
     }
