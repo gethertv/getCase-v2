@@ -1,14 +1,12 @@
 package dev.gether.getcase.lootbox.location;
 
-import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.CaseLocation;
 import dev.gether.getcase.config.domain.chest.CaseHologram;
 import dev.gether.getcase.config.domain.chest.LootBox;
-import dev.gether.getcase.hook.HookManager;
 import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.addons.AddonsManager;
 import dev.gether.getconfig.utils.MessageUtil;
-import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,13 +19,14 @@ public class LocationCaseManager {
 
     private final FileManager fileManager;
     private final LootBoxManager lootBoxManager;
-    private final HookManager hookManager;
-    private final Map<String, Hologram> holograms = new HashMap<>();
+    private final Map<String, Object> holograms = new HashMap<>();
+    private final AddonsManager addonsManager;
 
-    public LocationCaseManager(FileManager fileManager, LootBoxManager lootBoxManager, HookManager hookManager) {
+
+    public LocationCaseManager(FileManager fileManager, LootBoxManager lootBoxManager, AddonsManager addonsManager) {
         this.fileManager = fileManager;
         this.lootBoxManager = lootBoxManager;
-        this.hookManager = hookManager;
+        this.addonsManager = addonsManager;
     }
 
     // find object by location
@@ -56,7 +55,7 @@ public class LocationCaseManager {
         CaseHologram caseHologram = CaseHologram.builder()
                 // check hook hologram plugin
                 .hologramKey(caseData.getName()+"_"+UUID.randomUUID())
-                .enable(hookManager.isDecentHologramsEnable())
+                .enable(this.addonsManager.isHologramSupport())
                 .lines(List.of("&7-----------------", "#eaff4fCase " + caseData.getName(), "&7-----------------"))
                 .heightY(2.1)
                 .build();
@@ -119,7 +118,7 @@ public class LocationCaseManager {
     // create hologram
     // foreach cases
     public void createHolograms() {
-        if(!hookManager.isDecentHologramsEnable())
+        if(!this.addonsManager.isHologramSupport())
             return;
 
         if(fileManager.getCaseLocationConfig().getCaseLocationData().isEmpty())
@@ -145,31 +144,34 @@ public class LocationCaseManager {
     public void createHologram(Location location, CaseHologram caseHologram) {
 
         // check hook decent holograms
-        if(!GetCase.getInstance().getHookManager().isDecentHologramsEnable())
+        if(!this.addonsManager.isHologramSupport())
             return;
 
         // hologram is enable
         if(!caseHologram.isEnable())
             return;
 
-
+        Object hologram = addonsManager.getHologram().create(location, caseHologram);
         // create hologram
-        Hologram hologram = DHAPI.createHologram(
-                caseHologram.getHologramKey(),
-                location.clone().add(0.5, caseHologram.getHeightY(), 0.5),
-                caseHologram.getLines());
-
         holograms.put(caseHologram.getHologramKey(), hologram);
     }
 
-    public void deleteHologram(String hologramKey) {
-        Hologram hologram = holograms.get(hologramKey);
-        if(hologram != null) {
-            hologram.destroy();
+    public void deleteAllHolograms() {
+        for (Object hologram : holograms.values()) {
+            deleteHologram(hologram);
         }
     }
 
-    public List<Hologram> getHolograms() {
+    public void deleteHologram(String hologramKey) {
+        Object hologram = holograms.get(hologramKey);
+        deleteHologram(hologram);
+    }
+
+    public void deleteHologram(Object hologram) {
+        this.addonsManager.getHologram().delete(hologram);
+    }
+
+    public List<Object> getHolograms() {
         return holograms.values().stream().toList();
     }
 

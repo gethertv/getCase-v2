@@ -6,7 +6,7 @@ import dev.gether.getcase.config.domain.CaseLocation;
 import dev.gether.getcase.config.domain.chest.BroadcastCase;
 import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.config.domain.chest.LootBox;
-import dev.gether.getcase.hook.HookManager;
+import dev.gether.getcase.lootbox.addons.AddonsManager;
 import dev.gether.getcase.lootbox.animation.Animation;
 import dev.gether.getcase.lootbox.animation.AnimationManager;
 import dev.gether.getcase.lootbox.animation.AnimationType;
@@ -20,7 +20,6 @@ import dev.gether.getconfig.utils.ConsoleColor;
 import dev.gether.getconfig.utils.ItemUtil;
 import dev.gether.getconfig.utils.MessageUtil;
 import dev.rollczi.litecommands.suggestion.SuggestionResult;
-import eu.decentsoftware.holograms.api.holograms.Hologram;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -42,13 +41,13 @@ public class LootBoxManager {
     // key: name file (name case) | value: CaseObject
     private final HashMap<String, LootBox> allCases = new HashMap<>();
 
-    public LootBoxManager(GetCase plugin, FileManager fileManager, HookManager hookManager) {
+    public LootBoxManager(GetCase plugin, FileManager fileManager) {
         this.fileManager = fileManager;
 
         rewardsManager = new RewardsManager(fileManager);
         animationManager = new AnimationManager(plugin, rewardsManager, fileManager);
 
-        locationCaseManager = new LocationCaseManager(fileManager, this, hookManager);
+        locationCaseManager = new LocationCaseManager(fileManager, this, new AddonsManager(plugin));
         editLootBoxManager = new EditLootBoxManager(plugin, this);
 
         // first implement case, after this create a hologram
@@ -257,12 +256,6 @@ public class LootBoxManager {
         return allCases.values().stream().filter(caseObject -> caseObject.getInventory().equals(inventory)).findFirst();
     }
 
-
-    public void deleteAllHolograms() {
-        for (Hologram hologram : locationCaseManager.getHolograms()) {
-            hologram.destroy();
-        }
-    }
     public void deleteCase(LootBox lootBox) {
         // delete all hologram/action with preview case
         List<CaseLocation> listCaseLocation = locationCaseManager.findCaseLocationById(lootBox.getCaseId());

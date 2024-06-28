@@ -12,7 +12,7 @@
     <name>getCase</name>
 
     <properties>
-        <java.version>16</java.version>
+        <java.version>19</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -80,6 +80,11 @@
 
     <repositories>
         <repository>
+            <id>fancyplugins-releases</id>
+            <name>FancyPlugins Repository</name>
+            <url>https://repo.fancyplugins.de/releases</url>
+        </repository>
+        <repository>
             <id>panda-repository</id>
             <url>https://repo.panda-lang.org/releases</url>
         </repository>
@@ -146,6 +151,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.22</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>de.oliver</groupId>
+            <artifactId>FancyHolograms</artifactId>
+            <version>2.3.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
