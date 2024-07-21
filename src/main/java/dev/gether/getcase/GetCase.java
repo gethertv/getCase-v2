@@ -7,7 +7,6 @@ import dev.gether.getcase.cmd.handler.InvalidUsageCommandHandler;
 import dev.gether.getcase.cmd.handler.PermissionHandler;
 import dev.gether.getcase.config.FileManager;
 import dev.gether.getcase.config.domain.chest.LootBox;
-import dev.gether.getcase.hook.HookManager;
 import dev.gether.getcase.listener.InventoryClickListener;
 import dev.gether.getcase.listener.InventoryCloseListener;
 import dev.gether.getcase.listener.PlayerInteractionListener;
@@ -15,11 +14,11 @@ import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Field;
 import java.util.stream.Stream;
 
 public final class GetCase extends JavaPlugin {
@@ -30,13 +29,9 @@ public final class GetCase extends JavaPlugin {
     // manager
     private LootBoxManager lootBoxManager;
     private LiteCommands<CommandSender> liteCommands;
-    private HookManager hookManager;
-
     // file manager/config
     public static FileManager fileManager;
-
-    private String secretKey;
-
+    public final static NamespacedKey NAMESPACED_KEY = new NamespacedKey(GetCase.getInstance(), "get_key");
 
     @Override
     public void onEnable() {
@@ -44,12 +39,8 @@ public final class GetCase extends JavaPlugin {
         instance = this;
         fileManager = new FileManager(this);
 
-
-
         // hooks
-        hookManager = new HookManager();
-
-        lootBoxManager = new LootBoxManager(this, fileManager, hookManager);
+        lootBoxManager = new LootBoxManager(this, fileManager);
 
         // register listener
         Stream.of(
@@ -68,7 +59,7 @@ public final class GetCase extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        lootBoxManager.deleteAllHolograms();
+        lootBoxManager.getLocationCaseManager().deleteAllHolograms();
 
         if(liteCommands != null)
             liteCommands.getCommandManager().unregisterAll();
@@ -89,7 +80,7 @@ public final class GetCase extends JavaPlugin {
             }
         });
         // delete hologram
-        lootBoxManager.deleteAllHolograms();
+        lootBoxManager.getLocationCaseManager().deleteAllHolograms();
         // load new config
         fileManager.reload();
 
@@ -114,10 +105,6 @@ public final class GetCase extends JavaPlugin {
 
     public static GetCase getInstance() {
         return instance;
-    }
-
-    public HookManager getHookManager() {
-        return hookManager;
     }
 
     public FileManager getFileManager() {

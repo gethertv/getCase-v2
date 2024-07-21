@@ -6,8 +6,9 @@ import dev.gether.getcase.config.domain.chest.CaseHologram;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getcase.lootbox.addons.AddonsManager;
+import dev.gether.getcase.lootbox.addons.FancyBillboardType;
 import dev.gether.getconfig.utils.MessageUtil;
-import eu.decentsoftware.holograms.api.holograms.Hologram;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -58,6 +59,12 @@ public class LocationCaseManager {
                 .enable(this.addonsManager.isHologramSupport())
                 .lines(List.of("&7-----------------", "#eaff4fCase " + caseData.getName(), "&7-----------------"))
                 .heightY(2.1)
+                .fancyBillboardType(FancyBillboardType.HORIZONTAL)
+                .color(Color.fromRGB(255, 255, 255))
+                .visibilityDistance(32)
+                .textShadow(true)
+                .scale(1.0f)
+                .transparentBackground(true)
                 .build();
 
 

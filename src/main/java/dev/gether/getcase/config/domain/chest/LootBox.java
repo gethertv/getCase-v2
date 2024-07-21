@@ -11,9 +11,11 @@ import dev.gether.getconfig.domain.config.ItemDecoration;
 import dev.gether.getconfig.utils.ColorFixer;
 import lombok.*;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
@@ -69,6 +71,9 @@ public class LootBox extends GetConfig {
 
         // set key
         this.key = itemKey.getItemStack();
+        ItemMeta itemMeta = key.getItemMeta();
+        itemMeta.getPersistentDataContainer().set(GetCase.NAMESPACED_KEY, PersistentDataType.STRING, caseId.toString());
+        this.key.setItemMeta(itemMeta);
     }
 
     private void fillItemCase() {

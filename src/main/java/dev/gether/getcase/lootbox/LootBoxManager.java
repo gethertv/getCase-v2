@@ -16,6 +16,7 @@ import dev.gether.getcase.lootbox.location.LocationCaseManager;
 import dev.gether.getconfig.ConfigManager;
 import dev.gether.getconfig.domain.Item;
 import dev.gether.getconfig.domain.config.ItemDecoration;
+import dev.gether.getconfig.utils.ColorFixer;
 import dev.gether.getconfig.utils.ConsoleColor;
 import dev.gether.getconfig.utils.ItemUtil;
 import dev.gether.getconfig.utils.MessageUtil;
@@ -25,6 +26,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +76,7 @@ public class LootBoxManager {
             return;
 
         // take key
-        ItemUtil.removeItem(player, lootBox.getKey(), 1);
+        removeKey(player, lootBox, 1);
 
         // open case with animation
         if(animationType == AnimationType.SPIN) {
@@ -87,6 +90,35 @@ public class LootBoxManager {
         }
     }
 
+    private void removeKey(Player player, LootBox lootBox, int amount) {
+        int remove = amount;
+
+        for(int i = 0; i < player.getInventory().getSize(); ++i) {
+            ItemStack current = player.getInventory().getItem(i);
+            if (current != null) {
+                ItemMeta itemMeta = current.getItemMeta();
+                if(itemMeta==null)
+                    continue;
+
+                String caseUUIDString = itemMeta.getPersistentDataContainer().get(GetCase.NAMESPACED_KEY, PersistentDataType.STRING);
+                if(caseUUIDString==null)
+                    continue;
+
+                UUID caseUUID  = UUID.fromString(caseUUIDString);
+                if(!lootBox.getCaseId().equals(caseUUID))
+                    continue;
+
+                int currentAmount = current.getAmount();
+                if (currentAmount >= remove) {
+                    current.setAmount(currentAmount - remove);
+                    break;
+                }
+
+                player.getInventory().setItem(i, (ItemStack)null);
+                remove -= currentAmount;
+            }
+        }
+    }
     public void openAllCase(Player player, final LootBox lootBox) {
         int amountKey = ItemUtil.calcItem(player, lootBox.getKey());
         for (int i = 0; i < amountKey; i++) {
@@ -114,7 +146,7 @@ public class LootBoxManager {
             return false;
         }
         // check user has key
-        if(!ItemUtil.hasItemStack(player, lootBox.getKey())) {
+        if(!hasKey(player)) {
             // send a message informing the user has not key
             MessageUtil.sendMessage(player, fileManager.getLangConfig().getNoKey());
             player.playSound(player.getLocation(), fileManager.getCaseConfig().getNoKeySound(), 1F, 1F);
@@ -124,6 +156,22 @@ public class LootBoxManager {
         return true;
     }
 
+    public boolean hasKey(Player player)
+    {
+        for(ItemStack itemStack : player.getInventory()) {
+            if(itemStack==null || itemStack.getType()== Material.AIR)
+                continue;
+
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            if(itemMeta==null)
+                continue;
+
+            if(itemMeta.getPersistentDataContainer().has(GetCase.NAMESPACED_KEY, PersistentDataType.STRING))
+                return true;
+        }
+
+        return false;
+    }
 
 
 
@@ -319,4 +367,6 @@ public class LootBoxManager {
     public LocationCaseManager getLocationCaseManager() {
         return locationCaseManager;
     }
+
+
 }

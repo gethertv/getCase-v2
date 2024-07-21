@@ -6,6 +6,8 @@ import de.oliver.fancyholograms.api.data.TextHologramData;
 import de.oliver.fancyholograms.api.hologram.Hologram;
 import dev.gether.getcase.config.domain.chest.CaseHologram;
 import org.bukkit.Location;
+import org.bukkit.entity.Display;
+import org.joml.Vector3f;
 
 public class AddonFancyHolograms implements IHologram {
 
@@ -26,13 +28,12 @@ public class AddonFancyHolograms implements IHologram {
         }
         textHologramData.setScale(new Vector3f(caseHologram.getScale(), caseHologram.getScale(), caseHologram.getScale()));
         textHologramData.setVisibilityDistance(caseHologram.getVisibilityDistance());
-
+        textHologramData.setBillboard(Display.Billboard.valueOf(caseHologram.getFancyBillboardType().name().toUpperCase()));
         Hologram hologram = hologramManager.create(textHologramData);
         hologramManager.addHologram(hologram);
         return hologram;
 
     }
-
     @Override
     public void delete(Object hologram) {
         if(hologram == null) {

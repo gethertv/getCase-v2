@@ -19,9 +19,9 @@ public class CaseHologram {
     private double heightY;
     private boolean textShadow;
     private float scale;
-    private int visibilityDistance;
-    private boolean transparentBackground;
-    private Color color;
-    private FancyBillboardType fancyBillboardType;
+    private int visibilityDistance = 32;
+    private boolean transparentBackground = true;
+    private Color color = Color.fromRGB(255, 255, 255);
+    private FancyBillboardType fancyBillboardType = FancyBillboardType.HORIZONTAL;
 
 }
