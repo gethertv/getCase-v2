@@ -50,10 +50,10 @@ public class InventoryClickListener implements Listener {
         if(isPreviewCase)
             return;
 
-        boolean isPreviewWinItem = handlePreviewWinItemInv(event, player, inventory, slot);
-        // if it's the inventory with preview win item / cancel next instruction
-        if(isPreviewWinItem)
-            return;
+//        boolean isPreviewWinItem = handlePreviewWinItemInv(event, player, inventory, slot);
+//        // if it's the inventory with preview win item / cancel next instruction
+//        if(isPreviewWinItem)
+//            return;
 
 
         handleAdminEditInv(event, inventory, slot);
@@ -99,26 +99,26 @@ public class InventoryClickListener implements Listener {
         return true;
     }
 
-    private boolean handlePreviewWinItemInv(InventoryClickEvent event, Player player, Inventory inventory, int slot) {
-        InventoryHolder holder = inventory.getHolder();
-        if(holder==null || !(holder instanceof PreviewWinInvHandler previewWinInvHandler))
-            return false;
-
-        event.setCancelled(true);
-        LootBox lootBox = previewWinInvHandler.getCaseObject();
-
-        // open case with animation
-        if(previewWinInvHandler.isAnimationSlot(slot)) {
-            lootBoxManager.openCase(player, lootBox, AnimationType.SPIN);
-            return true;
-        }
-        // open case without the animation
-        if(previewWinInvHandler.isNoAnimationSlot(slot)) {
-            lootBoxManager.openCase(player, lootBox, AnimationType.QUICK);
-            return true;
-        }
-        return true;
-    }
+//    private boolean handlePreviewWinItemInv(InventoryClickEvent event, Player player, Inventory inventory, int slot) {
+//        InventoryHolder holder = inventory.getHolder();
+//        if(holder==null || !(holder instanceof PreviewWinInvHandler previewWinInvHandler))
+//            return false;
+//
+//        event.setCancelled(true);
+//        LootBox lootBox = previewWinInvHandler.getCaseObject();
+//
+//        // open case with animation
+//        if(previewWinInvHandler.isAnimationSlot(slot)) {
+//            lootBoxManager.openCase(player, lootBox, location, AnimationType.SPIN);
+//            return true;
+//        }
+//        // open case without the animation
+//        if(previewWinInvHandler.isNoAnimationSlot(slot)) {
+//            lootBoxManager.openCase(player, lootBox, location, AnimationType.QUICK);
+//            return true;
+//        }
+//        return true;
+//    }
 
     // this call the inventory is this same what preview from case
     private boolean handlePreviewCaseInv(InventoryClickEvent event, Player player, Inventory inventory, int slot) {
@@ -141,18 +141,18 @@ public class InventoryClickListener implements Listener {
 //            if(clickedInventory==null || clickedInventory.equals(caseObject.getInventory()))
 //                return;
 
-            boolean animationSlot = lootBoxManager.isAnimationSlot(slot, lootBox);
-            // if is animation slot than open case with animation
-            if(animationSlot) {
-                lootBoxManager.openCase(player, lootBox, AnimationType.SPIN);
-                return true;
-            }
-
-            boolean noAnimation = lootBoxManager.isNoAnimationSlot(slot, lootBox);
-            if(noAnimation) {
-                lootBoxManager.openCase(player, lootBox, AnimationType.QUICK);
-                return true;
-            }
+//            boolean animationSlot = lootBoxManager.isAnimationSlot(slot, lootBox);
+//            // if is animation slot than open case with animation
+//            if(animationSlot) {
+//                lootBoxManager.openCase(player, lootBox, location, AnimationType.SPIN);
+//                return true;
+//            }
+//
+//            boolean noAnimation = lootBoxManager.isNoAnimationSlot(slot, lootBox);
+//            if(noAnimation) {
+//                lootBoxManager.openCase(player, lootBox, location, AnimationType.QUICK);
+//                return true;
+//            }
 
             return true;
         }

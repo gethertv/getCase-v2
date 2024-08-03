@@ -5,6 +5,8 @@ import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.inv.EditCaseInvHandler;
 import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getconfig.domain.Item;
+import dev.gether.getconfig.utils.ItemUtil;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -41,8 +43,15 @@ public class EditLootBoxManager {
         ItemCase itemCase = ItemCase.builder()
                 .slot(slot)
                 .chance(0)
+                .item(Item.builder()
+                        .displayname(ItemUtil.getItemName(itemStack))
+                        .lore(itemStack.getItemMeta().hasLore() ? new ArrayList<>(itemStack.getItemMeta().getLore()) : new ArrayList<>())
+                        .material(itemStack.getType())
+                        .glow(false)
+                        .amount(itemStack.getAmount())
+                        .build())
+                .commands(new ArrayList<>())
                 .itemStack(itemStack)
-                .extraLore(List.of("&7", "&7Chance: &f{chance}%", "&7"))
                 .build();
 
         // if exists then not create new object
@@ -129,8 +138,14 @@ public class EditLootBoxManager {
                 ItemCase itemCase = ItemCase.builder()
                         .slot(slot)
                         .chance(0)
+                        .commands(new ArrayList<>())
+                        .item(Item.builder()
+                                .displayname(ItemUtil.getItemName(itemStack))
+                                .lore(itemStack.getItemMeta().hasLore() ? new ArrayList<>(itemStack.getItemMeta().getLore()) : new ArrayList<>())
+                                .material(itemStack.getType())
+                                .glow(false)
+                                .build())
                         .itemStack(itemStack)
-                        .extraLore(List.of("&7", "&7Chance: &f{chance}%", "&7"))
                         .build();
 
                 editCaseInvHandler.getCaseObject().getItems().add(itemCase);

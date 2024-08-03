@@ -9,8 +9,10 @@ import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.context.Context;
 import dev.rollczi.litecommands.annotations.execute.Execute;
 import dev.rollczi.litecommands.annotations.permission.Permission;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
@@ -40,6 +42,31 @@ public class GetCaseCmd {
     }
 
 
+    @Execute(name = "preview enable")
+    public void previewEnableCase(@Context CommandSender sender, @Arg("case-name") LootBox lootBox) {
+        // check case exists<
+        lootBox.setPreviewEnable(true);
+        MessageUtil.sendMessage(sender, "&aSuccessful enable preview the case!");
+    }
+    @Execute(name = "preview disable")
+    public void previewDisableCase(@Context CommandSender sender, @Arg("case-name") LootBox lootBox) {
+        // check case exists<
+        lootBox.setPreviewEnable(false);
+        MessageUtil.sendMessage(sender, "&aSuccessful disable preview the case!");
+    }
+
+    @Execute(name = "preview enable *")
+    public void previewEnableCase(@Context CommandSender sender) {
+        // check case exists<
+        lootBoxManager.getAllCases().forEach(lootBox -> lootBox.setPreviewEnable(true));
+        MessageUtil.sendMessage(sender, "&aSuccessful enable preview to all cases!");
+    }
+    @Execute(name = "preview disable *")
+    public void previewDisableCase(@Context CommandSender sender) {
+        // check case exists<
+        lootBoxManager.getAllCases().forEach(lootBox -> lootBox.setPreviewEnable(false));
+        MessageUtil.sendMessage(sender, "&aSuccessful disable preview to all cases!");
+    }
     @Execute(name = "enable")
     public void enableCase(@Context CommandSender sender, @Arg("case-name") LootBox lootBox) {
         // check case exists<
@@ -82,6 +109,23 @@ public class GetCaseCmd {
     public void giveKey(@Context CommandSender sender, @Arg("player") Player target, @Arg("case-name") LootBox lootBox, @Arg("amount") int amount) {
         lootBoxManager.givePlayerKey(target, lootBox, amount);
         MessageUtil.sendMessage(sender, "&aSuccessful give the keys!");
+    }
+
+    @Execute(name = "addkey")
+    public void setkey(@Context Player player, @Arg("case-name") LootBox lootBox) {
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
+        if(mainHand.getType() == Material.AIR) {
+            MessageUtil.sendMessage(player, "&cMusisz trzymac item w lapce!");
+            return;
+        }
+
+        ItemStack clone = mainHand.clone();
+        clone.setAmount(1);
+        lootBox.setKey(clone);
+        lootBox.save();
+
+        MessageUtil.sendMessage(player, "&aPomyslnie ustawiono klucz!");
+
     }
 
     @Execute(name = "giveall")

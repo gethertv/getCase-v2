@@ -11,6 +11,7 @@ import dev.gether.getcase.listener.InventoryClickListener;
 import dev.gether.getcase.listener.InventoryCloseListener;
 import dev.gether.getcase.listener.PlayerInteractionListener;
 import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.addons.AddonsManager;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
 import org.bukkit.Bukkit;
@@ -31,22 +32,25 @@ public final class GetCase extends JavaPlugin {
     private LiteCommands<CommandSender> liteCommands;
     // file manager/config
     public static FileManager fileManager;
-    public final static NamespacedKey NAMESPACED_KEY = new NamespacedKey(GetCase.getInstance(), "get_key");
+    public static NamespacedKey NAMESPACED_KEY;
 
     @Override
     public void onEnable() {
         // skeleton
         instance = this;
+        NAMESPACED_KEY = new NamespacedKey(this, "get_key");
+
         fileManager = new FileManager(this);
 
         // hooks
-        lootBoxManager = new LootBoxManager(this, fileManager);
+        lootBoxManager = new LootBoxManager(this, fileManager, new AddonsManager(this));
 
         // register listener
         Stream.of(
                 new InventoryCloseListener(lootBoxManager),
                 new InventoryClickListener(lootBoxManager),
                 new PlayerInteractionListener(lootBoxManager, fileManager)
+
         ).forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
 
         // register cmd
@@ -59,7 +63,8 @@ public final class GetCase extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        lootBoxManager.getLocationCaseManager().deleteAllHolograms();
+        if(lootBoxManager!=null)
+            lootBoxManager.getLocationCaseManager().deleteAllHolograms();
 
         if(liteCommands != null)
             liteCommands.getCommandManager().unregisterAll();
@@ -105,6 +110,11 @@ public final class GetCase extends JavaPlugin {
 
     public static GetCase getInstance() {
         return instance;
+    }
+
+
+    public LootBoxManager getLootBoxManager() {
+        return lootBoxManager;
     }
 
     public FileManager getFileManager() {

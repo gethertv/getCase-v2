@@ -18,7 +18,7 @@ public class AddonsManager {
             this.hologram = new AddonDecentHolograms();
         } else if(plugin.getServer().getPluginManager().isPluginEnabled("FancyHolograms")) {
             this.fancyHologramsEnable = true;
-            this.hologram = new AddonFancyHolograms();
+            //this.hologram = new AddonFancyHolograms();
         }
     }
 

@@ -34,6 +34,13 @@ public class CaseConfig extends GetConfig {
 
     @Comment("it's responsible for open all loot box by SHIFT + RIGHT_CLICK")
     private boolean quickOpenCase = false;
+
+    private String previewIsDisabled = "&cPodglad dropu jest wylaczony!";
+    private String noKey = "&cNie posidasz klucza w lapce! {case} {key}";
+    private String fullEQ = "&cMasz pelne EQ!";
+    private int maxQuickOpen = 10;
+    private double multiply = -0.5;
+    private double heightY = 0.5;
     // drawing inventory data
     private SpinData spinData = SpinData.builder()
             .size(27)
@@ -42,6 +49,7 @@ public class CaseConfig extends GetConfig {
             .itemDecorations(Set.of(
                     ItemDecoration.builder()
                             .item(Item.builder()
+                                    .amount(1)
                                     .material(Material.BLACK_STAINED_GLASS_PANE)
                                     .displayname(" ")
                                     .lore(new ArrayList<>())
@@ -59,6 +67,7 @@ public class CaseConfig extends GetConfig {
                     Set.of(
                             ItemDecoration.builder()
                                     .item(Item.builder()
+                                            .amount(1)
                                             .material(Material.BLACK_STAINED_GLASS_PANE)
                                             .displayname(" ")
                                             .lore(new ArrayList<>())
@@ -73,6 +82,7 @@ public class CaseConfig extends GetConfig {
             .build();
     private Item noAnimationItem = Item.builder()
             .material(Material.LIME_DYE)
+            .amount(1)
             .displayname("&7Open without the animation")
             .lore(new ArrayList<>(List.of("&7")))
             .unbreakable(true)
@@ -81,6 +91,7 @@ public class CaseConfig extends GetConfig {
 
     private Item animationItem = Item.builder()
             .material(Material.PURPLE_DYE)
+            .amount(1)
             .displayname("&7Open with spin animation")
             .lore(new ArrayList<>(List.of("&7")))
             .unbreakable(true)

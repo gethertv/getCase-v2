@@ -13,7 +13,6 @@ import java.util.Set;
 public class Animation {
 
     private AnimationType animationType;
-
     // animation slots
     private Set<Integer> animationSlots;
     // no animation slots

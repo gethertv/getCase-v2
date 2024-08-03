@@ -1,5 +1,6 @@
 package dev.gether.getcase.inv;
 
+import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.config.domain.chest.SpinData;
 import dev.gether.getconfig.utils.ColorFixer;
@@ -15,8 +16,8 @@ public class SpinInvHolder implements InventoryHolder {
     private boolean cancel;
     private final LootBox lootBox;
     private final SpinData spinData;
-    private final ItemStack[] itemStacks;
-    public SpinInvHolder(LootBox lootBox, SpinData spinData, ItemStack[] itemStacks) {
+    private final ItemCase[] itemCases;
+    public SpinInvHolder(LootBox lootBox, SpinData spinData, ItemCase[] itemCases) {
         this.lootBox = lootBox;
         this.spinData = spinData;
 
@@ -33,8 +34,7 @@ public class SpinInvHolder implements InventoryHolder {
         cancel = false;
 
         // set win items
-        this.itemStacks = itemStacks;
-
+        this.itemCases = itemCases;
     }
 
     public void fillDecorationItems(SpinData spinData) {
@@ -46,8 +46,8 @@ public class SpinInvHolder implements InventoryHolder {
         );
     }
 
-    public ItemStack[] getItemStacks() {
-        return itemStacks;
+    public ItemCase[] getItemStacks() {
+        return itemCases;
     }
 
     @Override
@@ -58,9 +58,9 @@ public class SpinInvHolder implements InventoryHolder {
         return lootBox;
     }
 
-    public ItemStack getWinItem() {
-        int index = 49 + (spinData.getAnimationSlots().length / 2);
-        return itemStacks[index];
+    public ItemCase getWinItem() {
+        int index = 61 + (spinData.getAnimationSlots().length / 2);
+        return itemCases[index];
     }
     public void cancel() {
         this.cancel = true;

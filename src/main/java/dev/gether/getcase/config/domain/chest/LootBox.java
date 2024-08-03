@@ -26,21 +26,18 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LootBox extends GetConfig {
-
     @JsonIgnore
-    private Inventory inv;
-
+    private transient Inventory inv;
     // type case/lootbox may be a luckblock or normal case
     private LootboxType lootboxType;
-
     private boolean enable;
+    private boolean previewEnable;
     private UUID caseId;
     private int sizeInv;
     private String titleInv;
     private String name;
-    // key section
-    private Item itemKey;
-    @JsonIgnore
+//    // key section
+//    private ItemStack itemKey;
     private ItemStack key;
     // item key
     private Set<ItemCase> items;
@@ -51,36 +48,48 @@ public class LootBox extends GetConfig {
     // broadcast
     private BroadcastCase broadcastCase;
 
-
-
+    @JsonIgnore
     public void createInv() {
         inv = Bukkit.createInventory(null, sizeInv, ColorFixer.addColors(titleInv));
         // fill inv with items
         fillInventory();
     }
 
+    @JsonIgnore
     public void fillInventory() {
         // clear inv
         inv.clear();
         // fill [ background items]
         fillBackground();
         // fill [ animation and no animation items ]
-        fillAnimationItems();
+        //fillAnimationItems(); // TODO: HERE IGNORE
         // fill [ items case ]
         fillItemCase();
 
         // set key
-        this.key = itemKey.getItemStack();
-        ItemMeta itemMeta = key.getItemMeta();
-        itemMeta.getPersistentDataContainer().set(GetCase.NAMESPACED_KEY, PersistentDataType.STRING, caseId.toString());
-        this.key.setItemMeta(itemMeta);
+        //ItemMeta itemMeta = key.getItemMeta();
+        //itemMeta.getPersistentDataContainer().set(GetCase.NAMESPACED_KEY, PersistentDataType.STRING, caseId.toString());
+        //this.key.setItemMeta(itemMeta);
     }
 
+    @JsonIgnore
     private void fillItemCase() {
         // ignore if list items is empty
         if(items.isEmpty())
             return;
 
+
+
+        // foreach and set item to inv
+        for (Map.Entry<ItemCase, Double> entry : getChance().entrySet()) {
+            ItemCase item = entry.getKey();
+            double chance = entry.getValue();
+            inv.setItem(item.getSlot(), addExtraLore(item, String.format("%.2f", chance)));
+        }
+
+    }
+    @JsonIgnore
+    public Map<ItemCase, Double> getChance() {
         // sum chance from all case
         double totalWeight = items.stream().mapToDouble(ItemCase::getChance).sum();
         // 100%
@@ -106,37 +115,25 @@ public class LootBox extends GetConfig {
         Map.Entry<ItemCase, Double> lastItemEntry = sortedItems.get(sortedItems.size() - 1);
         double lastChance = lastItemEntry.getValue() + remainingWeight;
         adjustedChances.put(lastItemEntry.getKey(), lastChance);
-
-        // foreach and set item to inv
-        for (Map.Entry<ItemCase, Double> entry : adjustedChances.entrySet()) {
-            ItemCase item = entry.getKey();
-            double chance = entry.getValue();
-            inv.setItem(item.getSlot(), addExtraLore(item, String.format("%.2f", chance)));
-        }
-
+        return adjustedChances;
     }
 
+
+    @JsonIgnore
     public ItemStack addExtraLore(ItemCase item, String chance) {
-        final ItemStack itemStack = item.getItemStack().clone();
+        final ItemStack itemStack = item.getItem().getItemStack();
         final ItemMeta itemMeta = Optional.ofNullable(itemStack.getItemMeta()).orElseThrow(() -> new IllegalStateException("ItemMeta cannot be null"));
 
-        List<String> lore = Optional.ofNullable(itemMeta.getLore()).orElse(new ArrayList<>());
-        addFormattedExtraLore(lore, item.getExtraLore(), chance);
-
+        List<String> lore = itemMeta.getLore() != null ? new ArrayList<>(itemMeta.getLore()) : new ArrayList<>();
+        for (int i = 0; i < lore.size(); i++) {
+            lore.set(i, lore.get(i).replace("{chance}", String.valueOf(chance)));
+        }
         itemMeta.setLore(lore);
         itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
 
-    private void addFormattedExtraLore(List<String> lore, List<String> extraLore, String chance) {
-        if (extraLore != null) {
-            extraLore.stream()
-                    .map(line -> line.replace("{chance}", chance))
-                    .map(ColorFixer::addColors)
-                    .forEach(lore::add);
-        }
-    }
-
+    @JsonIgnore
     private void fillAnimationItems() {
         if(lootboxType == LootboxType.LUCKBLOCK)
             return;
@@ -155,6 +152,8 @@ public class LootBox extends GetConfig {
         }
     }
 
+
+    @JsonIgnore
     private void fillBackground() {
         for (ItemDecoration decoration : decorations) {
             for (Integer slot : decoration.getSlots()) {

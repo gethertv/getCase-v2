@@ -1,5 +1,6 @@
 package dev.gether.getcase.config.domain.chest;
 
+import dev.gether.getconfig.domain.Item;
 import lombok.*;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,6 +16,7 @@ public class ItemCase {
     private int slot;
     private double chance;
     private ItemStack itemStack;
-    private List<String> extraLore;
+    private Item item;
+    private List<String> commands;
 
 }

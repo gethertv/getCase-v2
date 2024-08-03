@@ -8,6 +8,11 @@ import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getcase.lootbox.addons.AddonsManager;
 import dev.gether.getcase.lootbox.addons.FancyBillboardType;
 import dev.gether.getconfig.utils.MessageUtil;
+import eu.decentsoftware.holograms.api.DHAPI;
+import eu.decentsoftware.holograms.api.DecentHologramsAPI;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
+import eu.decentsoftware.holograms.api.holograms.enums.EnumFlag;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,12 +20,13 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LocationCaseManager {
 
     private final FileManager fileManager;
     private final LootBoxManager lootBoxManager;
-    private final Map<String, Object> holograms = new HashMap<>();
+    private final Map<String, dev.gether.getcase.lootbox.CaseHologram> holograms = new HashMap<>();
     private final AddonsManager addonsManager;
 
 
@@ -78,7 +84,7 @@ public class LocationCaseManager {
         // add object to set<>
         fileManager.getCaseLocationConfig().getCaseLocationData().add(caseLocation);
         // create hologram
-        createHologram(location, caseHologram);
+        createHologram(location, caseData.getCaseId(), caseHologram);
         // save config
         fileManager.getCaseLocationConfig().save();
         MessageUtil.sendMessage(player, "&aSuccessfully created the case with this location.");
@@ -141,14 +147,15 @@ public class LocationCaseManager {
                 return;
             }
 
+            LootBox lootBox = caseByID.get();
             // location case/hologram
             Location location = caseLocation.getLocation();
             // create hologram for this case
-            createHologram(location, caseLocation.getCaseHologram());
+            createHologram(location, lootBox.getCaseId(), caseLocation.getCaseHologram());
         });
     }
 
-    public void createHologram(Location location, CaseHologram caseHologram) {
+    public void createHologram(Location location, UUID caseUUID, CaseHologram caseHologram) {
 
         // check hook decent holograms
         if(!this.addonsManager.isHologramSupport())
@@ -159,30 +166,62 @@ public class LocationCaseManager {
             return;
 
         Object hologram = addonsManager.getHologram().create(location, caseHologram);
+
+        dev.gether.getcase.lootbox.CaseHologram caseH = new dev.gether.getcase.lootbox.CaseHologram(hologram, caseUUID);
+
         // create hologram
-        holograms.put(caseHologram.getHologramKey(), hologram);
+        holograms.put(caseHologram.getHologramKey(), caseH);
     }
 
     public void deleteAllHolograms() {
-        for (Object hologram : holograms.values()) {
+        for (dev.gether.getcase.lootbox.CaseHologram hologram : holograms.values()) {
             deleteHologram(hologram);
         }
     }
 
     public void deleteHologram(String hologramKey) {
-        Object hologram = holograms.get(hologramKey);
+        dev.gether.getcase.lootbox.CaseHologram hologram = holograms.get(hologramKey);
         deleteHologram(hologram);
     }
 
-    public void deleteHologram(Object hologram) {
-        this.addonsManager.getHologram().delete(hologram);
+    public void deleteHologram(dev.gether.getcase.lootbox.CaseHologram caseHologram) {
+        this.addonsManager.getHologram().delete(caseHologram.getHologram());
     }
 
-    public List<Object> getHolograms() {
+    public List<dev.gether.getcase.lootbox.CaseHologram> getHolograms() {
         return holograms.values().stream().toList();
     }
 
     public void saveFile() {
         fileManager.getCaseLocationConfig().save();
+    }
+
+    public void showHologram(UUID caseId) {
+        Optional<dev.gether.getcase.lootbox.CaseHologram> first = getHolograms().stream().filter(caseHologram -> caseHologram.getCaseUUID().equals(caseId)).findFirst();
+        if(first.isEmpty())
+            return;
+
+        dev.gether.getcase.lootbox.CaseHologram caseHologram = first.get();
+        if(caseHologram.getHologram() instanceof Hologram hologram) {
+            hologram.enable();
+            hologram.updateAll();
+        }
+
+    }
+
+    public List<dev.gether.getcase.lootbox.CaseHologram> hideHologram(UUID caseId) {
+        List<dev.gether.getcase.lootbox.CaseHologram> collect = getHolograms().stream().filter(caseHologram -> caseHologram.getCaseUUID().equals(caseId)).toList();
+        if(collect.isEmpty())
+            return new ArrayList<>();
+
+        collect.forEach(ob -> {
+            if(ob.getHologram() instanceof Hologram hologram) {
+                hologram.disable();
+                hologram.updateAll();
+            }
+        });
+
+        return collect;
+
     }
 }
