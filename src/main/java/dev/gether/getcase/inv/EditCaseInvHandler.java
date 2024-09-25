@@ -2,8 +2,8 @@ package dev.gether.getcase.inv;
 
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.config.domain.chest.ItemCase;
-import dev.gether.getconfig.utils.ColorFixer;
-import dev.gether.getconfig.utils.ItemBuilder;
+import dev.gether.getutils.builder.ItemBuilder;
+import dev.gether.getutils.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -45,7 +45,7 @@ public class EditCaseInvHandler implements InventoryHolder {
         });
 
         // save button/item
-        inventory.setItem(inventory.getSize()-1, ItemBuilder.create(Material.LIME_DYE, "&aSave", true));
+        inventory.setItem(inventory.getSize()-1, ItemBuilder.of(Material.LIME_DYE).name("&aSave").glow(true).build());
     }
 
     private ItemStack prepareItemWithChance(ItemCase item) {

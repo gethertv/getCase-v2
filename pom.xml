@@ -6,7 +6,7 @@
 
     <groupId>dev.gether</groupId>
     <artifactId>getCase</artifactId>
-    <version>3.0.2</version>
+    <version>4.0</version>
     <packaging>jar</packaging>
 
     <name>getCase</name>
@@ -48,12 +48,8 @@
                                     <shadedPattern>dev.gether.getcase.anvilgui</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.yaml.snakeyaml</pattern>
-                                    <shadedPattern>dev.gether.getconfig.snakeyaml</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.fasterxml.jackson.dataformat</pattern>
-                                    <shadedPattern>dev.gether.getconfig.dataformat</shadedPattern>
+                                    <pattern>dev.gether.getutils</pattern>
+                                    <shadedPattern>dev.gether.getcase.getutils</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
@@ -62,6 +58,7 @@
                                     <excludeDefaults>false</excludeDefaults>
                                     <includes>
                                         <include>net/wesjd/anvilgui/**</include>
+                                        <include>dev/gether/getutils/**</include>
                                     </includes>
                                 </filter>
                             </filters>
@@ -111,14 +108,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.16.0</version>
-        </dependency>
-        <dependency>
             <groupId>net.wesjd</groupId>
             <artifactId>anvilgui</artifactId>
-            <version>1.9.4-SNAPSHOT</version>
+            <version>1.10.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.decentsoftware-eu</groupId>
@@ -129,12 +121,12 @@
         <dependency>
             <groupId>dev.rollczi</groupId>
             <artifactId>litecommands-bukkit</artifactId>
-            <version>3.4.0</version>
+            <version>3.4.1</version>
         </dependency>
         <dependency>
-            <groupId>dev.gether</groupId>
-            <artifactId>getconfig</artifactId>
-            <version>2.0</version>
+            <groupId>dev.gethertv</groupId>
+            <artifactId>getutils</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>

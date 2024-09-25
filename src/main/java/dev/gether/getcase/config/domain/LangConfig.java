@@ -1,6 +1,6 @@
 package dev.gether.getcase.config.domain;
 
-import dev.gether.getconfig.GetConfig;
+import dev.gether.getutils.GetConfig;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +11,7 @@ import java.util.List;
 public class LangConfig extends GetConfig {
     private String noKey = "&cNo key!";
     private String caseIsDisable = "&cThis case is disabled!";
+    private String fullInventory = "&cFull inventory!";
 
     private String noPermission = "&cNo permission! &8(&f{permission}&8)";
     private String usageCommand  = "&7Usage: #5eff96{usage}";
