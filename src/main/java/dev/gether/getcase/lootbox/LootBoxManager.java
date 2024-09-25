@@ -38,7 +38,7 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class LootBoxManager {
 
-    @Getter EditLootBoxManager editLootBoxManager;
+    @Getter add editLootBoxManager;
     @Getter AnimationManager animationManager;
     @Getter RewardsManager rewardsManager;
     @Getter LocationCaseManager locationCaseManager;

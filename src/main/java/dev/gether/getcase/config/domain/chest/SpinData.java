@@ -1,7 +1,7 @@
 package dev.gether.getcase.config.domain.chest;
 
-import dev.gether.getconfig.annotation.Comment;
-import dev.gether.getconfig.domain.config.ItemDecoration;
+import dev.gether.getutils.annotation.Comment;
+import dev.gether.getutils.models.inventory.DynamicItem;
 import lombok.*;
 
 import java.util.Set;
@@ -19,6 +19,6 @@ public class SpinData {
     @Comment("slots where the item will rolls")
     private int[] animationSlots;
 
-    private Set<ItemDecoration> itemDecorations;
+    private Set<DynamicItem> itemDecorations;
 
 }

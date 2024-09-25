@@ -7,6 +7,8 @@ import dev.gether.getcase.inv.SpinInvHolder;
 import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getcase.lootbox.LootboxType;
 import dev.gether.getcase.lootbox.animation.AnimationType;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,10 +20,11 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class InventoryClickListener implements Listener {
 
 
-    private final LootBoxManager lootBoxManager;
+    LootBoxManager lootBoxManager;
 
     public InventoryClickListener(LootBoxManager lootBoxManager) {
         this.lootBoxManager = lootBoxManager;
@@ -133,13 +136,8 @@ public class InventoryClickListener implements Listener {
             LootBox lootBox = caseByInv.get();
 
             // check is the luckblock case
-            if(lootBox.getLootboxType() == LootboxType.LUCKBLOCK)
+            if(lootBox.getLootboxType() == LootboxType.LUCKY_BLOCK)
                 return true;
-
-//            // check the clicked inventory is not null AND the same what returned from method
-//            // IF IS NULL OR NOT THIS SAME - RETURN
-//            if(clickedInventory==null || clickedInventory.equals(caseObject.getInventory()))
-//                return;
 
             boolean animationSlot = lootBoxManager.isAnimationSlot(slot, lootBox);
             // if is animation slot than open case with animation

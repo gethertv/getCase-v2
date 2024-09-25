@@ -2,5 +2,5 @@ package dev.gether.getcase.lootbox;
 
 public enum LootboxType {
     LOOTBOX,
-    LUCKBLOCK
+    LUCKY_BLOCK
 }

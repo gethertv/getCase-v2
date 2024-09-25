@@ -6,6 +6,8 @@ import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getcase.lootbox.LootboxType;
 import dev.gether.getcase.lootbox.animation.AnimationType;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,10 +21,11 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PlayerInteractionListener implements Listener {
 
-    private final LootBoxManager lootBoxManager;
-    private final FileManager fileManager;
+    LootBoxManager lootBoxManager;
+    FileManager fileManager;
 
     public PlayerInteractionListener(LootBoxManager lootBoxManager, FileManager fileManager) {
         this.lootBoxManager = lootBoxManager;
@@ -62,7 +65,7 @@ public class PlayerInteractionListener implements Listener {
             }
 
             // if is not the luckblock then ignore otherwise just open case
-            if(lootBox.getLootboxType() != LootboxType.LUCKBLOCK)
+            if(lootBox.getLootboxType() != LootboxType.LUCKY_BLOCK)
                 return;
 
             lootBoxManager.openCase(player, lootBox, getTypeAnimation(event.getAction()));

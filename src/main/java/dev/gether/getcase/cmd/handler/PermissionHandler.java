@@ -1,7 +1,7 @@
 package dev.gether.getcase.cmd.handler;
 
 import dev.gether.getcase.config.FileManager;
-import dev.gether.getconfig.utils.MessageUtil;
+import dev.gether.getutils.utils.MessageUtil;
 import dev.rollczi.litecommands.handler.result.ResultHandlerChain;
 import dev.rollczi.litecommands.invocation.Invocation;
 import dev.rollczi.litecommands.permission.MissingPermissions;

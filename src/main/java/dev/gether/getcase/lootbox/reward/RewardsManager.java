@@ -5,9 +5,9 @@ import dev.gether.getcase.config.domain.chest.BroadcastCase;
 import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.inv.PreviewWinInvHandler;
 import dev.gether.getcase.config.domain.chest.LootBox;
-import dev.gether.getconfig.utils.ItemUtil;
-import dev.gether.getconfig.utils.MessageUtil;
-import dev.gether.getconfig.utils.PlayerUtil;
+import dev.gether.getcase.utils.ItemUtil;
+import dev.gether.getutils.utils.MessageUtil;
+import dev.gether.getutils.utils.PlayerUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -35,7 +35,7 @@ public class RewardsManager {
         // open this inv
         player.openInventory(previewWinInvHandler.getInventory());
 
-        PlayerUtil.giveItem(player, itemStack);
+        PlayerUtil.addItems(player, itemStack);
         // broadcast
         broadcast(player, itemStack, amount, lootBox);
         return itemCase;
@@ -47,7 +47,7 @@ public class RewardsManager {
         ItemStack itemStack = itemCase.getItemStack().clone();
         final int amount = itemStack.getAmount();
 
-        PlayerUtil.giveItem(player, itemStack);
+        PlayerUtil.addItems(player, itemStack);
         // broadcast
         broadcast(player, itemStack, amount, lootBox);
         player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
@@ -63,7 +63,7 @@ public class RewardsManager {
         // open this inv
         player.openInventory(previewWinInvHandler.getInventory());
         // give winner item to player
-        PlayerUtil.giveItem(player, item);
+        PlayerUtil.addItems(player, item);
         // broadcast
         broadcast(player, item, amount, lootBox);
         return item;

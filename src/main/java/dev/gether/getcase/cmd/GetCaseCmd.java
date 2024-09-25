@@ -3,7 +3,7 @@ package dev.gether.getcase.cmd;
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
-import dev.gether.getconfig.utils.MessageUtil;
+import dev.gether.getutils.utils.MessageUtil;
 import dev.rollczi.litecommands.annotations.argument.Arg;
 import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.context.Context;

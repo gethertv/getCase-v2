@@ -1,14 +1,13 @@
 package dev.gether.getcase.config.domain.chest;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.domain.CaseConfig;
 import dev.gether.getcase.lootbox.animation.Animation;
 import dev.gether.getcase.lootbox.LootboxType;
-import dev.gether.getconfig.GetConfig;
-import dev.gether.getconfig.domain.Item;
-import dev.gether.getconfig.domain.config.ItemDecoration;
-import dev.gether.getconfig.utils.ColorFixer;
+import dev.gether.getutils.GetConfig;
+import dev.gether.getutils.models.inventory.DynamicItem;
+import dev.gether.getutils.shaded.jackson.annotation.JsonIgnore;
+import dev.gether.getutils.utils.ColorFixer;
 import lombok.*;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
@@ -26,7 +25,9 @@ import java.util.*;
 public class LootBox extends GetConfig {
 
     @JsonIgnore
-    private Inventory inv;
+    @Getter(AccessLevel.NONE) // Lombok nie wygeneruje gettera
+    @Setter(AccessLevel.NONE) // Lombok nie wygeneruje settera
+    private transient Inventory inv;
 
     // type case/lootbox may be a luckblock or normal case
     private LootboxType lootboxType;
@@ -37,13 +38,11 @@ public class LootBox extends GetConfig {
     private String titleInv;
     private String name;
     // key section
-    private Item itemKey;
-    @JsonIgnore
     private ItemStack key;
     // item key
     private Set<ItemCase> items;
     // background decoration
-    private Set<ItemDecoration> decorations;
+    private Set<DynamicItem> decorations;
     // animation data
     private Animation animation;
     // broadcast
@@ -66,9 +65,6 @@ public class LootBox extends GetConfig {
         fillAnimationItems();
         // fill [ items case ]
         fillItemCase();
-
-        // set key
-        this.key = itemKey.getItemStack();
     }
 
     private void fillItemCase() {
@@ -133,7 +129,7 @@ public class LootBox extends GetConfig {
     }
 
     private void fillAnimationItems() {
-        if(lootboxType == LootboxType.LUCKBLOCK)
+        if(lootboxType == LootboxType.LUCKY_BLOCK)
             return;
 
         // get instance caseConfig
@@ -141,19 +137,20 @@ public class LootBox extends GetConfig {
         // animation
         for (Integer slot : animation.getAnimationSlots()) {
             // set animation item
-            inv.setItem(slot, caseConfig.getAnimationItem().getItemStack());
+            inv.setItem(slot, caseConfig.getAnimationItem().clone());
         }
         // no animation
         for (Integer slot : animation.getNoAnimationSlots()) {
             // set no animation item
-            inv.setItem(slot, caseConfig.getNoAnimationItem().getItemStack());
+            inv.setItem(slot, caseConfig.getNoAnimationItem().clone());
         }
     }
 
     private void fillBackground() {
-        for (ItemDecoration decoration : decorations) {
-            for (Integer slot : decoration.getSlots()) {
-                inv.setItem(slot, decoration.getItemStack());
+        for (DynamicItem dynamicItem : decorations) {
+            ItemStack itemStack = dynamicItem.getItemStack().clone();
+            for (Integer slot : dynamicItem.getSlots()) {
+                inv.setItem(slot, itemStack);
             }
         }
     }

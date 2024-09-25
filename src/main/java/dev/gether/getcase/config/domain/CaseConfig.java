@@ -2,13 +2,14 @@ package dev.gether.getcase.config.domain;
 
 import dev.gether.getcase.config.domain.chest.PreviewWinItem;
 import dev.gether.getcase.config.domain.chest.SpinData;
-import dev.gether.getconfig.GetConfig;
-import dev.gether.getconfig.annotation.Comment;
-import dev.gether.getconfig.domain.Item;
-import dev.gether.getconfig.domain.config.ItemDecoration;
+import dev.gether.getutils.GetConfig;
+import dev.gether.getutils.annotation.Comment;
+import dev.gether.getutils.builder.ItemBuilder;
+import dev.gether.getutils.models.inventory.DynamicItem;
 import lombok.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +41,9 @@ public class CaseConfig extends GetConfig {
             .title("Drawing...")
             .animationSlots(new int[] {11,12,13,14,15})
             .itemDecorations(Set.of(
-                    ItemDecoration.builder()
-                            .item(Item.builder()
-                                    .material(Material.BLACK_STAINED_GLASS_PANE)
-                                    .displayname(" ")
-                                    .lore(new ArrayList<>())
-                                    .build())
-                            .slots(Set.of(0,1,2,3,4,5,6,7,8,18,19,20,21,22,23,24,25,26))
+                    DynamicItem.builder()
+                            .itemStack(ItemBuilder.of(Material.BLACK_STAINED_GLASS_PANE).name("&7").build())
+                            .slots(List.of(0,1,2,3,4,5,6,7,8,18,19,20,21,22,23,24,25,26))
                             .build()
             ))
             .build();
@@ -57,13 +54,9 @@ public class CaseConfig extends GetConfig {
             .size(27)
             .itemDecorations(
                     Set.of(
-                            ItemDecoration.builder()
-                                    .item(Item.builder()
-                                            .material(Material.BLACK_STAINED_GLASS_PANE)
-                                            .displayname(" ")
-                                            .lore(new ArrayList<>())
-                                            .build())
-                                    .slots(Set.of(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26))
+                            DynamicItem.builder()
+                                    .itemStack(ItemBuilder.of(Material.BLACK_STAINED_GLASS_PANE).name("&7").build())
+                                    .slots(List.of(0,1,2,3,4,5,6,7,8,18,19,20,21,22,23,24,25,26))
                                     .build()
                     )
             )
@@ -71,20 +64,19 @@ public class CaseConfig extends GetConfig {
             .animationSlots(Set.of(16))
             .noAnimationSlots(Set.of(15))
             .build();
-    private Item noAnimationItem = Item.builder()
-            .material(Material.LIME_DYE)
-            .displayname("&7Open without the animation")
-            .lore(new ArrayList<>(List.of("&7")))
-            .unbreakable(true)
+
+    private ItemStack noAnimationItem = ItemBuilder
+            .of(Material.LIME_DYE)
+            .name("&7Open without the animation")
+            .lore(new ArrayList<>())
             .glow(true)
             .build();
 
-    private Item animationItem = Item.builder()
-            .material(Material.PURPLE_DYE)
-            .displayname("&7Open with spin animation")
-            .lore(new ArrayList<>(List.of("&7")))
-            .unbreakable(true)
-            .glow(false)
+    private ItemStack animationItem = ItemBuilder
+            .of(Material.PURPLE_DYE)
+            .name("&7Open with spin animation")
+            .lore(new ArrayList<>())
+            .glow(true)
             .build();
 
 

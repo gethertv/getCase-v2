@@ -1,6 +1,6 @@
 package dev.gether.getcase.config.domain;
 
-import dev.gether.getconfig.GetConfig;
+import dev.gether.getutils.GetConfig;
 import lombok.*;
 
 import java.util.HashSet;

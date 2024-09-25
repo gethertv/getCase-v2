@@ -2,7 +2,7 @@ package dev.gether.getcase.inv;
 
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.config.domain.chest.SpinData;
-import dev.gether.getconfig.utils.ColorFixer;
+import dev.gether.getutils.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;

@@ -7,7 +7,7 @@ import dev.gether.getcase.config.domain.chest.CaseHologram;
 import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.hook.HookManager;
 import dev.gether.getcase.lootbox.LootBoxManager;
-import dev.gether.getconfig.utils.MessageUtil;
+import dev.gether.getutils.utils.MessageUtil;
 import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
 import org.bukkit.Location;
@@ -56,7 +56,7 @@ public class LocationCaseManager {
         CaseHologram caseHologram = CaseHologram.builder()
                 // check hook hologram plugin
                 .hologramKey(caseData.getName()+"_"+UUID.randomUUID())
-                .enable(hookManager.isDecentHologramsEnable())
+                .enable(hookManager.isDecentHologramsEnabled())
                 .lines(List.of("&7-----------------", "#eaff4fCase " + caseData.getName(), "&7-----------------"))
                 .heightY(2.1)
                 .build();
@@ -119,7 +119,7 @@ public class LocationCaseManager {
     // create hologram
     // foreach cases
     public void createHolograms() {
-        if(!hookManager.isDecentHologramsEnable())
+        if(!hookManager.isDecentHologramsEnabled())
             return;
 
         if(fileManager.getCaseLocationConfig().getCaseLocationData().isEmpty())
@@ -145,7 +145,7 @@ public class LocationCaseManager {
     public void createHologram(Location location, CaseHologram caseHologram) {
 
         // check hook decent holograms
-        if(!GetCase.getInstance().getHookManager().isDecentHologramsEnable())
+        if(!GetCase.getInstance().getHookManager().isDecentHologramsEnabled())
             return;
 
         // hologram is enable

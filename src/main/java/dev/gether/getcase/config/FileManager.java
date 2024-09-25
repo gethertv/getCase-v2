@@ -4,7 +4,7 @@ import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.domain.CaseConfig;
 import dev.gether.getcase.config.domain.CaseLocationConfig;
 import dev.gether.getcase.config.domain.LangConfig;
-import dev.gether.getconfig.ConfigManager;
+import dev.gether.getutils.ConfigManager;
 import lombok.Getter;
 
 import java.io.File;
@@ -28,17 +28,17 @@ public class FileManager {
 
         // register serializer
         caseConfig = ConfigManager.create(CaseConfig.class, it -> {
-            it.file(new File(plugin.getDataFolder(), "config.yml"));
+            it.setFile(new File(plugin.getDataFolder(), "config.yml"));
             it.load();
         });
 
         caseLocationConfig = ConfigManager.create(CaseLocationConfig.class, it -> {
-            it.file(new File(plugin.getDataFolder(), "location.yml"));
+            it.setFile(new File(plugin.getDataFolder(), "location.yml"));
             it.load();
         });
 
         langConfig = ConfigManager.create(LangConfig.class, it -> {
-            it.file(new File(plugin.getDataFolder(), "lang.yml"));
+            it.setFile(new File(plugin.getDataFolder(), "lang.yml"));
             it.load();
         });
 

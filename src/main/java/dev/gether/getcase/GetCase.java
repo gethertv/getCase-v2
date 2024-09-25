@@ -12,8 +12,12 @@ import dev.gether.getcase.listener.InventoryClickListener;
 import dev.gether.getcase.listener.InventoryCloseListener;
 import dev.gether.getcase.listener.PlayerInteractionListener;
 import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getutils.models.inventory.GetInventory;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
@@ -22,33 +26,36 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.lang.reflect.Field;
 import java.util.stream.Stream;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public final class GetCase extends JavaPlugin {
 
     // instance
-    private static GetCase instance;
+    @Getter
+    static GetCase instance;
 
     // manager
-    private LootBoxManager lootBoxManager;
-    private LiteCommands<CommandSender> liteCommands;
-    private HookManager hookManager;
+    @Getter LootBoxManager lootBoxManager;
+    LiteCommands<CommandSender> liteCommands;
+    @Getter HookManager hookManager;
 
     // file manager/config
-    public static FileManager fileManager;
-
-    private String secretKey;
+    @Getter static FileManager fileManager;
 
 
     @Override
     public void onEnable() {
         // skeleton
         instance = this;
+        // config/file
         fileManager = new FileManager(this);
 
-
+        // init gui/lib - getUtils
+        new GetInventory(this);
 
         // hooks
         hookManager = new HookManager();
 
+        // main manager
         lootBoxManager = new LootBoxManager(this, fileManager, hookManager);
 
         // register listener
@@ -98,6 +105,7 @@ public final class GetCase extends JavaPlugin {
         // create hologram for all cases
         lootBoxManager.getLocationCaseManager().createHolograms();
     }
+
     private void registerLiteCmd() {
         this.liteCommands =  LiteBukkitFactory.builder("getcase", this)
                 .commands(
@@ -112,15 +120,4 @@ public final class GetCase extends JavaPlugin {
 
     }
 
-    public static GetCase getInstance() {
-        return instance;
-    }
-
-    public HookManager getHookManager() {
-        return hookManager;
-    }
-
-    public FileManager getFileManager() {
-        return fileManager;
-    }
 }
