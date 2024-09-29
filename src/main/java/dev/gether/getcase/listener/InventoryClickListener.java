@@ -1,7 +1,8 @@
 package dev.gether.getcase.listener;
 
+import dev.gether.getcase.config.domain.chest.ItemCase;
 import dev.gether.getcase.config.domain.chest.LootBox;
-import dev.gether.getcase.inv.EditCaseInvHandler;
+import dev.gether.getcase.inv.EditCaseInv;
 import dev.gether.getcase.inv.PreviewWinInvHandler;
 import dev.gether.getcase.inv.SpinInvHolder;
 import dev.gether.getcase.lootbox.LootBoxManager;
@@ -9,15 +10,19 @@ import dev.gether.getcase.lootbox.LootboxType;
 import dev.gether.getcase.lootbox.animation.AnimationType;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import net.wesjd.anvilgui.AnvilGUI;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -58,9 +63,6 @@ public class InventoryClickListener implements Listener {
         if(isPreviewWinItem)
             return;
 
-
-        handleAdminEditInv(event, inventory, slot);
-
     }
 
     private boolean handleSpinInv(InventoryClickEvent event, Inventory inventory) {
@@ -72,35 +74,6 @@ public class InventoryClickListener implements Listener {
         return true;
     }
 
-    // call the clicked inventory is the same what admin edit (EditCaseInvHandler)
-    // return false if is not this inventory
-    // true means that is admin inv
-    private boolean handleAdminEditInv(InventoryClickEvent event, Inventory inventory, int slot) {
-        InventoryHolder holder = inventory.getHolder();
-        if(!(holder instanceof EditCaseInvHandler editCaseInvHandler))
-            return false;
-
-        // if clicked slot is last = save item
-        if(slot==editCaseInvHandler.getInventory().getSize()-1) {
-            event.setCancelled(true);
-            lootBoxManager.getEditLootBoxManager().saveAllItems(editCaseInvHandler);
-        }
-
-        // if click SHIFT + RIGHT CLICK then run edit inv (anvil api)
-        if(event.getClick() == ClickType.SHIFT_RIGHT) {
-            ItemStack item = inventory.getItem(slot);
-            // if slot is empty = cannot edit the chance of item
-            if(item==null)
-                return true;
-
-            event.setCancelled(true);
-            // add all items to list
-            lootBoxManager.getEditLootBoxManager().saveAllItems(editCaseInvHandler);
-            // create anvil gui
-            lootBoxManager.getEditLootBoxManager().editItem(editCaseInvHandler, slot, item);
-        }
-        return true;
-    }
 
     private boolean handlePreviewWinItemInv(InventoryClickEvent event, Player player, Inventory inventory, int slot) {
         InventoryHolder holder = inventory.getHolder();
@@ -121,6 +94,75 @@ public class InventoryClickListener implements Listener {
             return true;
         }
         return true;
+    }
+
+    public void editItem(EditCaseInv editCaseInv, int slot, ItemStack itemStack) {
+
+        // check itemstack exits in list with items
+        Optional<ItemCase> itemByCaseAndItemStack = lootBoxManager.findItemByCaseAndSlot(editCaseInv.getLootBox(), slot);
+        // create default object if item will not exist
+        ItemCase itemCase = ItemCase.builder()
+                .slot(slot)
+                .chance(0)
+                .itemStack(itemStack)
+                .extraLore(List.of("&7", "&7Chance: &f{chance}%", "&7"))
+                .build();
+
+        // if exists then not create new object
+        if(itemByCaseAndItemStack.isPresent()) {
+            itemCase = itemByCaseAndItemStack.get();
+        } else {
+            // if item not exists in list then add
+            editCaseInv.getLootBox().getItems().add(itemCase);
+        }
+
+        // create anvil builder
+        AnvilGUI.Builder builder = new AnvilGUI.Builder();
+
+        // final object with item
+        final ItemCase finalItem = itemCase;
+        // builder onClick event
+        builder.onClick((anvilSlot, stateSnapshot) -> {
+            if (anvilSlot != AnvilGUI.Slot.OUTPUT) {
+                return Collections.emptyList();
+            }
+
+            String text = stateSnapshot.getText();
+            if(!isDouble(text)) {
+                return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Number"));
+            }
+            // parse chance from text to double
+            double chance = Double.parseDouble(text);
+            // set new chance
+            finalItem.setChance(chance);
+            // [!] IGNORE THIS SAVE
+            // because the saving method exists in main GUI/INV with button/item 'SAVE'
+            // save items
+            //saveCase(editCaseInvHandler.getCaseObject());
+            // open preview inv
+            return Arrays.asList(
+                    AnvilGUI.ResponseAction.close(),
+                    AnvilGUI.ResponseAction.run(editCaseInv::fillInvByItems)
+            );
+        });
+        // title gui
+        builder.title("Chance");
+        // left item text
+        builder.text("0.00");
+        // left item
+        builder.itemLeft(new ItemStack(Material.PAPER));
+        // set instance from main plugin
+        builder.plugin(editCaseInv.getPlugin());
+        // open anvil inv
+        builder.open(editCaseInv.getPlayer());
+    }
+
+    private boolean isDouble(String input) {
+        try {
+            double chance = Double.parseDouble(input);
+            return true;
+        } catch (NumberFormatException ignored) {}
+        return false;
     }
 
     // this call the inventory is this same what preview from case

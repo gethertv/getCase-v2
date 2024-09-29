@@ -38,7 +38,7 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class LootBoxManager {
 
-    @Getter add editLootBoxManager;
+    @Getter EditLootBoxManager editLootBoxManager;
     @Getter AnimationManager animationManager;
     @Getter RewardsManager rewardsManager;
     @Getter LocationCaseManager locationCaseManager;
@@ -62,8 +62,8 @@ public class LootBoxManager {
         // create hologram for cases
         locationCaseManager.createHolograms();
 
-
     }
+
 
     // open case with animation
     public void openCase(Player player, final LootBox lootBox, AnimationType animationType) {
