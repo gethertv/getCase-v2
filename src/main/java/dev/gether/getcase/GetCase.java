@@ -44,8 +44,6 @@ public final class GetCase extends JavaPlugin {
         instance = this;
         fileManager = new FileManager(this);
 
-
-
         // hooks
         hookManager = new HookManager();
 

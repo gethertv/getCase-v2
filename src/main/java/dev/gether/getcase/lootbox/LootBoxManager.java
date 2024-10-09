@@ -26,6 +26,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -295,10 +296,28 @@ public class LootBoxManager {
     }
 
     public void giveAllKey(LootBox lootBox, int amount) {
-        ItemStack itemStack = lootBox.getKey().clone();
-        itemStack.setAmount(amount);
-        // give all key
-        Bukkit.getOnlinePlayers().forEach(player -> player.getInventory().addItem(itemStack));
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+
+        new BukkitRunnable() {
+            int index = 0;
+
+            @Override
+            public void run() {
+                if (index >= players.size()) {
+                    this.cancel();
+                    return;
+                }
+
+                Player player = players.get(index);
+                if (player.isOnline()) {
+                    ItemStack itemStack = lootBox.getKey().clone();
+                    itemStack.setAmount(amount);
+                    player.getInventory().addItem(itemStack);
+                }
+
+                index++;
+            }
+        }.runTaskTimer(GetCase.getInstance(), 0L, 10L);
     }
 
     public Optional<LootBox> checkIsKey(ItemStack itemInMainHand, ItemStack offHand) {

@@ -44,8 +44,8 @@ public class EditCaseInvHandler implements InventoryHolder {
             inventory.setItem(item.getSlot(), itemStack);
         });
 
+        inventory.setItem(inventory.getSize()-1, ItemBuilder.of(Material.LIME_DYE).name("&aSave").build());
         // save button/item
-        inventory.setItem(inventory.getSize()-1, ItemBuilder.create(Material.LIME_DYE, "&aSave", true));
     }
 
     private ItemStack prepareItemWithChance(ItemCase item) {
