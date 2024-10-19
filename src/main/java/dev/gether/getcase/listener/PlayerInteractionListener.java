@@ -1,15 +1,14 @@
 package dev.gether.getcase.listener;
 
+import dev.gether.getcase.GetCase;
 import dev.gether.getcase.config.FileManager;
-import dev.gether.getcase.config.domain.CaseLocation;
-import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.lootbox.model.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getcase.lootbox.LootboxType;
 import dev.gether.getcase.lootbox.animation.AnimationType;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,10 +23,12 @@ import java.util.Optional;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PlayerInteractionListener implements Listener {
 
+    GetCase plugin;
     LootBoxManager lootBoxManager;
     FileManager fileManager;
 
-    public PlayerInteractionListener(LootBoxManager lootBoxManager, FileManager fileManager) {
+    public PlayerInteractionListener(GetCase plugin, LootBoxManager lootBoxManager, FileManager fileManager) {
+        this.plugin = plugin;
         this.lootBoxManager = lootBoxManager;
         this.fileManager = fileManager;
     }
@@ -56,7 +57,7 @@ public class PlayerInteractionListener implements Listener {
             event.setCancelled(true);
 
             // open all cases by one click
-            if(fileManager.getCaseConfig().isQuickOpenCase() &&
+            if (fileManager.getCaseConfig().isQuickOpenEnabled() &&
                     player.isSneaking() &&
                     event.getAction().toString().contains("RIGHT")) {
 
@@ -65,7 +66,7 @@ public class PlayerInteractionListener implements Listener {
             }
 
             // if is not the luckblock then ignore otherwise just open case
-            if(lootBox.getLootboxType() != LootboxType.LUCKY_BLOCK)
+            if (lootBox.getLootboxType() != LootboxType.LUCKY_BLOCK)
                 return;
 
             lootBoxManager.openCase(player, lootBox, getTypeAnimation(event.getAction()));
@@ -82,9 +83,10 @@ public class PlayerInteractionListener implements Listener {
             }
         }
     }
+
     private void handleCasePreview(PlayerInteractEvent event, Player player, Action action) {
         // if not RIGHT-CLICK BLOCK AND not LEFT-CLICK BLOCK THEN RETURN
-        if(action != Action.LEFT_CLICK_BLOCK && action != Action.RIGHT_CLICK_BLOCK)
+        if (action != Action.LEFT_CLICK_BLOCK && action != Action.RIGHT_CLICK_BLOCK)
             return;
 
         // cannot be null  (right/left click block action)
@@ -92,28 +94,17 @@ public class PlayerInteractionListener implements Listener {
         // get location clicked block
         Location location = clickedBlock.getLocation();
 
-        Optional<CaseLocation> caseByLocation = lootBoxManager.getLocationCaseManager().findCaseByLocation(location);
+        Optional<LootBox> lootBoxOptional = lootBoxManager.getLocationCaseManager().findCaseByLocation(location);
         // if not found then return
-        if(caseByLocation.isEmpty())
+        if (lootBoxOptional.isEmpty())
             return;
 
         // disable off-hand click
-        if(event.getHand() == EquipmentSlot.OFF_HAND)
-            return;
-
-        CaseLocation caseLocation = caseByLocation.get();
-        // find case by ID
-        Optional<LootBox> caseByID = lootBoxManager.findCaseByID(caseLocation.getCaseId());
-        // if not found / then return
-        if(caseByID.isEmpty())
+        if (event.getHand() == EquipmentSlot.OFF_HAND)
             return;
 
         event.setCancelled(true);
-        // get case object
-        LootBox lootBox = caseByID.get();
-        // play sound
-        player.playSound(player.getLocation(), fileManager.getCaseConfig().getPreviewCaseSound(), 1F, 1F);
-        // open inventory with preview drop
-        player.openInventory(lootBox.getInventory());
+        LootBox lootBox = lootBoxOptional.get();
+        lootBoxManager.openPreview(player, lootBox);
     }
 }

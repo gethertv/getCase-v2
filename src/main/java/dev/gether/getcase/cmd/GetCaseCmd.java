@@ -1,7 +1,7 @@
 package dev.gether.getcase.cmd;
 
 import dev.gether.getcase.GetCase;
-import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.lootbox.model.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.gether.getutils.utils.MessageUtil;
 import dev.rollczi.litecommands.annotations.argument.Arg;
@@ -122,5 +122,10 @@ public class GetCaseCmd {
         } else {
             MessageUtil.sendMessage(player, "&cSomething wrong! Maybe there case location isn't exists!");
         }
+    }
+
+    @Execute(name = "preview")
+    public void preview(@Context Player player, @Arg("case-name") LootBox lootBox) {
+        lootBoxManager.openPreview(player, lootBox);
     }
 }

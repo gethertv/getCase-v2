@@ -1,4 +1,4 @@
-package dev.gether.getcase.config.domain.chest;
+package dev.gether.getcase.lootbox.model;
 
 import lombok.*;
 import org.bukkit.inventory.ItemStack;
@@ -16,5 +16,11 @@ public class ItemCase {
     private double chance;
     private ItemStack itemStack;
     private List<String> extraLore;
+    private boolean needUpdate;
 
+
+    public void setChance(double chance) {
+        this.chance = chance;
+        this.needUpdate = true;
+    }
 }

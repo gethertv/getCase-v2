@@ -17,13 +17,16 @@ public class Animation {
     // animation slots
     private Set<Integer> animationSlots;
     // no animation slots
-    private Set<Integer> noAnimationSlots;
+    private Set<Integer> quickOpenSlots;
+
+    private Set<Integer> multiCaseSlots;
 
     public Animation() {}
 
-    public Animation(AnimationType animationType, Set<Integer> animationSlots, Set<Integer> noAnimationSlots) {
+    public Animation(AnimationType animationType, Set<Integer> animationSlots, Set<Integer> quickOpenSlots, Set<Integer> multiCaseSlots) {
         this.animationType = animationType;
         this.animationSlots = animationSlots;
-        this.noAnimationSlots = noAnimationSlots;
+        this.quickOpenSlots = quickOpenSlots;
+        this.multiCaseSlots = multiCaseSlots;
     }
 }

@@ -1,19 +1,13 @@
 package dev.gether.getcase.config.domain;
 
-import dev.gether.getcase.config.domain.chest.PreviewWinItem;
-import dev.gether.getcase.config.domain.chest.SpinData;
 import dev.gether.getutils.GetConfig;
 import dev.gether.getutils.annotation.Comment;
-import dev.gether.getutils.builder.ItemBuilder;
-import dev.gether.getutils.models.inventory.DynamicItem;
+import dev.gether.getutils.models.Item;
 import lombok.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 
 @NoArgsConstructor
@@ -23,61 +17,52 @@ import java.util.Set;
 @Builder
 public class CaseConfig extends GetConfig {
 
-    @Comment({"sound when you don't have a key",
-            "list of sound https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html"})
+    @Comment({"Sound when player doesn't have a key",
+            "List of sounds: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html"})
     private Sound noKeySound = Sound.ENTITY_VILLAGER_NO;
-    @Comment("sound when you open a preview menu")
-    private Sound previewCaseSound = Sound.UI_BUTTON_CLICK;
-    @Comment("sound while spin animation")
-    private Sound spinSound = Sound.UI_BUTTON_CLICK;
-    @Comment("sound when you got the reward")
-    private Sound winItemSound = Sound.ENTITY_PLAYER_LEVELUP;
 
-    @Comment("it's responsible for open all loot box by SHIFT + RIGHT_CLICK")
-    private boolean quickOpenCase = false;
-    // drawing inventory data
-    private SpinData spinData = SpinData.builder()
-            .size(27)
-            .title("Drawing...")
-            .animationSlots(new int[] {11,12,13,14,15})
-            .itemDecorations(Set.of(
-                    DynamicItem.builder()
-                            .itemStack(ItemBuilder.of(Material.BLACK_STAINED_GLASS_PANE).name("&7").build())
-                            .slots(List.of(0,1,2,3,4,5,6,7,8,18,19,20,21,22,23,24,25,26))
-                            .build()
-            ))
-            .build();
+    @Comment("Sound when opening a preview menu")
+    private Sound previewMenuSound = Sound.UI_BUTTON_CLICK;
 
-    // preview win item
-    private PreviewWinItem previewWinItem = PreviewWinItem.builder()
-            .title("&0You won...")
-            .size(27)
-            .itemDecorations(
-                    Set.of(
-                            DynamicItem.builder()
-                                    .itemStack(ItemBuilder.of(Material.BLACK_STAINED_GLASS_PANE).name("&7").build())
-                                    .slots(List.of(0,1,2,3,4,5,6,7,8,18,19,20,21,22,23,24,25,26))
-                                    .build()
-                    )
-            )
-            .slotWinItem(13)
-            .animationSlots(Set.of(16))
-            .noAnimationSlots(Set.of(15))
-            .build();
+    @Comment("Sound during spin animation")
+    private Sound spinAnimationSound = Sound.UI_BUTTON_CLICK;
 
-    private ItemStack noAnimationItem = ItemBuilder
-            .of(Material.LIME_DYE)
-            .name("&7Open without the animation")
+    @Comment("Sound when receiving the reward")
+    private Sound rewardSound = Sound.ENTITY_PLAYER_LEVELUP;
+
+    @Comment("Enables opening all loot boxes with SHIFT + RIGHT_CLICK")
+    private boolean quickOpenEnabled = false;
+
+    @Comment("multi-case opening")
+    private boolean multiCaseEnabled = true;
+
+    @Comment("Use gradual key distribution to reduce lag (true) or distribute all keys at once (false)")
+    private boolean useGradualKeyDistribution = true;
+
+    @Comment("Number of players to receive keys per tick during gradual distribution")
+    private int playersPerTickForKeyDistribution = 5;
+
+    private Item multiCaseOpening = Item.builder()
+            .material(Material.CHEST)
+            .name("&7Multi-case Opening")
             .lore(new ArrayList<>())
             .glow(true)
             .build();
 
-    private ItemStack animationItem = ItemBuilder
-            .of(Material.PURPLE_DYE)
+    private Item quickOpenItem = Item.builder()
+            .material(Material.LIME_DYE)
+            .name("&7Open without animation")
+            .lore(new ArrayList<>())
+            .glow(true)
+            .build();
+
+    private Item animatedOpenItem = Item.builder()
+            .material(Material.PURPLE_DYE)
             .name("&7Open with spin animation")
             .lore(new ArrayList<>())
             .glow(true)
             .build();
+
 
 
 }

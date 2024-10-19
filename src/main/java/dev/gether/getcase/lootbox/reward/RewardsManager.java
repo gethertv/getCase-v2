@@ -1,110 +1,126 @@
 package dev.gether.getcase.lootbox.reward;
 
 import dev.gether.getcase.config.FileManager;
-import dev.gether.getcase.config.domain.chest.BroadcastCase;
-import dev.gether.getcase.config.domain.chest.ItemCase;
-import dev.gether.getcase.inv.PreviewWinInvHandler;
-import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.lootbox.inv.preview.MultiWinItemPreviewHolder;
+import dev.gether.getcase.lootbox.inv.spin.MultiSpinAnimationHolder;
+import dev.gether.getcase.lootbox.model.ItemCase;
+import dev.gether.getcase.lootbox.model.LootBox;
+import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.inv.preview.WinItemPreviewHolder;
 import dev.gether.getcase.utils.ItemUtil;
 import dev.gether.getutils.utils.MessageUtil;
 import dev.gether.getutils.utils.PlayerUtil;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RewardsManager {
 
-    private final Random random = new Random(System.currentTimeMillis());
-    private final FileManager fileManager;
-    public RewardsManager(FileManager fileManager) {
-        this.fileManager = fileManager;
-    }
+    JavaPlugin plugin;
+    LootBoxManager lootBoxManager;
+    FileManager fileManager;
+    Random random = new Random();
 
-    public ItemCase giveReward(Player player, LootBox lootBox) {
+    public ItemCase giveReward(Player player, LootBox lootBox, boolean showPreview) {
         ItemCase itemCase = getRandomItem(lootBox);
-
-        // give winner item to player
         ItemStack itemStack = itemCase.getItemStack().clone();
-        final int amount = itemStack.getAmount();
 
-        player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
-        // create inventory holder with preview win item
-        PreviewWinInvHandler previewWinInvHandler = new PreviewWinInvHandler(itemStack, fileManager.getCaseConfig(), lootBox);
-        // open this inv
-        player.openInventory(previewWinInvHandler.getInventory());
+        giveRewardToPlayer(player, itemStack, lootBox, showPreview);
 
-        PlayerUtil.addItems(player, itemStack);
-        // broadcast
-        broadcast(player, itemStack, amount, lootBox);
-        return itemCase;
-    }
-
-    public ItemCase giveRewardWithoutPreview(Player player, LootBox lootBox) {
-        ItemCase itemCase = getRandomItem(lootBox);
-        // give winner item to player
-        ItemStack itemStack = itemCase.getItemStack().clone();
-        final int amount = itemStack.getAmount();
-
-        PlayerUtil.addItems(player, itemStack);
-        // broadcast
-        broadcast(player, itemStack, amount, lootBox);
-        player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
         return itemCase;
     }
 
     public ItemStack giveReward(Player player, LootBox lootBox, ItemStack itemStack) {
-        ItemStack item = itemStack.clone();
-        final int amount = item.getAmount();
-        player.playSound(player.getLocation(), fileManager.getCaseConfig().getWinItemSound(), 1F, 1F);
-        // create inventory holder with preview win item
-        PreviewWinInvHandler previewWinInvHandler = new PreviewWinInvHandler(item, fileManager.getCaseConfig(), lootBox);
-        // open this inv
-        player.openInventory(previewWinInvHandler.getInventory());
-        // give winner item to player
-        PlayerUtil.addItems(player, item);
+        ItemStack clonedItem = itemStack.clone();
+        giveRewardToPlayer(player, clonedItem, lootBox, true);
+        return clonedItem;
+    }
+
+    private void giveRewardToPlayer(Player player, ItemStack itemStack, LootBox lootBox, boolean showPreview) {
+        // sound
+        player.playSound(player.getLocation(), fileManager.getCaseConfig().getRewardSound(), 1F, 1F);
+        // preview inv
+        if (showPreview) {
+            showRewardPreview(player, itemStack, lootBox);
+        }
+        // add items
+        PlayerUtil.addItems(player, itemStack);
         // broadcast
-        broadcast(player, item, amount, lootBox);
-        return item;
+        broadcastReward(player, itemStack, lootBox);
+    }
+
+    private void giveRewardMultiCaseToPlayer(Player player, MultiSpinAnimationHolder multiSpinAnimationHolder, boolean showPreview) {
+        // sound
+        player.playSound(player.getLocation(), fileManager.getCaseConfig().getRewardSound(), 1F, 1F);
+        // preview inv
+        if (showPreview) {
+            showMultiCaseRewardPreview(player, multiSpinAnimationHolder.getWinnerItems(), multiSpinAnimationHolder.getLootBox());
+        }
+        // add items
+        ItemStack[] items = multiSpinAnimationHolder.getWinnerItems().values().toArray(ItemStack[]::new);
+
+        PlayerUtil.addItems(player, items);
+        // broadcast
+        for (int i = 0; i < items.length; i++) {
+            ItemStack item = items[i];
+            broadcastReward(player, item, multiSpinAnimationHolder.getLootBox());
+        }
+
+    }
+
+
+    private void showRewardPreview(Player player, ItemStack itemStack, LootBox lootBox) {
+        WinItemPreviewHolder previewWinInvHandler = new WinItemPreviewHolder(plugin, player, itemStack, lootBoxManager, fileManager, lootBox);
+        player.openInventory(previewWinInvHandler.getInventory());
+    }
+
+    private void showMultiCaseRewardPreview(Player player, Map<Integer, ItemStack> winnerItems, LootBox lootBox) {
+        MultiWinItemPreviewHolder multiWinItemPreviewHolder = new MultiWinItemPreviewHolder(plugin, player, winnerItems, lootBoxManager, fileManager, lootBox);
+        player.openInventory(multiWinItemPreviewHolder.getInventory());
     }
 
     public ItemCase getRandomItem(LootBox lootBox) {
         Set<ItemCase> items = lootBox.getItems();
         double totalWeight = items.stream().mapToDouble(ItemCase::getChance).sum();
-
-        // win ticket
         double randomValue = random.nextDouble() * totalWeight;
 
-        double currentWeight = 0.0;
+        double cumulativeWeight = 0.0;
         for (ItemCase item : items) {
-            currentWeight += item.getChance();
-            if (currentWeight >= randomValue) {
+            cumulativeWeight += item.getChance();
+            if (randomValue <= cumulativeWeight) {
                 return item;
             }
         }
-
-        throw new RuntimeException("Item cannot be draw. Probably loot box is empty!");
+        throw new RuntimeException("[getCase] Probably loot box is empty");
     }
 
+    private void broadcastReward(Player player, ItemStack itemStack, LootBox lootBox) {
+        Optional.ofNullable(lootBox.getBroadcastCase())
+                .filter(LootBox.BroadcastCase::isEnable)
+                .ifPresent(broadcastCase -> broadcastRewardMessage(player, itemStack, broadcastCase));
+    }
 
-
-    public void broadcast(Player player, ItemStack itemStack, final int amount, LootBox lootBox) {
-        BroadcastCase broadcastCase = lootBox.getBroadcastCase();
-        if(!broadcastCase.isEnable())
+    private void broadcastRewardMessage(Player player, ItemStack itemStack, LootBox.BroadcastCase broadcastCase) {
+        if (broadcastCase.getMessages().isEmpty()) {
             return;
-
-        // check message is not empty
-        if(broadcastCase.getMessages().isEmpty())
-            return;
+        }
 
         String message = String.join("\n", broadcastCase.getMessages());
         message = message
-                .replace("{amount}", String.valueOf(amount))
+                .replace("{amount}", String.valueOf(itemStack.getAmount()))
                 .replace("{player}", player.getName())
                 .replace("{item}", ItemUtil.getItemName(itemStack));
+
         MessageUtil.broadcast(message);
     }
-
-
 }

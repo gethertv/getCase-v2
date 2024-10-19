@@ -1,21 +1,28 @@
 package dev.gether.getcase.lootbox.edit;
 
 import dev.gether.getcase.GetCase;
-import dev.gether.getcase.config.domain.chest.LootBox;
-import dev.gether.getcase.config.domain.chest.ItemCase;
-import dev.gether.getcase.inv.EditCaseInv;
+import dev.gether.getcase.lootbox.model.ItemCase;
+import dev.gether.getcase.lootbox.model.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
-import dev.gether.getutils.utils.MessageUtil;
+import dev.gether.getcase.lootbox.inv.AdminEditCaseHolder;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EditLootBoxManager {
+
+    String CHANCE_TITLE = "Chance";
+    String DEFAULT_CHANCE = "0.00";
+    String CHANCE_LORE_PREFIX = "× Chance:";
+    String EDIT_LORE = "× Shift + Right click";
 
     private final LootBoxManager lootBoxManager;
     private final GetCase plugin;
@@ -26,94 +33,87 @@ public class EditLootBoxManager {
     }
 
     public void editCase(Player player, LootBox lootBox) {
-        EditCaseInv editCaseInv = new EditCaseInv(plugin, player, lootBox);
-        // open inv
-        player.openInventory(editCaseInv.getInventory());
+        new AdminEditCaseHolder(plugin, player, lootBox).open();
     }
 
-
-    public void editItem(EditCaseInv editCaseInv, ItemCase itemCase) {
-
-        AnvilGUI.Builder builder = new AnvilGUI.Builder();
-
-        // builder onClick event
-        builder.onClick((anvilSlot, stateSnapshot) -> {
-            if (anvilSlot != AnvilGUI.Slot.OUTPUT) {
-                return Collections.emptyList();
-            }
-
-            String text = stateSnapshot.getText();
-            if(!isDouble(text)) {
-                return Arrays.asList(AnvilGUI.ResponseAction.replaceInputText("Number"));
-            }
-            // parse chance from text to double
-            double chance = Double.parseDouble(text);
-            // set new chance
-            itemCase.setChance(chance);
-            // [!] IGNORE THIS SAVE
-            // because the saving method exists in main GUI/INV with button/item 'SAVE'
-            // save items
-            //saveCase(editCaseInvHandler.getCaseObject());
-            // open preview inv
-            return Arrays.asList(
-                    AnvilGUI.ResponseAction.close(),
-                    AnvilGUI.ResponseAction.run(() -> refreshEditInv(editCaseInv))
-            );
-        });
-        // title gui
-        builder.title("Chance");
-        // left item text
-        builder.text("0.00");
-        // left item
-        builder.itemLeft(new ItemStack(Material.PAPER));
-        // set instance from main plugin
-        builder.plugin(plugin);
-        // open anvil inv
-        builder.open(editCaseInv.getPlayer());
+    public void editItem(AdminEditCaseHolder editCaseInv, ItemCase itemCase) {
+        new AnvilGUI.Builder()
+                .onClick((slot, stateSnapshot) -> handleAnvilClick(slot, stateSnapshot, itemCase, editCaseInv))
+                .title(CHANCE_TITLE)
+                .text(String.valueOf(itemCase.getChance()))
+                .itemLeft(new ItemStack(Material.PAPER))
+                .plugin(plugin)
+                .open(editCaseInv.getPlayer());
     }
 
-    // clear the old items
-    // fill with new
-    // and open the inv
-    private void refreshEditInv(EditCaseInv editCaseInv) {
-        editCaseInv.fillInvByItems();
-        // open the inv
+    private List<AnvilGUI.ResponseAction> handleAnvilClick(int slot, AnvilGUI.StateSnapshot stateSnapshot,
+                                                           ItemCase itemCase, AdminEditCaseHolder editCaseInv) {
+        if (slot != AnvilGUI.Slot.OUTPUT) {
+            return Collections.emptyList();
+        }
+
+        String text = stateSnapshot.getText();
+        if (!isValidChance(text)) {
+            return List.of(AnvilGUI.ResponseAction.replaceInputText(DEFAULT_CHANCE));
+        }
+
+        return List.of(
+                AnvilGUI.ResponseAction.close(),
+                AnvilGUI.ResponseAction.run(() -> {
+                    updateItemChance(itemCase, text);
+                    refreshEditInv(editCaseInv);
+                })
+        );
+    }
+
+    private boolean isValidChance(String input) {
+        try {
+            return Double.parseDouble(input) >= 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private void updateItemChance(ItemCase itemCase, String chanceText) {
+        itemCase.setChance(Double.parseDouble(chanceText));
+    }
+
+    private void refreshEditInv(AdminEditCaseHolder editCaseInv) {
+        editCaseInv.fillInventoryWithItems();
         editCaseInv.getPlayer().openInventory(editCaseInv.getInventory());
     }
 
-    private boolean isDouble(String input) {
-        try {
-            double chance = Double.parseDouble(input);
-            return true;
-        } catch (NumberFormatException ignored) {}
-        return false;
-    }
-
-    public void saveAllItems(EditCaseInv editCaseInv) {
-        editCaseInv.getLootBox().getItems().clear();
-        editCaseInv.getItemCase().forEach(itemCase -> {
-            itemCase.setItemStack(cleanItem(itemCase.getItemStack()));
-            editCaseInv.getLootBox().getItems().add(itemCase);
-        });
-        editCaseInv.getLootBox().save();
+    public void saveAllItems(AdminEditCaseHolder editCaseInv) {
+        LootBox lootBox = editCaseInv.getLootBox();
+        lootBox.getItems().clear();
+        editCaseInv.getItemCases().stream()
+                .map(this::cleanItemCase)
+                .forEach(lootBox.getItems()::add);
+        lootBox.save();
         editCaseInv.getPlayer().closeInventory();
     }
 
+    private ItemCase cleanItemCase(ItemCase itemCase) {
+        itemCase.setItemStack(cleanItem(itemCase.getItemStack()));
+        return itemCase;
+    }
 
-    private ItemStack cleanItem(ItemStack itemStack) {
-
-        if (itemStack == null)
+    public ItemStack cleanItem(ItemStack itemStack) {
+        if (itemStack == null) {
             return null;
+        }
 
         ItemMeta itemMeta = itemStack.getItemMeta();
-        List<String> lore = itemMeta.getLore();
-        if (lore != null && !lore.isEmpty()) {
-            lore.removeIf(loreLine -> loreLine.contains("× Chance:") || loreLine.contains("× Shift + Right click"));
+        if (itemMeta != null && itemMeta.hasLore()) {
+            List<String> lore = itemMeta.getLore();
+            lore.removeIf(this::isRemovableLoreLine);
             itemMeta.setLore(lore);
             itemStack.setItemMeta(itemMeta);
         }
         return itemStack;
     }
 
-
+    private boolean isRemovableLoreLine(String loreLine) {
+        return loreLine.contains(CHANCE_LORE_PREFIX) || loreLine.contains(EDIT_LORE);
+    }
 }

@@ -1,6 +1,6 @@
 package dev.gether.getcase.cmd.arguments;
 
-import dev.gether.getcase.config.domain.chest.LootBox;
+import dev.gether.getcase.lootbox.model.LootBox;
 import dev.gether.getcase.lootbox.LootBoxManager;
 import dev.rollczi.litecommands.argument.Argument;
 import dev.rollczi.litecommands.argument.parser.ParseResult;

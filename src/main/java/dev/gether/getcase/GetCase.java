@@ -6,13 +6,19 @@ import dev.gether.getcase.cmd.arguments.CaseArg;
 import dev.gether.getcase.cmd.handler.InvalidUsageCommandHandler;
 import dev.gether.getcase.cmd.handler.PermissionHandler;
 import dev.gether.getcase.config.FileManager;
-import dev.gether.getcase.config.domain.chest.LootBox;
 import dev.gether.getcase.hook.HookManager;
-import dev.gether.getcase.listener.InventoryClickListener;
+import dev.gether.getcase.listener.ConnectPlayerListener;
 import dev.gether.getcase.listener.InventoryCloseListener;
 import dev.gether.getcase.listener.PlayerInteractionListener;
 import dev.gether.getcase.lootbox.LootBoxManager;
+import dev.gether.getcase.lootbox.inv.preview.PreviewChestHolder;
+import dev.gether.getcase.lootbox.model.LootBox;
+import dev.gether.getcase.placeholder.CasePlaceholder;
+import dev.gether.getcase.storage.MySQL;
+import dev.gether.getcase.user.UserManager;
 import dev.gether.getutils.models.inventory.GetInventory;
+import dev.gether.getutils.utils.ConsoleColor;
+import dev.gether.getutils.utils.MessageUtil;
 import dev.rollczi.litecommands.LiteCommands;
 import dev.rollczi.litecommands.bukkit.LiteBukkitFactory;
 import lombok.AccessLevel;
@@ -21,26 +27,32 @@ import lombok.experimental.FieldDefaults;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Field;
 import java.util.stream.Stream;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
 public final class GetCase extends JavaPlugin {
 
     // instance
-    @Getter
-    static GetCase instance;
+    @Getter static GetCase instance;
 
     // manager
-    @Getter LootBoxManager lootBoxManager;
+    LootBoxManager lootBoxManager;
     LiteCommands<CommandSender> liteCommands;
-    @Getter HookManager hookManager;
+    HookManager hookManager;
+    UserManager userManager;
 
     // file manager/config
-    @Getter static FileManager fileManager;
+    FileManager fileManager;
 
+    // database
+    MySQL mySQL;
+
+    // placeholder
+    CasePlaceholder casePlaceholder;
 
     @Override
     public void onEnable() {
@@ -48,6 +60,15 @@ public final class GetCase extends JavaPlugin {
         instance = this;
         // config/file
         fileManager = new FileManager(this);
+
+        // database
+        mySQL = new MySQL(this, fileManager);
+        if (!mySQL.isConnected()) {
+            getLogger().severe("Cannot connect to the database!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
 
         // init gui/lib - getUtils
         new GetInventory(this);
@@ -57,27 +78,48 @@ public final class GetCase extends JavaPlugin {
 
         // main manager
         lootBoxManager = new LootBoxManager(this, fileManager, hookManager);
+        // user manager
+        userManager = new UserManager(this, lootBoxManager, mySQL);
 
         // register listener
         Stream.of(
                 new InventoryCloseListener(lootBoxManager),
-                new InventoryClickListener(lootBoxManager),
-                new PlayerInteractionListener(lootBoxManager, fileManager)
+                new PlayerInteractionListener(this, lootBoxManager, fileManager),
+                new ConnectPlayerListener(userManager)
         ).forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
 
         // register cmd
         registerLiteCmd();
 
+        // placeholder
+        if(hookManager.isPlaceholderEnabled()) {
+            casePlaceholder = new CasePlaceholder(userManager);
+            casePlaceholder.register();
+            MessageUtil.logMessage(ConsoleColor.GREEN, "[getCase] Placeholder registered!");
+        }
+
+
         // register bstats
         new Metrics(this, 20299);
 
     }
+
     @Override
     public void onDisable() {
 
         lootBoxManager.deleteAllHolograms();
 
-        if(liteCommands != null)
+        if(casePlaceholder != null) {
+            casePlaceholder.unregister();
+        }
+
+        // database/save
+        if (mySQL != null) {
+            userManager.saveUsersSync();
+            mySQL.disconnect();
+        }
+
+        if (liteCommands != null)
             liteCommands.getCommandManager().unregisterAll();
 
         HandlerList.unregisterAll(this);
@@ -87,12 +129,11 @@ public final class GetCase extends JavaPlugin {
     public void reloadPlugin() {
         // close for all players inventory with case preview
         Bukkit.getOnlinePlayers().forEach(player -> {
-            for (LootBox caseDatum : lootBoxManager.getAllCases()) {
+            for (LootBox lootBox : lootBoxManager.getCases()) {
                 // if player open inventory is same, then close the inventory
-                if(player.getOpenInventory().getTopInventory().equals(caseDatum.getInventory())) {
+                Inventory topInventory = player.getOpenInventory().getTopInventory();
+                if (topInventory.getHolder() instanceof PreviewChestHolder)
                     player.closeInventory();
-                    return;
-                }
             }
         });
         // delete hologram
@@ -107,7 +148,7 @@ public final class GetCase extends JavaPlugin {
     }
 
     private void registerLiteCmd() {
-        this.liteCommands =  LiteBukkitFactory.builder("getcase", this)
+        this.liteCommands = LiteBukkitFactory.builder("getcase", this)
                 .commands(
                         new GetCaseCmd(this, lootBoxManager)
                 )
